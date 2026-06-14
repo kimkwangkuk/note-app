@@ -267,19 +267,36 @@ body.drawing-mode #app { display: none; }
 /* Date popover */
 .pui-date-popup {
   position: absolute; top: calc(100% + 6px); left: 16px;
-  background: #fff; border-radius: 11px;
+  background: #fff; border-radius: 12px;
   box-shadow: 0 4px 24px rgba(0,0,0,0.14), 0 1px 4px rgba(0,0,0,0.06);
   border: 1px solid rgba(0,0,0,0.08);
-  padding: 10px 12px 8px; display: none; z-index: 20;
-  pointer-events: auto;
+  padding: 0; display: none; z-index: 20;
+  pointer-events: auto; min-width: 252px;
+  display: none; flex-direction: column;
 }
-.pui-date-popup.show { display: block; animation: fadeIn .12s ease; }
+.pui-date-popup.show { display: flex; animation: fadeIn .12s ease; }
+.pui-dp-header {
+  padding: 11px 14px 10px;
+  border-bottom: 1px solid #F0EFEC;
+  background: #FAFAF9;
+  border-radius: 12px 12px 0 0;
+  flex-shrink: 0;
+}
+.pui-dp-header-title {
+  font-size: 11px; font-weight: 600; color: #555452; margin: 0 0 1px;
+}
+.pui-dp-header-sub {
+  font-size: 10px; color: #B0AFAC; margin: 0;
+}
+.pui-dp-body { padding: 12px 14px 10px; overflow: hidden; border-radius: 0 0 12px 12px; }
 /* native date input (daily) */
 .pui-dp-input { width: 100%; padding: 6px 8px; border: 1px solid #E4E3DF; border-radius: 7px; font-family: inherit; font-size: 12px; color: #18171A; outline: none; background: #FAFAF8; cursor: pointer; }
 .pui-dp-input:focus { border-color: #18171A; background: #fff; }
 .pui-dp-divider { height: 1px; background: #F0EFEC; margin: 8px 0; }
-.pui-dp-clear { display: flex; align-items: center; gap: 6px; width: 100%; background: none; border: none; cursor: pointer; font-family: inherit; font-size: 11.5px; color: #AEADAB; padding: 3px 2px; transition: color .12s; }
+.pui-dp-clear { display: flex; align-items: center; gap: 6px; background: none; border: none; cursor: pointer; font-family: inherit; font-size: 11.5px; color: #AEADAB; padding: 3px 2px; transition: color .12s; }
 .pui-dp-clear:hover { color: #18171A; }
+.pui-dp-today { background: none; border: 1px solid #D8D7D3; border-radius: 5px; cursor: pointer; font-family: inherit; font-size: 11px; color: #555452; padding: 3px 9px; transition: all .12s; }
+.pui-dp-today:hover { background: #18171A; color: #fff; border-color: #18171A; }
 /* Custom calendar (week / month picker) */
 .dp-calendar { width: 224px; }
 .dp-cal-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
@@ -303,6 +320,8 @@ body.drawing-mode #app { display: none; }
 .dp-month-btn { border: 1.5px solid transparent; border-radius: 7px; background: none; cursor: pointer; font-family: inherit; font-size: 12px; color: #18171A; padding: 8px 4px; transition: all .12s; text-align: center; }
 .dp-month-btn:hover { background: #F0EFEC; }
 .dp-month-btn.selected { background: #18171A; color: #fff; }
+.dp-month-btn.used { opacity: 0.28; cursor: not-allowed; }
+.dp-month-btn:disabled { pointer-events: none; }
 .pui-right { margin-left: auto; pointer-events: auto; display: flex; align-items: center; gap: 6px; }
 .pui-timer-time { font-size: 12px; font-weight: 600; color: #AEADAB; font-variant-numeric: tabular-nums; letter-spacing: -0.2px; min-width: 36px; line-height: 1; }
 .pui-timer-time.running { color: #3A7BFF; }
@@ -329,12 +348,15 @@ body.drawing-mode #app { display: none; }
     <div class="gn-sb-inner">
       <div class="gn-sb-head" style="cursor:default">
         <span class="gn-sb-nb-name" id="gn-nb-name">노트</span>
-      </div>
-      <div style="padding:5px 10px 2px;flex-shrink:0;display:flex;gap:4px">
-        <button id="sort-btn-recent" onclick="setSortOrder('recent')" style="flex:1;background:rgba(255,255,255,0.08);border:none;border-radius:5px;cursor:pointer;font-family:inherit;font-size:10.5px;font-weight:600;color:rgba(255,255,255,0.65);padding:4px 0;transition:all .12s">최근순</button>
-        <button id="sort-btn-oldest" onclick="setSortOrder('oldest')" style="flex:1;background:none;border:none;border-radius:5px;cursor:pointer;font-family:inherit;font-size:10.5px;font-weight:500;color:rgba(255,255,255,0.28);padding:4px 0;transition:all .12s">오래된순</button>
+        <span style="font-size:9px;color:rgba(255,255,255,0.3);font-weight:500;letter-spacing:0.3px;">날짜순</span>
       </div>
       <div class="gn-pages-list" id="gn-pages-list"></div>
+      <div id="today-float-wrap" style="display:none;padding:6px 10px 2px;flex-shrink:0;">
+        <button id="today-float-btn" onclick="goToTodayPage()" style="width:100%;display:flex;align-items:center;justify-content:center;gap:5px;padding:7px 0;border:none;border-radius:7px;background:rgba(255,255,255,0.1);color:rgba(255,255,255,0.75);font-family:inherit;font-size:11px;font-weight:600;cursor:pointer;transition:background .15s;">
+          <svg width="11" height="11" viewBox="0 0 11 11" fill="none"><rect x="1" y="2" width="9" height="8" rx="1.5" stroke="currentColor" stroke-width="1.1"/><path d="M3.5 1v2M7.5 1v2M1 5h9" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"/></svg>
+          오늘
+        </button>
+      </div>
       <div class="gn-sb-footer">
         <button class="gn-add-btn" onclick="showAddPageModal()">
           <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M6.5 1v11M1 6.5h11" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
@@ -396,7 +418,13 @@ body.drawing-mode #app { display: none; }
             <input type="date" id="pui-date-input" onchange="setPageDate(this.value)"/>
             <!-- Date popover (content rendered by JS) -->
             <div class="pui-date-popup" id="pui-date-popup">
-              <div id="pui-dp-content"></div>
+              <div class="pui-dp-header">
+                <p class="pui-dp-header-title">날짜 선택</p>
+                <p class="pui-dp-header-sub" id="pui-dp-header-sub">플래너의 날짜를 선택해주세요</p>
+              </div>
+              <div class="pui-dp-body">
+                <div id="pui-dp-content"></div>
+              </div>
             </div>
           </div>
           <div class="pui-right">
@@ -489,14 +517,13 @@ let renameNbId = null;
 
 // ─── DATA ───────────────────────────────────────
 function loadData(){
-  try{ const s=localStorage.getItem('note_v4'); if(s) return JSON.parse(s); }catch(e){}
   return {notebooks:[{
     id:'nb_0', name:'봄 학기 플래너', type:'daily', color:NB_COLORS[0],
     pages:Array.from({length:30},()=>({date:null,studyTime:0,strokes:[]}))
   }]};
 }
 let db = loadData();
-function saveData(){ try{localStorage.setItem('note_v4',JSON.stringify(db));}catch(e){} }
+function saveData(){ /* 저장 안 함 — 새로고침 시 초기화 */ }
 function getNotebook(id){ return db.notebooks.find(n=>n.id===id); }
 function uid(){ return 'nb_'+Date.now().toString(36)+Math.random().toString(36).slice(2,5); }
 
@@ -568,32 +595,10 @@ function fmtPrice(n){ return '₩'+n.toLocaleString('ko-KR'); }
 function getSortedPageIndices(){
   const nb = getNotebook(state.notebookId); if(!nb) return [];
   const indices = nb.pages.map((_,i)=>i);
-  const dated = indices.filter(i => nb.pages[i].date);
+  const dated   = indices.filter(i =>  nb.pages[i].date);
   const undated = indices.filter(i => !nb.pages[i].date);
-  if(state.pageSortOrder === 'recent'){
-    dated.sort((a,b) => (nb.pages[b].date > nb.pages[a].date ? 1 : -1));
-    undated.sort((a,b) => b - a);
-  } else {
-    dated.sort((a,b) => (nb.pages[a].date > nb.pages[b].date ? 1 : -1));
-    // undated keeps natural ascending order
-  }
+  dated.sort((a,b) => (nb.pages[a].date > nb.pages[b].date ? 1 : -1)); // 날짜 오름차순
   return [...dated, ...undated];
-}
-function setSortOrder(order){
-  state.pageSortOrder = order;
-  const btnRecent = document.getElementById('sort-btn-recent');
-  const btnOldest = document.getElementById('sort-btn-oldest');
-  if(btnRecent){
-    btnRecent.style.background = order==='recent' ? 'rgba(255,255,255,0.08)' : 'none';
-    btnRecent.style.color = order==='recent' ? 'rgba(255,255,255,0.65)' : 'rgba(255,255,255,0.28)';
-    btnRecent.style.fontWeight = order==='recent' ? '600' : '500';
-  }
-  if(btnOldest){
-    btnOldest.style.background = order==='oldest' ? 'rgba(255,255,255,0.08)' : 'none';
-    btnOldest.style.color = order==='oldest' ? 'rgba(255,255,255,0.65)' : 'rgba(255,255,255,0.28)';
-    btnOldest.style.fontWeight = order==='oldest' ? '600' : '500';
-  }
-  renderSidebarPages();
 }
 
 // ─── TAB BAR ────────────────────────────────────
@@ -971,10 +976,22 @@ function renderSidebarPages(){
       </div>
     </div>`;
   }).join('');
+  // 오늘 플로팅 버튼 표시 여부
+  const todayIso = getTodayIso();
+  const hasTodayPage = nb.pages.some(pg => pg.date === todayIso);
+  const wrap = document.getElementById('today-float-wrap');
+  if(wrap) wrap.style.display = hasTodayPage ? 'block' : 'none';
   requestAnimationFrame(()=>{
     const nb2 = getNotebook(state.notebookId);
     if(nb2) nb2.pages.forEach((_,i)=>drawThumbnail(i));
   });
+}
+
+function goToTodayPage(){
+  const nb = getNotebook(state.notebookId); if(!nb) return;
+  const todayIso = getTodayIso();
+  const idx = nb.pages.findIndex(pg => pg.date === todayIso);
+  if(idx >= 0) switchPage(idx);
 }
 
 function drawThumbnail(idx){
@@ -997,7 +1014,7 @@ function switchPage(idx){
   state.pageIdx = idx;
   const pg = nb.pages[idx];
   state.timer = {running:false, startTime:null, savedTime:pg.studyTime||0, interval:null};
-  document.querySelectorAll('.gn-page-thumb-wrap').forEach((el,i)=>el.classList.toggle('active',i===idx));
+  document.querySelectorAll('.gn-page-thumb-wrap').forEach(el=>el.classList.toggle('active', el.id===`gn-tw-${idx}`));
   document.getElementById(`gn-tw-${idx}`)?.scrollIntoView({behavior:'smooth',block:'nearest'});
   updatePaperUI();
   redrawCanvas();
@@ -1055,11 +1072,16 @@ function updatePaperUI(){
 // ─── DATE POPUP ─────────────────────────────────
 let dpState = { year: new Date().getFullYear(), month: new Date().getMonth() };
 
+function getTodayIso(){ const t=new Date(); return `${t.getFullYear()}-${String(t.getMonth()+1).padStart(2,'0')}-${String(t.getDate()).padStart(2,'0')}`; }
 const DP_CLEAR_BTN = `<div class="pui-dp-divider"></div>
-<button class="pui-dp-clear" onclick="clearPageDate()">
-  <svg width="11" height="11" viewBox="0 0 11 11" fill="none"><circle cx="5.5" cy="5.5" r="4.5" stroke="currentColor" stroke-width="1.1"/><path d="M3.5 5.5h4" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"/></svg>
-  날짜 없음
-</button>`;
+<p style="margin:0 0 6px;font-size:10px;color:#C4C3BF;">날짜를 없애면 목록 아래로 이동해요</p>
+<div style="display:flex;align-items:center;justify-content:space-between;">
+  <button class="pui-dp-clear" onclick="clearPageDate()">
+    <svg width="11" height="11" viewBox="0 0 11 11" fill="none"><circle cx="5.5" cy="5.5" r="4.5" stroke="currentColor" stroke-width="1.1"/><path d="M3.5 5.5h4" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"/></svg>
+    날짜 없음
+  </button>
+  <button class="pui-dp-today" onclick="selectTodayDate()">오늘</button>
+</div>`;
 
 function getISOWeek(date){
   const d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
@@ -1076,7 +1098,7 @@ function dpCalHeader(title, navFn){
   </div>`;
 }
 
-function renderCalGrid(selectedVal, onClickFn, isWeekMode){
+function renderCalGrid(selectedVal, onClickFn, isWeekMode, usedDates=new Set()){
   const { year, month } = dpState;
   const monthNames = ['1월','2월','3월','4월','5월','6월','7월','8월','9월','10월','11월','12월'];
   const dayNames = ['월','화','수','목','금','토','일'];
@@ -1106,15 +1128,33 @@ function renderCalGrid(selectedVal, onClickFn, isWeekMode){
     if(!hasCurrentMonth && w > 0) break;
 
     if(isWeekMode){
-      const isSelected = (selectedVal === isoWeek);
-      rows += `<div class="dp-cal-week-row${isSelected?' selected':''}" onclick="${onClickFn}('${isoWeek}')">
-        ${dayDates.map(d=>`<div class="${d.cls}">${d.dayNum}</div>`).join('')}
+      const isSelected  = (selectedVal === isoWeek);
+      const isUsed      = !isSelected && usedDates.has(isoWeek);
+      const todayIso    = getTodayIso();
+      const isThisWeek  = dayDates.some(d => d.isoDate === todayIso);
+      const rowCls = `dp-cal-week-row${isSelected?' selected':''}${(!isSelected&&isThisWeek&&!isUsed)?' this-week':''}${isUsed?' used':''}`;
+      rows += `<div class="${rowCls}" ${isUsed?'style="opacity:0.28;cursor:not-allowed;"':`onclick="${onClickFn}('${isoWeek}')"`}>
+        ${dayDates.map(d=>{
+          const isToday = d.isoDate === todayIso;
+          let style = '';
+          if(isToday && !isSelected) style = 'outline:1.5px solid #18171A;outline-offset:-1px;border-radius:50%;width:26px;height:26px;line-height:26px;margin:0 auto;font-weight:700;';
+          return `<div class="${d.cls}"${style?' style="'+style+'"':''}>${d.dayNum}</div>`;
+        }).join('')}
       </div>`;
     } else {
+      const todayIso = getTodayIso();
       rows += `<div class="dp-cal-day-row">
         ${dayDates.map(d=>{
-          const isSel = (selectedVal === d.isoDate);
-          return `<div class="${d.cls}" style="cursor:pointer;border-radius:50%;width:26px;height:26px;line-height:26px;margin:1px auto;padding:0;${isSel?'background:#18171A;color:#fff!important':''}" onclick="${onClickFn}('${d.isoDate}')">${d.dayNum}</div>`;
+          const isSel   = (selectedVal === d.isoDate);
+          const isToday = (d.isoDate === todayIso);
+          const isUsed  = !isSel && usedDates.has(d.isoDate);
+          let style = `border-radius:50%;width:26px;height:26px;line-height:26px;margin:1px auto;padding:0;`;
+          if(isSel)        style += 'cursor:pointer;background:#18171A;color:#fff!important;';
+          else if(isToday && isUsed) style += 'cursor:not-allowed;outline:1.5px solid #C0BFBC;outline-offset:-1px;font-weight:700;opacity:0.45;';
+          else if(isToday) style += 'cursor:pointer;outline:1.5px solid #18171A;outline-offset:-1px;font-weight:700;';
+          else if(isUsed)  style += 'cursor:not-allowed;opacity:0.28;';
+          else             style += 'cursor:pointer;';
+          return `<div class="${d.cls}" style="${style}" ${isUsed?'':` onclick="${onClickFn}('${d.isoDate}')"`}>${d.dayNum}</div>`;
         }).join('')}
       </div>`;
     }
@@ -1125,29 +1165,37 @@ function renderCalGrid(selectedVal, onClickFn, isWeekMode){
     ${rows}`;
 }
 
+function getUsedDates(){
+  const nb = getNotebook(state.notebookId); if(!nb) return new Set();
+  return new Set(nb.pages.filter((pg,i)=> i !== state.pageIdx && pg.date).map(pg=>pg.date));
+}
+
 function renderDailyPickerContent(){
   const nb = getNotebook(state.notebookId);
   const pg = nb && nb.pages[state.pageIdx];
   const sel = pg?.date || null;
-  return `<div class="dp-calendar">${renderCalGrid(sel,'selectDay',false)}${DP_CLEAR_BTN}</div>`;
+  return `<div class="dp-calendar">${renderCalGrid(sel,'selectDay',false,getUsedDates())}${DP_CLEAR_BTN}</div>`;
 }
 
 function renderWeekPickerContent(){
   const nb = getNotebook(state.notebookId);
   const pg = nb && nb.pages[state.pageIdx];
   const sel = pg?.date || null;
-  return `<div class="dp-calendar">${renderCalGrid(sel,'selectWeek',true)}${DP_CLEAR_BTN}</div>`;
+  return `<div class="dp-calendar">${renderCalGrid(sel,'selectWeek',true,getUsedDates())}${DP_CLEAR_BTN}</div>`;
 }
 
 function renderMonthPickerContent(){
   const nb = getNotebook(state.notebookId);
   const pg = nb && nb.pages[state.pageIdx];
   const sel = pg?.date || null;
+  const used = getUsedDates();
   const { year } = dpState;
   const months = ['1월','2월','3월','4월','5월','6월','7월','8월','9월','10월','11월','12월'];
   const grid = months.map((m,i)=>{
     const val = `${year}-${String(i+1).padStart(2,'0')}`;
-    return `<button class="dp-month-btn${val===sel?' selected':''}" onclick="selectMonth('${val}')">${m}</button>`;
+    const isUsed = used.has(val);
+    const isSel  = val === sel;
+    return `<button class="dp-month-btn${isSel?' selected':''}${isUsed?' used':''}" ${isUsed?'disabled':''} onclick="${isUsed?'':'selectMonth(\''+val+'\')'}">${m}</button>`;
   }).join('');
   return `<div class="dp-calendar">
     ${dpCalHeader(`${year}년`,'dpNavYear')}
@@ -1168,6 +1216,12 @@ function refreshDpContent(){
   const nb = getNotebook(state.notebookId);
   const content = document.getElementById('pui-dp-content'); if(!content) return;
   const type = nb?.type;
+  const subEl = document.getElementById('pui-dp-header-sub');
+  if(subEl){
+    if(type==='weekly')       subEl.textContent = '해당 주를 선택해주세요';
+    else if(type==='monthly') subEl.textContent = '해당 월을 선택해주세요';
+    else                      subEl.textContent = '해당 날짜를 선택해주세요';
+  }
   if(type==='weekly') content.innerHTML = renderWeekPickerContent();
   else if(type==='monthly') content.innerHTML = renderMonthPickerContent();
   else content.innerHTML = renderDailyPickerContent();
@@ -1185,9 +1239,41 @@ function toggleDatePopup(e){
   popup.classList.toggle('show', !isOpen);
 }
 function closeDatePopup(){ document.getElementById('pui-date-popup')?.classList.remove('show'); }
-function selectDay(isoDate){ setPageDate(isoDate); closeDatePopup(); }
-function selectWeek(isoWeek){ setPageDate(isoWeek); closeDatePopup(); }
-function selectMonth(monthStr){ setPageDate(monthStr); closeDatePopup(); }
+function selectDay(isoDate){ tryChangeDate(isoDate); }
+function selectWeek(isoWeek){ tryChangeDate(isoWeek); }
+function selectMonth(monthStr){ tryChangeDate(monthStr); }
+
+function tryChangeDate(newVal){
+  const nb = getNotebook(state.notebookId); if(!nb) return;
+  const pg = nb.pages[state.pageIdx]; if(!pg) return;
+  // 기존 날짜가 있고 다른 날짜로 변경하는 경우에만 확인
+  if(pg.date && pg.date !== newVal){
+    showDateChangeConfirm(pg.date, newVal, nb.type);
+  } else {
+    setPageDate(newVal); closeDatePopup();
+  }
+}
+
+function showDateChangeConfirm(oldVal, newVal, nbType){
+  const oldLabel = fmtDateForDisplay(oldVal, nbType);
+  const newLabel = fmtDateForDisplay(newVal, nbType);
+  document.getElementById('pui-dp-content').innerHTML = `
+    <div style="padding:4px 0 8px;">
+      <p style="margin:0 0 10px;font-size:11.5px;font-weight:600;color:#1A1918;">날짜를 변경할게요</p>
+      <div style="background:#F5F4F1;border-radius:8px;padding:10px 12px;margin-bottom:10px;">
+        <p style="margin:0 0 4px;font-size:10px;color:#AEADAB;">변경 전</p>
+        <p style="margin:0 0 8px;font-size:12px;font-weight:500;color:#555452;">${oldLabel}</p>
+        <div style="height:1px;background:#E8E7E3;margin:0 0 8px;"></div>
+        <p style="margin:0 0 4px;font-size:10px;color:#AEADAB;">변경 후</p>
+        <p style="margin:0;font-size:12px;font-weight:600;color:#1A1918;">${newLabel}</p>
+      </div>
+      <p style="margin:0 0 12px;font-size:10.5px;color:#8A8987;line-height:1.5;">기록된 내용은 그대로 유지되고<br>날짜만 변경돼요</p>
+      <div style="display:flex;gap:6px;">
+        <button onclick="refreshDpContent()" style="flex:1;padding:7px;border:1px solid #E4E3DF;border-radius:7px;background:#fff;font-family:inherit;font-size:11.5px;color:#888785;cursor:pointer;">취소</button>
+        <button onclick="setPageDate('${newVal}');closeDatePopup();" style="flex:1;padding:7px;border:none;border-radius:7px;background:#1A1918;font-family:inherit;font-size:11.5px;color:#fff;cursor:pointer;font-weight:500;">변경하기</button>
+      </div>
+    </div>`;
+}
 function setPageDateFromPopup(val){ setPageDate(val); closeDatePopup(); }
 function triggerDatePicker(){ toggleDatePopup(); }
 
@@ -1239,104 +1325,110 @@ function drawDailyPlannerBody(c, w, h, hh){
   const bodyTop = hh;
   const bodyH = h - hh;
 
-  // Column layout
-  const timeW  = Math.round(w * 0.105); // time label column
-  const divX   = Math.round(w * 0.70);  // schedule | right panel divider
-
-  // Time grid: 6:00–22:00 in 10-min slots (96 total)
+  const labelW     = Math.round(w * 0.09);   // time label column
+  const scheduleX  = Math.round(w * 0.625);  // schedule → right panel divide
   const startHour = 6, endHour = 22;
-  const totalSlots = (endHour - startHour) * 6;
-  const rowH = bodyH / totalSlots;
+  const totalHours = endHour - startHour;     // 16
+  const hourH = bodyH / totalHours;
 
-  c.textBaseline = 'top';
-  c.textAlign = 'right';
+  // ── Time grid ──
+  for(let i = 0; i <= totalHours; i++){
+    const y = bodyTop + i * hourH;
 
-  for(let i=0; i<=totalSlots; i++){
-    const y = bodyTop + i * rowH;
-    const isHour = (i % 6 === 0);
-    const isHalf = (i % 3 === 0);
+    // Hour line
+    c.strokeStyle = '#D4D3CF'; c.lineWidth = 0.65;
+    c.beginPath(); c.moveTo(labelW, y); c.lineTo(scheduleX, y); c.stroke();
 
-    // Horizontal line
-    if(i <= totalSlots){
-      c.strokeStyle = isHour ? '#CCCBC8' : (isHalf ? '#E2E1DD' : '#EEEDEA');
-      c.lineWidth   = isHour ? 0.7 : (isHalf ? 0.45 : 0.35);
-      c.beginPath(); c.moveTo(timeW, y); c.lineTo(divX, y); c.stroke();
-    }
+    // Hour label (skip last)
+    if(i < totalHours){
+      const hour = startHour + i;
+      const fs = Math.max(8, Math.round(hourH * 0.21));
+      c.fillStyle = '#AEADAA';
+      c.font = `400 ${fs}px system-ui, sans-serif`;
+      c.textAlign = 'right'; c.textBaseline = 'top';
+      c.fillText(`${String(hour).padStart(2,'0')}`, labelW - 5, y + 3);
 
-    // Hour labels
-    if(isHour && i < totalSlots){
-      const hour = startHour + i/6;
-      const label = `${String(hour).padStart(2,'0')}:00`;
-      c.fillStyle = '#929190';
-      c.font = `500 ${Math.max(6, Math.round(rowH*3.5))}px system-ui, -apple-system, sans-serif`;
-      c.fillText(label, timeW - 4, y + 1.5);
+      // 30-min subdivision line
+      const halfY = y + hourH / 2;
+      c.strokeStyle = '#EEEDEA'; c.lineWidth = 0.38;
+      c.beginPath(); c.moveTo(labelW, halfY); c.lineTo(scheduleX, halfY); c.stroke();
     }
   }
 
-  // Vertical dividers
-  c.strokeStyle = '#D4D3CF'; c.lineWidth = 0.7;
-  c.beginPath(); c.moveTo(timeW, bodyTop); c.lineTo(timeW, h); c.stroke();
-  c.beginPath(); c.moveTo(divX, bodyTop); c.lineTo(divX, h); c.stroke();
+  // Vertical: label separator
+  c.strokeStyle = '#D8D7D3'; c.lineWidth = 0.5;
+  c.beginPath(); c.moveTo(labelW, bodyTop); c.lineTo(labelW, h); c.stroke();
 
-  // Right panel
-  drawPlannerRightPanel(c, w, h, bodyTop, bodyH, divX);
+  // Vertical: schedule | right panel
+  c.strokeStyle = '#CCCBC8'; c.lineWidth = 0.7;
+  c.beginPath(); c.moveTo(scheduleX, bodyTop); c.lineTo(scheduleX, h); c.stroke();
+
+  // ── Right panel ──
+  drawPlannerRightPanel(c, w, h, bodyTop, bodyH, scheduleX);
 }
 
 function drawPlannerRightPanel(c, w, h, bodyTop, bodyH, leftX){
-  const padL = leftX + 10;
-  const padR = w - 10;
+  const padL = leftX + 14;
+  const padR = w - 12;
 
-  c.textBaseline = 'top';
-  c.textAlign = 'left';
+  // ── TODAY 섹션 (상단 38%) ──
+  const taskSectionH = Math.round(bodyH * 0.38);
+  const fs = Math.max(6.5, Math.round(w * 0.0095));
 
-  // ── Priorities section (top 42%) ──
-  const sectionH = Math.round(bodyH * 0.42);
-  const sectionEndY = bodyTop + sectionH;
+  c.fillStyle = '#C4C3BF';
+  c.font = `700 ${fs}px system-ui, sans-serif`;
+  c.textAlign = 'left'; c.textBaseline = 'top';
+  c.fillText('TODAY', padL, bodyTop + 9);
 
-  // Label
-  c.fillStyle = '#B8B7B3';
-  c.font = '700 7px system-ui, sans-serif';
-  c.fillText('우선순위', padL, bodyTop + 7);
+  const taskTop = bodyTop + Math.round(fs * 2.6);
+  const taskAreaH = taskSectionH - (taskTop - bodyTop);
+  const itemH = taskAreaH / 3;
 
-  // Underline
-  c.strokeStyle = '#E4E3DF'; c.lineWidth = 0.5;
-  c.beginPath(); c.moveTo(leftX+5, bodyTop+17); c.lineTo(padR, bodyTop+17); c.stroke();
+  for(let i = 0; i < 3; i++){
+    const iy  = taskTop + i * itemH;
+    const cy  = iy + itemH * 0.5;
+    const r   = Math.min(9, itemH * 0.27);
 
-  // 3 priority items
-  const itemAreaH = sectionH - 20;
-  const itemH = itemAreaH / 3;
-  for(let i=0; i<3; i++){
-    const iy = bodyTop + 20 + i*itemH + itemH*0.5;
-    const cbS = Math.min(7, itemH * 0.45);
-    c.strokeStyle = '#D0CFCC'; c.lineWidth = 0.7;
-    c.strokeRect(padL, iy - cbS/2, cbS, cbS);
-    c.strokeStyle = '#E4E3DF'; c.lineWidth = 0.4;
-    c.beginPath(); c.moveTo(padL+cbS+5, iy); c.lineTo(padR, iy); c.stroke();
-    // separator line at bottom of each item (except last)
+    // 번호 원
+    c.strokeStyle = '#DDDCDA'; c.lineWidth = 0.85;
+    c.beginPath(); c.arc(padL + r, cy, r, 0, Math.PI * 2); c.stroke();
+    c.fillStyle = '#CECDC9';
+    c.font = `500 ${Math.round(r * 1.15)}px system-ui, sans-serif`;
+    c.textAlign = 'center'; c.textBaseline = 'middle';
+    c.fillText(String(i + 1), padL + r, cy);
+
+    // 쓰는 줄
+    c.strokeStyle = '#E6E5E1'; c.lineWidth = 0.45;
+    c.beginPath(); c.moveTo(padL + r*2 + 7, cy + 1); c.lineTo(padR, cy + 1); c.stroke();
+
+    // 항목 구분선
     if(i < 2){
-      c.strokeStyle = '#F0EFEC'; c.lineWidth = 0.35;
-      const sepY = bodyTop + 20 + (i+1)*itemH;
-      c.beginPath(); c.moveTo(leftX+5, sepY); c.lineTo(padR, sepY); c.stroke();
+      c.strokeStyle = '#F2F1EE'; c.lineWidth = 0.32;
+      c.beginPath(); c.moveTo(leftX + 5, iy + itemH); c.lineTo(padR, iy + itemH); c.stroke();
     }
+    c.textAlign = 'left'; c.textBaseline = 'top';
   }
 
-  // Divider between sections
-  c.strokeStyle = '#D4D3CF'; c.lineWidth = 0.5;
-  c.beginPath(); c.moveTo(leftX+5, sectionEndY); c.lineTo(padR, sectionEndY); c.stroke();
+  // 섹션 구분선
+  const divY = bodyTop + taskSectionH;
+  c.strokeStyle = '#D4D3CF'; c.lineWidth = 0.6;
+  c.beginPath(); c.moveTo(leftX + 5, divY); c.lineTo(padR, divY); c.stroke();
 
-  // ── Notes section (bottom 58%) ──
-  c.fillStyle = '#B8B7B3';
-  c.font = '700 7px system-ui, sans-serif';
-  c.fillText('메모', padL, sectionEndY + 6);
+  // ── MEMO 섹션 (하단 62%) ──
+  c.fillStyle = '#C4C3BF';
+  c.font = `700 ${fs}px system-ui, sans-serif`;
+  c.textAlign = 'left'; c.textBaseline = 'top';
+  c.fillText('MEMO', padL, divY + 9);
 
-  const noteStartY = sectionEndY + 17;
-  const noteBodyH = h - noteStartY - 8;
-  const lineCount = 10;
-  const lineSpacing = noteBodyH / lineCount;
-  c.strokeStyle = '#E8E7E3'; c.lineWidth = 0.4;
-  for(let i=0; i<=lineCount; i++){
-    const ly = noteStartY + i*lineSpacing;
-    c.beginPath(); c.moveTo(leftX+5, ly); c.lineTo(padR, ly); c.stroke();
+  const noteTop = divY + Math.round(fs * 2.6);
+  const noteH   = h - noteTop - 8;
+  const lineCount = Math.max(7, Math.floor(noteH / 19));
+  const lineSpacing = noteH / lineCount;
+
+  c.strokeStyle = '#EEEDEA'; c.lineWidth = 0.4;
+  for(let i = 1; i <= lineCount; i++){
+    const ly = noteTop + i * lineSpacing;
+    c.beginPath(); c.moveTo(leftX + 5, ly); c.lineTo(padR, ly); c.stroke();
   }
 }
 
@@ -1534,88 +1626,4 @@ function drawStroke(c, stroke, w, h){
   c.restore();
 }
 
-// ─── POINTER EVENTS ─────────────────────────────
-function bindEvents(){
-  if(!canvasEl) return;
-  ['pointerdown','pointermove','pointerup','pointerleave','pointercancel'].forEach(ev=>canvasEl.removeEventListener(ev,handlers[ev]));
-  ['pointerdown','pointermove','pointerup','pointerleave','pointercancel'].forEach(ev=>canvasEl.addEventListener(ev,handlers[ev]));
-}
-const handlers = {
-  pointerdown(e){ e.preventDefault(); canvasEl.setPointerCapture(e.pointerId); const {nx,ny}=getCoords(e); if(ny<HEADER_RATIO) return; isDrawing=true; currentStroke={tool:draw.tool,colorIdx:draw.colorIdx,sizeIdx:draw.sizeIdx,points:[[nx,ny]]}; },
-  pointermove(e){ if(!isDrawing||!currentStroke) return; e.preventDefault(); const {nx,ny}=getCoords(e); if(ny<HEADER_RATIO) return; currentStroke.points.push([nx,ny]); redrawCanvas(); drawStroke(ctx,currentStroke,canvasEl._cssW,canvasEl._cssH); },
-  pointerup(e){ if(!isDrawing||!currentStroke) return; isDrawing=false; const nb=getNotebook(state.notebookId); const pg=nb&&nb.pages[state.pageIdx]; if(pg){ if(!pg.strokes)pg.strokes=[]; if(currentStroke.points.length>0)pg.strokes.push(currentStroke); } currentStroke=null; saveData(); drawThumbnail(state.pageIdx); },
-  pointerleave(e){ handlers.pointerup(e); },
-  pointercancel(e){ handlers.pointerup(e); }
-};
-function getCoords(e){ const r=canvasEl.getBoundingClientRect(); return{nx:(e.clientX-r.left)/canvasEl._cssW,ny:(e.clientY-r.top)/canvasEl._cssH}; }
-
-function undoDraw(){
-  const nb=getNotebook(state.notebookId); if(!nb) return;
-  const pg=nb.pages[state.pageIdx]; if(!pg||!pg.strokes||!pg.strokes.length) return;
-  pg.strokes.pop(); saveData(); redrawCanvas(); drawThumbnail(state.pageIdx);
-}
-function clearDraw(){
-  if(!confirm('이 페이지의 내용을 모두 지울까요?')) return;
-  const nb=getNotebook(state.notebookId); if(!nb) return;
-  const pg=nb.pages[state.pageIdx]; if(!pg) return;
-  pg.strokes=[]; saveData(); redrawCanvas(); drawThumbnail(state.pageIdx);
-}
-
-// ─── TIMER ──────────────────────────────────────
-function currentElapsed(){ return state.timer.running ? state.timer.savedTime+(Date.now()-state.timer.startTime)/1000 : state.timer.savedTime; }
-function updateTimerUI(){
-  const t=document.getElementById('pui-timer'); if(t) t.textContent=fmtTime(currentElapsed());
-  const b=document.getElementById('pui-play');
-  if(b){ b.textContent=state.timer.running?'⏸':'▶'; b.classList.toggle('playing',state.timer.running); }
-  const tt=document.getElementById('pui-timer');
-  if(tt) tt.classList.toggle('running',state.timer.running);
-}
-function toggleTimer(){ state.timer.running ? pauseTimer() : startTimer(); }
-function startTimer(){ state.timer.running=true; state.timer.startTime=Date.now(); state.timer.interval=setInterval(updateTimerUI,1000); updateTimerUI(); }
-function pauseTimer(){ if(!state.timer.running) return; state.timer.savedTime+=(Date.now()-state.timer.startTime)/1000; state.timer.running=false; clearInterval(state.timer.interval); saveTimerToPage(); updateTimerUI(); }
-function stopTimer(save){ if(state.timer.running){state.timer.savedTime+=(Date.now()-state.timer.startTime)/1000; state.timer.running=false; clearInterval(state.timer.interval);} if(save) saveTimerToPage(); }
-function resetTimer(){ stopTimer(false); state.timer.savedTime=0; saveTimerToPage(); updateTimerUI(); }
-function saveTimerToPage(){ const nb=getNotebook(state.notebookId); if(!nb) return; const pg=nb.pages[state.pageIdx]; if(!pg) return; pg.studyTime=Math.floor(state.timer.savedTime); saveData(); }
-
-// ─── DATE ───────────────────────────────────────
-function setPageDate(val){
-  const nb=getNotebook(state.notebookId); if(!nb) return;
-  const pg=nb.pages[state.pageIdx]; if(!pg) return;
-  pg.date = val||null; saveData();
-  const dateText=document.getElementById('pui-date-text');
-  if(dateText) dateText.textContent = val ? fmtDateForDisplay(val, nb.type) : '날짜 설정';
-  const clearBtn=document.getElementById('pui-date-clear');
-  if(clearBtn) clearBtn.style.display = val ? 'inline-block' : 'none';
-  const td=document.getElementById(`gn-td-${state.pageIdx}`);
-  if(td) td.textContent = val ? fmtDateForThumb(val, nb.type) : '';
-}
-
-function clearPageDate(){
-  setPageDate('');
-  closeDatePopup();
-}
-
-// ─── CLOSE POPUPS ON OUTSIDE CLICK ─────────────
-document.addEventListener('click', e=>{
-  const popup = document.getElementById('pui-date-popup');
-  if(popup && popup.classList.contains('show') && !popup.contains(e.target)){
-    const dateBtn = e.target.closest('.pui-date-btn');
-    if(!dateBtn) closeDatePopup();
-  }
-});
-
-// ─── KEYBOARD ───────────────────────────────────
-document.addEventListener('keydown', e=>{
-  if((e.metaKey||e.ctrlKey)&&e.key==='z'&&state.view==='page'){ e.preventDefault(); undoDraw(); }
-  if(e.key==='Escape'){
-    if(document.getElementById('purchase-modal').classList.contains('show')) closePurchaseModal();
-    else if(document.getElementById('rename-modal').classList.contains('show')) closeRenameModal();
-  }
-});
-
-// ─── INIT ───────────────────────────────────────
-render();
-renderTabBar();
-</script>
-</body>
-</html>
+// 
