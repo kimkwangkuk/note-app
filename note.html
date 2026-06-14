@@ -270,25 +270,16 @@ body.drawing-mode #app { display: none; }
   background: #fff; border-radius: 12px;
   box-shadow: 0 4px 24px rgba(0,0,0,0.14), 0 1px 4px rgba(0,0,0,0.06);
   border: 1px solid rgba(0,0,0,0.08);
-  padding: 0; display: none; z-index: 20;
-  pointer-events: auto; min-width: 252px;
-  display: none; flex-direction: column;
+  padding: 14px 14px 12px; display: none; z-index: 20;
+  pointer-events: auto; min-width: 252px; overflow: hidden;
 }
-.pui-date-popup.show { display: flex; animation: fadeIn .12s ease; }
-.pui-dp-header {
-  padding: 11px 14px 10px;
-  border-bottom: 1px solid #F0EFEC;
-  background: #FAFAF9;
-  border-radius: 12px 12px 0 0;
-  flex-shrink: 0;
+.pui-date-popup.show { display: block; animation: fadeIn .12s ease; }
+.pui-dp-label {
+  font-size: 10px; font-weight: 600; color: #B0AFAC;
+  letter-spacing: 0.4px; text-transform: uppercase;
+  margin-bottom: 10px; display: block;
 }
-.pui-dp-header-title {
-  font-size: 11px; font-weight: 600; color: #555452; margin: 0 0 1px;
-}
-.pui-dp-header-sub {
-  font-size: 10px; color: #B0AFAC; margin: 0;
-}
-.pui-dp-body { padding: 12px 14px 10px; overflow: hidden; border-radius: 0 0 12px 12px; }
+.pui-dp-label span { font-size: 10px; font-weight: 400; color: #C8C7C4; }
 /* native date input (daily) */
 .pui-dp-input { width: 100%; padding: 6px 8px; border: 1px solid #E4E3DF; border-radius: 7px; font-family: inherit; font-size: 12px; color: #18171A; outline: none; background: #FAFAF8; cursor: pointer; }
 .pui-dp-input:focus { border-color: #18171A; background: #fff; }
@@ -418,13 +409,8 @@ body.drawing-mode #app { display: none; }
             <input type="date" id="pui-date-input" onchange="setPageDate(this.value)"/>
             <!-- Date popover (content rendered by JS) -->
             <div class="pui-date-popup" id="pui-date-popup">
-              <div class="pui-dp-header">
-                <p class="pui-dp-header-title">날짜 선택</p>
-                <p class="pui-dp-header-sub" id="pui-dp-header-sub">플래너의 날짜를 선택해주세요</p>
-              </div>
-              <div class="pui-dp-body">
-                <div id="pui-dp-content"></div>
-              </div>
+              <label class="pui-dp-label" id="pui-dp-label">날짜 선택 <span id="pui-dp-header-sub"></span></label>
+              <div id="pui-dp-content"></div>
             </div>
           </div>
           <div class="pui-right">
@@ -1218,9 +1204,9 @@ function refreshDpContent(){
   const type = nb?.type;
   const subEl = document.getElementById('pui-dp-header-sub');
   if(subEl){
-    if(type==='weekly')       subEl.textContent = '해당 주를 선택해주세요';
-    else if(type==='monthly') subEl.textContent = '해당 월을 선택해주세요';
-    else                      subEl.textContent = '해당 날짜를 선택해주세요';
+    if(type==='weekly')       subEl.textContent = '주를 선택해주세요';
+    else if(type==='monthly') subEl.textContent = '월을 선택해주세요';
+    else                      subEl.textContent = '날짜를 선택해주세요';
   }
   if(type==='weekly') content.innerHTML = renderWeekPickerContent();
   else if(type==='monthly') content.innerHTML = renderMonthPickerContent();
@@ -1626,4 +1612,8 @@ function drawStroke(c, stroke, w, h){
   c.restore();
 }
 
-// 
+// ─── POINTER EVENTS ─────────────────────────────
+function bindEvents(){
+  if(!canvasEl) return;
+  ['pointerdown','pointermove','pointerup','pointerleave','pointercancel'].forEach(ev=>canvasEl.removeEventListener(ev,handlers[ev]));
+  ['pointerdown','pointermove','pointerup','pointerleave','pointercancel'].forEach(ev=>canvasE
