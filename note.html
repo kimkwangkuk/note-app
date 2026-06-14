@@ -1615,5 +1615,129 @@ function drawStroke(c, stroke, w, h){
 // ─── POINTER EVENTS ─────────────────────────────
 function bindEvents(){
   if(!canvasEl) return;
-  ['pointerdown','pointermove','pointerup','pointerleave','pointercancel'].forEach(ev=>canvasEl.removeEventListener(ev,handlers[ev]));
-  ['pointerdown','pointermove','pointerup','pointerleave','pointercancel'].forEach(ev=>canvasE
+  ['pointerdown','pointermove','pointerup','pointerleave','pointercancel'].forEach(ev=>canvasEl.addEventListener(ev,handlers[ev]));
+}
+const handlers = {
+  pointerdown(e){ e.preventDefault(); canvasEl.setPointerCapture(e.pointerId); const {nx,ny}=getCoords(e); if(ny<HEADER_RATIO) return; isDrawing=true; currentStroke={tool:draw.tool,colorIdx:draw.colorIdx,sizeIdx:draw.sizeIdx,points:[[nx,ny]]}; },
+  pointermove(e){ if(!isDrawing||!currentStroke) return; e.preventDefault(); const {nx,ny}=getCoords(e); if(ny<HEADER_RATIO) return; currentStroke.points.push([nx,ny]); redrawCanvas(); drawStroke(ctx,currentStroke,canvasEl._cssW,canvasEl._cssH); },
+  pointerup(e){ if(!isDrawing||!currentStroke) return; isDrawing=false; const nb=getNotebook(state.notebookId); const pg=nb&&nb.pages[state.pageIdx]; if(pg){ if(!pg.strokes)pg.strokes=[]; if(currentStroke.points.length>0)pg.strokes.push(currentStroke); } currentStroke=null; saveData(); drawThumbnail(state.pageIdx); },
+  pointerleave(e){ handlers.pointerup(e); },
+  pointercancel(e){ handlers.pointerup(e); }
+};
+function getCoords(e){ const r=canvasEl.getBoundingClientRect(); return{nx:(e.clientX-r.left)/canvasEl._cssW,ny:(e.clientY-r.top)/canvasEl._cssH}; }
+
+function undoDraw(){
+  const nb=getNotebook(state.notebookId); if(!nb) return;
+  const pg=nb.pages[state.pageIdx]; if(!pg||!pg.strokes||!pg.strokes.length) return;
+  pg.strokes.pop(); saveData(); redrawCanvas(); drawThumbnail(state.pageIdx);
+}
+function clearDraw(){
+  if(!confirm('이 페이지의 내용을 모두 지울까요?')) return;
+  const nb=getNotebook(state.notebookId); if(!nb) return;
+  const pg=nb.pages[state.pageIdx]; if(!pg) return;
+  pg.strokes=[]; saveData(); redrawCanvas(); drawThumbnail(state.pageIdx);
+}
+
+// ─── TIMER ──────────────────────────────────────
+function currentElapsed(){ return state.timer.running ? state.timer.savedTime+(Date.now()-state.timer.startTime)/1000 : state.timer.savedTime; }
+function updateTimerUI(){
+  const t=document.getElementById('pui-timer'); if(t) t.textContent=fmtTime(currentElapsed());
+  const b=document.getElementById('pui-play');
+  if(b){ b.textContent=state.timer.running?'⏸':'▶'; b.classList.toggle('playing',state.timer.running); }
+  const tt=document.getElementById('pui-timer');
+  if(tt) tt.classList.toggle('running',state.timer.running);
+}
+function toggleTimer(){
+  if(!state.timer.running){
+    const nb = getNotebook(state.notebookId);
+    const pg = nb && nb.pages[state.pageIdx];
+    const today = getTodayIso();
+    if(nb && pg){
+      let isToday = false;
+      if(nb.type === 'daily')   isToday = pg.date === today;
+      else if(nb.type === 'weekly') isToday = pg.date === getISOWeek(new Date(today));
+      else if(nb.type === 'monthly') isToday = pg.date === today.slice(0,7);
+      else isToday = false;
+      if(!isToday){
+        showTimerBlockToast(!pg.date);
+        return;
+      }
+    }
+  }
+  state.timer.running ? pauseTimer() : startTimer();
+}
+function showTimerBlockToast(noDate=false){
+  const existing = document.getElementById('timer-block-modal');
+  if(existing) existing.remove();
+  const modal = document.createElement('div');
+  modal.id = 'timer-block-modal';
+  modal.style.cssText = 'position:fixed;inset:0;display:flex;align-items:center;justify-content:center;z-index:9999;background:rgba(0,0,0,0.35);';
+  modal.innerHTML = `
+    <div style="background:#fff;border-radius:14px;padding:24px 24px 18px;width:260px;box-shadow:0 8px 40px rgba(0,0,0,0.18);text-align:center;">
+      <div style="width:40px;height:40px;border-radius:50%;background:#FFF3CD;display:flex;align-items:center;justify-content:center;margin:0 auto 14px;font-size:20px;">⏱️</div>
+      <p style="margin:0 0 6px;font-size:13.5px;font-weight:700;color:#18171A;">공부 기록 불가</p>
+      <p style="margin:0 0 18px;font-size:12px;color:#888785;line-height:1.5;">${noDate ? '날짜를 설정한 후<br>공부 기록을 시작할 수 있어요' : '공부 기록은 오늘 날짜의<br>플래너에서만 가능해요'}</p>
+      <button onclick="document.getElementById('timer-block-modal').remove()" style="width:100%;padding:10px 0;border:none;border-radius:8px;background:#18171A;color:#fff;font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;">확인</button>
+    </div>`;
+  modal.addEventListener('click', e=>{ if(e.target===modal) modal.remove(); });
+  document.body.appendChild(modal);
+}
+function startTimer(){ state.timer.running=true; state.timer.startTime=Date.now(); state.timer.interval=setInterval(updateTimerUI,1000); updateTimerUI(); }
+function pauseTimer(){ if(!state.timer.running) return; state.timer.savedTime+=(Date.now()-state.timer.startTime)/1000; state.timer.running=false; clearInterval(state.timer.interval); saveTimerToPage(); updateTimerUI(); }
+function stopTimer(save){ if(state.timer.running){state.timer.savedTime+=(Date.now()-state.timer.startTime)/1000; state.timer.running=false; clearInterval(state.timer.interval);} if(save) saveTimerToPage(); }
+function resetTimer(){ stopTimer(false); state.timer.savedTime=0; saveTimerToPage(); updateTimerUI(); }
+function saveTimerToPage(){ const nb=getNotebook(state.notebookId); if(!nb) return; const pg=nb.pages[state.pageIdx]; if(!pg) return; pg.studyTime=Math.floor(state.timer.savedTime); saveData(); }
+
+// ─── DATE ───────────────────────────────────────
+function setPageDate(val){
+  const nb=getNotebook(state.notebookId); if(!nb) return;
+  const pg=nb.pages[state.pageIdx]; if(!pg) return;
+  pg.date = val||null; saveData();
+  const dateText=document.getElementById('pui-date-text');
+  if(dateText) dateText.textContent = val ? fmtDateForDisplay(val, nb.type) : '날짜 설정';
+  const clearBtn=document.getElementById('pui-date-clear');
+  if(clearBtn) clearBtn.style.display = val ? 'inline-block' : 'none';
+  renderSidebarPages();
+  redrawCanvas();
+}
+function clearPageDate(){
+  setPageDate('');
+  closeDatePopup();
+  showToast('날짜가 해제되었어요. 정렬 시 목록 아래로 이동해요.');
+}
+function selectTodayDate(){
+  const nb = getNotebook(state.notebookId); if(!nb) return;
+  const today = getTodayIso();
+  let val;
+  if(nb.type === 'weekly') val = getISOWeek(new Date(today));
+  else if(nb.type === 'monthly') val = today.slice(0,7);
+  else val = today;
+  const used = getUsedDates();
+  if(used.has(val)) return;
+  tryChangeDate(val);
+}
+
+// ─── CLOSE POPUPS ON OUTSIDE CLICK ─────────────
+document.addEventListener('click', e=>{
+  const popup = document.getElementById('pui-date-popup');
+  if(popup && popup.classList.contains('show') && !popup.contains(e.target)){
+    const dateBtn = e.target.closest('.pui-date-btn');
+    if(!dateBtn) closeDatePopup();
+  }
+});
+
+// ─── KEYBOARD ───────────────────────────────────
+document.addEventListener('keydown', e=>{
+  if((e.metaKey||e.ctrlKey)&&e.key==='z'&&state.view==='page'){ e.preventDefault(); undoDraw(); }
+  if(e.key==='Escape'){
+    if(document.getElementById('purchase-modal').classList.contains('show')) closePurchaseModal();
+    else if(document.getElementById('rename-modal').classList.contains('show')) closeRenameModal();
+  }
+});
+
+// ─── INIT ───────────────────────────────────────
+render();
+renderTabBar();
+</script>
+</body>
+</html>
