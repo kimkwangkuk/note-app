@@ -523,16 +523,16 @@ body.drawing-mode #app { display: none; }
     </button>
     <div style="text-align:center;margin-bottom:20px;padding-top:24px">
       <div class="modal-title" style="margin-bottom:6px">페이지 부족</div>
-      <div class="modal-sub">종이를 추가로 구매해주세요</div>
+      <div class="modal-sub">페이지를 추가로 구매해주세요</div>
     </div>
     <div style="background:var(--surface-2);border-radius:10px;padding:14px 16px;margin-bottom:20px;display:flex;flex-direction:column;gap:10px">
       <div style="display:flex;justify-content:space-between;align-items:center;font-size:13px">
-        <span style="color:var(--text-2)">선택한 날짜</span>
+        <span style="color:var(--text-2)">선택한 날짜 수</span>
         <span id="scal-sh-selected" style="font-weight:700;color:var(--text-1)"></span>
       </div>
       <div style="height:1px;background:var(--border)"></div>
       <div style="display:flex;justify-content:space-between;align-items:center;font-size:13px">
-        <span style="color:var(--text-2)">부족한 종이</span>
+        <span style="color:var(--text-2)">부족한 페이지 수</span>
         <span id="scal-sh-need" style="font-weight:700;color:#B05C00"></span>
       </div>
     </div>
@@ -770,9 +770,11 @@ function fmtPrice(n){ return '₩'+n.toLocaleString('ko-KR'); }
 function getSortedPageIndices(){
   const nb = getNotebook(state.notebookId); if(!nb) return [];
   return nb.pages.map((_,i)=>i).sort((a,b)=>{
-    const da = nb.pages[a].date, db = nb.pages[b].date;
-    if(da && db) return da > db ? 1 : da < db ? -1 : 0; // 날짜 오름차순
-    return a - b; // 날짜 없으면 원래 인덱스 순서 유지
+    const da = nb.pages[a].date, db2 = nb.pages[b].date;
+    if(da && db2) return da > db2 ? 1 : da < db2 ? -1 : 0; // 날짜 오름차순
+    if(da) return -1; // 날짜 있는 페이지 먼저
+    if(db2) return 1;
+    return a - b; // 둘 다 없으면 원래 인덱스
   });
 }
 
@@ -919,7 +921,7 @@ function renderHome(){
   <div class="ph">
     <div><div class="ph-title">내 노트</div></div>
     <button class="btn btn-ghost btn-sm" onclick="goStore()">
-      <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M6 1v10M1 6h10" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>속지 구매
+      <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M6 1v10M1 6h10" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>추가
     </button>
   </div>
   ${!nbs.length
@@ -948,12 +950,12 @@ function renderNbCard(nb){
 // ─── STORE ──────────────────────────────────────
 function renderStore(){
   return `
-  <div class="ph"><div><div class="ph-title">스토어</div><div class="ph-sub">속지를 골라 내 노트에 추가하세요</div></div></div>
+  <div class="ph"><div><div class="ph-title">스토어</div></div></div>
   <div class="store-grid" style="margin-top:8px">${PRODUCTS.map(p=>`
     <div class="store-card" onclick="navigate('store-detail',{storeDetailId:'${p.id}'})">
       <div class="store-preview">${ppSm(p.preview)}</div>
       <div class="store-body">
-        <div class="store-type">${p.type}</div>
+
         <div class="store-name">${p.name}</div>
         <div class="store-desc-short">${p.desc.replace(/\n/g,' ')}</div>
         <div style="margin-top:14px;font-size:13px;color:var(--text-3)">자세히 보기 →</div>
@@ -983,7 +985,7 @@ function renderStoreDetail(){
         ${p.features.map(f=>`<div class="sd-feat-item"><span class="sd-feat-dot"></span>${f}</div>`).join('')}
       </div>
       <div class="sd-divider"></div>
-      <div class="sd-add-hint">속지는 구매 후에도 언제든지 추가할 수 있어요</div>
+
       <button class="btn btn-primary" style="width:100%;justify-content:center;height:46px;font-size:15px" onclick="openPurchaseModal('store','${p.id}')">
         구매하기
       </button>
@@ -1073,6 +1075,7 @@ function confirmPurchase(){
     if(!nb) return;
     const insertIdx = pm.insertIdx;
     const pendingSpare = pm.pendingSpareCount || 0;
+    const sbCalDates = window._sbCalPendingDates ? [...window._sbCalPendingDates] : null;
     closePurchaseModal();
 
     if(pendingSpare > 0){
@@ -1099,11 +1102,8 @@ function confirmPurchase(){
       saveData();
       showToast(`종이 ${pageCount}장이 추가되었어요 ✓`);
       renderSidebarPages();
-      if(window._sbCalPendingDates){
-        const pendingDates = window._sbCalPendingDates;
-        window._sbCalPendingDates = null;
-        window._sbCalSpareCount = 0;
-        _sbCalBindDates(pendingDates);
+      if(sbCalDates){
+        _sbCalBindDates(sbCalDates);
         return;
       }
       switchPage(firstNewIdx);
@@ -1511,8 +1511,6 @@ function renderSidebarPages(){
   const nb = getNotebook(state.notebookId); if(!nb) return;
   const list = document.getElementById('gn-pages-list'); if(!list) return;
   const sortedIndices = getSortedPageIndices();
-  const addLineFront = `<div class="gn-add-line"><button class="gn-add-line-inner" onclick="showAddPageModal(0)"><svg width="9" height="9" viewBox="0 0 9 9" fill="none"><path d="M4.5 1v7M1 4.5h7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>이전 페이지 추가</button></div>`;
-  const addLineBack  = `<div class="gn-add-line"><button class="gn-add-line-inner" onclick="showAddPagePurchaseModal()"><svg width="9" height="9" viewBox="0 0 9 9" fill="none"><path d="M4.5 1v7M1 4.5h7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>다음 페이지 추가</button></div>`;
   const thumbs = sortedIndices.map(i=>{
     const pg = nb.pages[i];
     const locked = isPageLocked(pg);
@@ -1530,7 +1528,7 @@ function renderSidebarPages(){
       </div>
     </div>`;
   }).join('');
-  list.innerHTML = addLineFront + thumbs + addLineBack;
+  list.innerHTML = thumbs;
   // 오늘 플로팅 버튼 표시 여부
   const todayIso = getTodayIso();
   const hasTodayPage = nb.pages.some(pg => pg.date === todayIso);
@@ -2032,6 +2030,8 @@ function refreshDpContent(){
   const nb = getNotebook(state.notebookId);
   const content = document.getElementById('pui-dp-content'); if(!content) return;
   const type = nb?.type;
+  const label = document.getElementById('pui-dp-label');
+  if(label) label.style.display = '';
   const subEl = document.getElementById('pui-dp-header-sub');
   if(subEl){
     if(type==='weekly')       subEl.textContent = '주를 선택해주세요';
@@ -2043,6 +2043,13 @@ function refreshDpContent(){
   else content.innerHTML = renderDailyPickerContent();
 }
 
+function hasPageContent(pg){
+  if(!pg || !pg.date) return false;
+  const strokes = db.strokesByDate[pg.date] || [];
+  const studyTime = db.studyRecords[pg.date] || 0;
+  return strokes.length > 0 || studyTime > 0;
+}
+
 function toggleDatePopup(e){
   e && e.stopPropagation();
   const nb = getNotebook(state.notebookId), pg = nb&&nb.pages[state.pageIdx];
@@ -2052,8 +2059,8 @@ function toggleDatePopup(e){
   if(!isOpen){
     const today = new Date();
     dpState.year = today.getFullYear(); dpState.month = today.getMonth();
-    if(pg?.date){
-      showDateRemoveUI();
+    if(pg?.date && hasPageContent(pg)){
+      showLockedDateUI();
     } else {
       refreshDpContent();
     }
@@ -2061,18 +2068,24 @@ function toggleDatePopup(e){
   popup.classList.toggle('show', !isOpen);
 }
 
-function showDateRemoveUI(){
+function showLockedDateUI(){
   const nb = getNotebook(state.notebookId), pg = nb&&nb.pages[state.pageIdx];
   const label = fmtDateForDisplay(pg?.date, nb?.type);
+  const labelEl = document.getElementById('pui-dp-label');
+  if(labelEl) labelEl.style.display = 'none';
   const subEl = document.getElementById('pui-dp-header-sub');
   if(subEl) subEl.textContent = '';
   document.getElementById('pui-dp-content').innerHTML = `
     <div style="padding:4px 0 8px;">
-      <p style="margin:0 0 10px;font-size:12px;color:#6B6A68;">${label}</p>
-      <div style="display:flex;gap:6px;">
-        <button onclick="clearPageDateAndShowCalendar()" style="flex:1;padding:8px;border:1px solid #E4E3DF;border-radius:7px;background:#fff;font-family:inherit;font-size:12px;color:#1A1918;cursor:pointer;font-weight:500;">날짜 제거</button>
-      </div>
+      <p style="margin:0 0 8px;font-size:12px;color:#6B6A68;">${label}</p>
+      <p style="margin:0;font-size:11px;color:#B05C00;line-height:1.5;">기록이 있는 날짜는 다른 날짜로<br>변경할 수 없습니다.</p>
     </div>`;
+}
+
+function removeContentPageDate(){
+  setPageDate('');
+  showToast('날짜가 해제되었어요.');
+  closeDatePopup();
 }
 
 function clearPageDateAndShowCalendar(){
