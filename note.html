@@ -406,9 +406,14 @@ body.drawing-mode #app { display: none; }
     <div class="gn-sb-inner">
       <div class="gn-sb-head" style="cursor:default">
         <span class="gn-sb-nb-name" id="gn-nb-name">노트</span>
-        <button onclick="openSbCalPopup()" title="날짜 추가" style="background:none;border:none;padding:0;cursor:pointer;color:rgba(255,255,255,0.65);display:flex;align-items:center;transition:color .15s;margin-left:auto;" onmouseover="this.style.color='rgba(255,255,255,0.95)'" onmouseout="this.style.color='rgba(255,255,255,0.65)'">
+        <div style="display:flex;align-items:center;gap:8px;margin-left:auto;">
+          <button onclick="openSbCalPopup()" title="날짜 추가" style="background:none;border:none;padding:0;cursor:pointer;color:rgba(255,255,255,0.65);display:flex;align-items:center;transition:color .15s;" onmouseover="this.style.color='rgba(255,255,255,0.95)'" onmouseout="this.style.color='rgba(255,255,255,0.65)'">
             <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><rect x="1" y="2" width="11" height="10" rx="1.5" stroke="currentColor" stroke-width="1.2"/><path d="M4 1v2M9 1v2M1 5.5h11" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/><path d="M6.5 7.5v2M5.5 8.5h2" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"/></svg>
           </button>
+          <button onclick="showAddPagePurchaseModal()" title="페이지 추가" style="background:none;border:none;padding:0;cursor:pointer;color:rgba(255,255,255,0.65);display:flex;align-items:center;transition:color .15s;" onmouseover="this.style.color='rgba(255,255,255,0.95)'" onmouseout="this.style.color='rgba(255,255,255,0.65)'">
+            <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M6.5 1v11M1 6.5h11" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+          </button>
+        </div>
       </div>
       <div class="gn-pages-list" id="gn-pages-list"></div>
       <div id="today-float-wrap" style="display:none;padding:6px 10px 2px;flex-shrink:0;">
@@ -2061,11 +2066,27 @@ function toggleDatePopup(e){
     dpState.year = today.getFullYear(); dpState.month = today.getMonth();
     if(pg?.date && hasPageContent(pg)){
       showLockedDateUI();
+    } else if(pg?.date){
+      showDateRemoveUI();
     } else {
       refreshDpContent();
     }
   }
   popup.classList.toggle('show', !isOpen);
+}
+
+function showDateRemoveUI(){
+  const nb = getNotebook(state.notebookId), pg = nb&&nb.pages[state.pageIdx];
+  const label = fmtDateForDisplay(pg?.date, nb?.type);
+  const labelEl = document.getElementById('pui-dp-label');
+  if(labelEl) labelEl.style.display = 'none';
+  const subEl = document.getElementById('pui-dp-header-sub');
+  if(subEl) subEl.textContent = '';
+  document.getElementById('pui-dp-content').innerHTML = `
+    <div style="padding:4px 0 8px;">
+      <p style="margin:0 0 10px;font-size:12px;color:#6B6A68;">${label}</p>
+      <button onclick="clearPageDateAndShowCalendar()" style="width:100%;padding:8px;border:1px solid #E4E3DF;border-radius:7px;background:#fff;font-family:inherit;font-size:12px;color:#1A1918;cursor:pointer;font-weight:500;">날짜 제거</button>
+    </div>`;
 }
 
 function showLockedDateUI(){
@@ -2103,8 +2124,6 @@ function selectMonth(monthStr){ tryChangeDate(monthStr); }
 function tryChangeDate(newVal){
   const nb = getNotebook(state.notebookId); if(!nb) return;
   const pg = nb.pages[state.pageIdx]; if(!pg) return;
-  const bounds = getDateBoundsForPage(state.pageIdx, nb);
-  // 기존 날짜가 있고 다른 날짜로 변경하는 경우에만 확인
   if(pg.date && pg.date !== newVal){
     showDateChangeConfirm(pg.date, newVal, nb.type);
   } else {
