@@ -84,8 +84,8 @@ body.drawing-mode #app { display: none; }
 .tb-premium-btn { flex-shrink:0; height:26px; padding:0 11px; border-radius:6px; border:none; cursor:pointer; font-family:inherit; font-size:12px; font-weight:600; margin:auto 6px 7px 0; transition:all .15s; }
 .tb-premium-btn.on  { background:rgba(255,200,60,0.18); color:#FFD040; }
 .tb-premium-btn.off { background:rgba(255,255,255,0.08); color:rgba(255,255,255,0.35); }
-.gn-page-thumb-wrap { position: relative; }
-.gn-lock-overlay { position:absolute; inset:0; background:rgba(0,0,0,0.52); display:flex; align-items:center; justify-content:center; border-radius:5px; pointer-events:none; }
+.gn-thumb-img-wrap { position:relative; flex-shrink:0; width:70px; }
+.gn-lock-overlay { position:absolute; inset:0; background:rgba(0,0,0,0.52); display:flex; align-items:center; justify-content:center; pointer-events:none; }
 .gn-lock-overlay svg { opacity:0.85; }
 
 /* ── LAYOUT ── */
@@ -227,16 +227,18 @@ body.drawing-mode #app { display: none; }
 .gn-pages-list { flex: 1; overflow-y: auto; padding: 10px; display: flex; flex-direction: column; gap: 6px; }
 .gn-pages-list::-webkit-scrollbar { width: 3px; }
 .gn-pages-list::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.12); border-radius: 99px; }
-.gn-page-thumb-wrap { cursor: pointer; border-radius: 7px; overflow: hidden; border: 2px solid transparent; transition: border-color .15s; flex-shrink: 0; }
+.gn-page-thumb-wrap { cursor: pointer; border-radius: 7px; overflow: hidden; border: 2px solid transparent; transition: border-color .15s; flex-shrink: 0; display:flex; align-items:stretch; }
 .gn-page-thumb-wrap:hover { border-color: rgba(255,255,255,0.18); }
 .gn-page-thumb-wrap.active { border-color: #5B9CF6; }
 .gn-thumb-canvas { display: block; width: 100%; }
-.gn-thumb-label { background: #232323; padding: 5px 8px; display: flex; align-items: center; justify-content: space-between; gap: 6px; }
+.gn-thumb-label { background: #232323; padding: 8px 7px 7px; display: flex; flex-direction:column; align-items:stretch; justify-content:space-between; gap: 6px; flex:1; min-width:0; }
 .gn-thumb-num { font-size: 11px; font-weight: 700; color: rgba(255,255,255,0.4); flex-shrink: 0; }
-.gn-thumb-date { font-size: 10px; color: rgba(255,255,255,0.55); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex:1; }
-.gn-thumb-date-row { display:flex; align-items:center; gap:3px; flex:1; min-width:0; }
 .gn-thumb-ctx-btn { flex-shrink:0; width:16px; height:16px; border:none; background:none; cursor:pointer; color:rgba(255,255,255,0.3); padding:0; display:flex; align-items:center; justify-content:center; border-radius:3px; transition:color .12s,background .12s; }
 .gn-thumb-ctx-btn:hover { color:rgba(255,255,255,0.7); background:rgba(255,255,255,0.08); }
+.gn-page-date-btn { width:100%; display:flex; align-items:center; gap:4px; background:rgba(255,255,255,0.07); border:none; border-radius:5px; padding:5px 6px; cursor:pointer; font-family:inherit; font-size:10px; color:rgba(255,255,255,0.38); transition:all .12s; text-align:left; min-width:0; }
+.gn-page-date-btn:hover { background:rgba(255,255,255,0.13); color:rgba(255,255,255,0.85); }
+.gn-page-date-btn.has-date { color:rgba(255,255,255,0.68); }
+.gn-page-date-btn .gn-date-text { flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
 #page-ctx-menu { position:fixed; background:#fff; border:1px solid #E4E3DF; border-radius:9px; box-shadow:0 4px 16px rgba(0,0,0,0.13); z-index:9999; min-width:148px; overflow:hidden; }
 #page-ctx-menu button { display:block; width:100%; padding:9px 14px; border:none; background:none; font-family:inherit; font-size:12px; color:#1A1918; text-align:left; cursor:pointer; }
 #page-ctx-menu button:hover { background:#F5F4F1; }
@@ -608,6 +610,17 @@ body.drawing-mode #app { display: none; }
 </div>
 
 <div class="toast" id="toast"></div>
+
+<!-- Sidebar Page Date Picker Popup -->
+<div id="sb-page-dp" onclick="event.stopPropagation()" style="position:fixed;background:#fff;border-radius:12px;box-shadow:0 4px 28px rgba(0,0,0,0.18),0 1px 4px rgba(0,0,0,0.07);border:1px solid rgba(0,0,0,0.08);padding:13px 13px 11px;z-index:10000;display:none;min-width:248px;">
+  <div style="font-size:10px;font-weight:700;color:#B0AFAC;letter-spacing:.5px;text-transform:uppercase;margin-bottom:10px">날짜 선택</div>
+  <div id="sb-page-dp-content"></div>
+  <div style="height:1px;background:#F0EFEC;margin:8px 0 7px"></div>
+  <div style="display:flex;justify-content:space-between;align-items:center">
+    <button onclick="sbClearDate()" style="background:none;border:none;cursor:pointer;font-family:inherit;font-size:11.5px;color:#AEADAB;padding:2px 0;transition:color .12s" onmouseover="this.style.color='#18171A'" onmouseout="this.style.color='#AEADAB'">날짜 제거</button>
+    <button onclick="sbSelectToday()" style="background:none;border:1px solid #D8D7D3;border-radius:5px;cursor:pointer;font-family:inherit;font-size:11px;color:#555452;padding:3px 9px;transition:all .12s" onmouseover="this.style.background='#18171A';this.style.color='#fff';this.style.borderColor='#18171A'" onmouseout="this.style.background='none';this.style.color='#555452';this.style.borderColor='#D8D7D3'">오늘</button>
+  </div>
+</div>
 
 <script>
 // ─── CONSTANTS ──────────────────────────────────
@@ -1520,16 +1533,22 @@ function renderSidebarPages(){
     const pg = nb.pages[i];
     const locked = isPageLocked(pg);
     return `<div class="gn-page-thumb-wrap ${i===state.pageIdx?'active':''}" id="gn-tw-${i}" onclick="switchPage(${i})">
-      <canvas class="gn-thumb-canvas" id="gn-tc-${i}" width="190" height="253"></canvas>
-      ${locked ? `<div class="gn-lock-overlay"><svg width="22" height="22" viewBox="0 0 22 22" fill="none"><rect x="5" y="10" width="12" height="9" rx="2" fill="rgba(255,255,255,0.9)"/><path d="M7.5 10V7.5a3.5 3.5 0 0 1 7 0V10" stroke="rgba(255,255,255,0.9)" stroke-width="1.8" stroke-linecap="round"/></svg></div>` : ''}
+      <div class="gn-thumb-img-wrap">
+        <canvas class="gn-thumb-canvas" id="gn-tc-${i}" width="190" height="253"></canvas>
+        ${locked ? `<div class="gn-lock-overlay"><svg width="18" height="18" viewBox="0 0 22 22" fill="none"><rect x="5" y="10" width="12" height="9" rx="2" fill="rgba(255,255,255,0.9)"/><path d="M7.5 10V7.5a3.5 3.5 0 0 1 7 0V10" stroke="rgba(255,255,255,0.9)" stroke-width="1.8" stroke-linecap="round"/></svg></div>` : ''}
+      </div>
       <div class="gn-thumb-label">
-        <span class="gn-thumb-num">${i+1}</span>
-        <div class="gn-thumb-date-row">
-          <span class="gn-thumb-date" id="gn-td-${i}">${pg.date ? fmtDateForThumb(pg.date, nb.type) : ''}</span>
-          <button class="gn-thumb-ctx-btn" onclick="showPageCtxMenu(${i},event)" title="페이지 추가">
+        <div style="display:flex;align-items:center;justify-content:space-between">
+          <span class="gn-thumb-num">${i+1}</span>
+          <button class="gn-thumb-ctx-btn" onclick="showPageCtxMenu(${i},event)" title="페이지 메뉴">
             <svg width="11" height="11" viewBox="0 0 11 11" fill="none"><circle cx="5.5" cy="2" r="1" fill="currentColor"/><circle cx="5.5" cy="5.5" r="1" fill="currentColor"/><circle cx="5.5" cy="9" r="1" fill="currentColor"/></svg>
           </button>
         </div>
+        <button class="gn-page-date-btn${pg.date?' has-date':''}" onclick="openSbPageDatePicker(${i},event)">
+          <svg width="10" height="10" viewBox="0 0 12 12" fill="none"><rect x="1" y="2" width="10" height="9" rx="1.5" stroke="currentColor" stroke-width="1.3"/><path d="M4 1v2M8 1v2M1 5h10" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+          <span class="gn-date-text">${pg.date ? fmtDateForThumb(pg.date, nb.type) : '날짜 설정'}</span>
+          <svg width="8" height="8" viewBox="0 0 8 8" fill="none"><path d="M2 3l2 2 2-2" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
       </div>
     </div>`;
   }).join('');
@@ -1886,8 +1905,9 @@ function dpCalHeader(title, navFn){
   </div>`;
 }
 
-function renderCalGrid(selectedVal, onClickFn, isWeekMode, usedDates=new Set(), bounds={min:null,max:null}){
-  const { year, month } = dpState;
+function renderCalGrid(selectedVal, onClickFn, isWeekMode, usedDates=new Set(), bounds={min:null,max:null}, navFn='dpNav', yr=null, mo=null){
+  const year = yr ?? dpState.year;
+  const month = mo ?? dpState.month;
   const monthNames = ['1월','2월','3월','4월','5월','6월','7월','8월','9월','10월','11월','12월'];
   const dayNames = ['월','화','수','목','금','토','일'];
 
@@ -1950,7 +1970,7 @@ function renderCalGrid(selectedVal, onClickFn, isWeekMode, usedDates=new Set(), 
     }
   }
 
-  return `${dpCalHeader(`${year}년 ${monthNames[month]}`, 'dpNav')}
+  return `${dpCalHeader(`${year}년 ${monthNames[month]}`, navFn)}
     <div class="dp-cal-days-header">${dayNames.map(n=>`<div class="dp-cal-day-name">${n}</div>`).join('')}</div>
     ${rows}`;
 }
@@ -2053,6 +2073,137 @@ function hasPageContent(pg){
   const strokes = db.strokesByDate[pg.date] || [];
   const studyTime = db.studyRecords[pg.date] || 0;
   return strokes.length > 0 || studyTime > 0;
+}
+
+// ─── SIDEBAR PAGE DATE PICKER ───────────────────
+let sbPageDpState = { targetIdx:-1, year:new Date().getFullYear(), month:new Date().getMonth() };
+
+function openSbPageDatePicker(idx, e){
+  e.stopPropagation();
+  const popup = document.getElementById('sb-page-dp'); if(!popup) return;
+  if(sbPageDpState.targetIdx === idx && popup.style.display !== 'none'){
+    closeSbPageDatePicker(); return;
+  }
+  sbPageDpState.targetIdx = idx;
+  const today = new Date();
+  sbPageDpState.year = today.getFullYear();
+  sbPageDpState.month = today.getMonth();
+  refreshSbPageDp();
+  popup.style.display = 'block';
+  const btn = e.currentTarget;
+  const rect = btn.getBoundingClientRect();
+  const popupW = 258;
+  let left = rect.right + 6;
+  if(left + popupW > window.innerWidth - 8) left = rect.left - popupW - 6;
+  let top = rect.top;
+  const popupH = 320;
+  if(top + popupH > window.innerHeight - 8) top = window.innerHeight - popupH - 8;
+  popup.style.left = Math.max(8, left) + 'px';
+  popup.style.top = Math.max(8, top) + 'px';
+}
+
+function closeSbPageDatePicker(){
+  const popup = document.getElementById('sb-page-dp');
+  if(popup) popup.style.display = 'none';
+  sbPageDpState.targetIdx = -1;
+}
+
+function sbDpNav(delta){
+  sbPageDpState.month += delta;
+  if(sbPageDpState.month < 0){ sbPageDpState.month=11; sbPageDpState.year--; }
+  if(sbPageDpState.month > 11){ sbPageDpState.month=0; sbPageDpState.year++; }
+  refreshSbPageDp();
+}
+function sbDpNavYear(delta){ sbPageDpState.year += delta; refreshSbPageDp(); }
+
+function refreshSbPageDp(){
+  const nb = getNotebook(state.notebookId); if(!nb) return;
+  const idx = sbPageDpState.targetIdx;
+  const pg = nb.pages[idx]; if(!pg) return;
+  const content = document.getElementById('sb-page-dp-content'); if(!content) return;
+  const usedDates = new Set(nb.pages.filter((_,i)=> i !== idx && nb.pages[i].date).map(p=>p.date));
+  const bounds = getDateBoundsForPage(idx, nb);
+  const yr = sbPageDpState.year, mo = sbPageDpState.month;
+  let html;
+  if(nb.type === 'weekly'){
+    html = `<div class="dp-calendar">${renderCalGrid(pg.date,'sbSelectDate',true,usedDates,bounds,'sbDpNav',yr,mo)}</div>`;
+  } else if(nb.type === 'monthly'){
+    const months = ['1월','2월','3월','4월','5월','6월','7월','8월','9월','10월','11월','12월'];
+    const grid = months.map((m,i)=>{
+      const val = `${yr}-${String(i+1).padStart(2,'0')}`;
+      const isUsed = usedDates.has(val), isSel = val === pg.date;
+      return `<button class="dp-month-btn${isSel?' selected':''}${isUsed?' used':''}" ${isUsed?'disabled':''} onclick="${isUsed?'':'sbSelectDate(\''+val+'\')'}">${m}</button>`;
+    }).join('');
+    html = `<div class="dp-calendar">${dpCalHeader(`${yr}년`,'sbDpNavYear')}<div class="dp-month-grid">${grid}</div></div>`;
+  } else {
+    html = `<div class="dp-calendar">${renderCalGrid(pg.date,'sbSelectDate',false,usedDates,bounds,'sbDpNav',yr,mo)}</div>`;
+  }
+  content.innerHTML = html;
+}
+
+function sbSelectDate(val){
+  const idx = sbPageDpState.targetIdx;
+  const nb = getNotebook(state.notebookId); if(!nb) return;
+  const pg = nb.pages[idx]; if(!pg) return;
+  if(pg.date && pg.date !== val){
+    showSbDateChangeConfirm(pg.date, val, nb.type);
+  } else {
+    setSbPageDate(idx, val);
+    closeSbPageDatePicker();
+  }
+}
+
+function showSbDateChangeConfirm(oldVal, newVal, nbType){
+  const content = document.getElementById('sb-page-dp-content'); if(!content) return;
+  const oldLabel = fmtDateForDisplay(oldVal, nbType);
+  const newLabel = fmtDateForDisplay(newVal, nbType);
+  content.innerHTML = `<div style="padding:2px 0 6px">
+    <p style="margin:0 0 10px;font-size:11.5px;font-weight:600;color:#1A1918">날짜를 변경할게요</p>
+    <div style="background:#F5F4F1;border-radius:8px;padding:10px 12px;margin-bottom:10px">
+      <p style="margin:0 0 3px;font-size:10px;color:#AEADAB">변경 전</p>
+      <p style="margin:0 0 7px;font-size:12px;font-weight:500;color:#555452">${oldLabel}</p>
+      <div style="height:1px;background:#E8E7E3;margin:0 0 7px"></div>
+      <p style="margin:0 0 3px;font-size:10px;color:#AEADAB">변경 후</p>
+      <p style="margin:0;font-size:12px;font-weight:600;color:#1A1918">${newLabel}</p>
+    </div>
+    <div style="display:flex;gap:6px">
+      <button onclick="refreshSbPageDp()" style="flex:1;padding:7px;border:1px solid #E4E3DF;border-radius:7px;background:#fff;font-family:inherit;font-size:11.5px;color:#888785;cursor:pointer">취소</button>
+      <button onclick="setSbPageDate(${sbPageDpState.targetIdx},'${newVal}');closeSbPageDatePicker();" style="flex:1;padding:7px;border:none;border-radius:7px;background:#1A1918;font-family:inherit;font-size:11.5px;color:#fff;cursor:pointer;font-weight:500">변경하기</button>
+    </div>
+  </div>`;
+}
+
+function sbClearDate(){
+  const idx = sbPageDpState.targetIdx;
+  setSbPageDate(idx, '');
+  closeSbPageDatePicker();
+  showToast('날짜가 해제되었어요.');
+}
+
+function sbSelectToday(){
+  const nb = getNotebook(state.notebookId); if(!nb) return;
+  const today = getTodayIso();
+  let val;
+  if(nb.type === 'weekly')       val = getISOWeek(new Date(today));
+  else if(nb.type === 'monthly') val = today.slice(0,7);
+  else                           val = today;
+  sbSelectDate(val);
+}
+
+function setSbPageDate(idx, val){
+  const nb = getNotebook(state.notebookId); if(!nb) return;
+  const pg = nb.pages[idx]; if(!pg) return;
+  pg.date = val || null;
+  autoFlushTrappedPages(nb);
+  saveData();
+  // 현재 활성 페이지면 UI도 갱신
+  if(idx === state.pageIdx){
+    const dateText = document.getElementById('pui-date-text');
+    if(dateText) dateText.textContent = val ? fmtDateForDisplay(val, nb.type) : '날짜 설정';
+    state.timer.savedTime = val ? (db.studyRecords[val]||0) : 0;
+    redrawCanvas();
+  }
+  renderSidebarPages();
 }
 
 function toggleDatePopup(e){
@@ -2764,6 +2915,10 @@ document.addEventListener('click', e=>{
   if(popup && popup.classList.contains('show') && !popup.contains(e.target)){
     const dateBtn = e.target.closest('.pui-date-btn');
     if(!dateBtn) closeDatePopup();
+  }
+  const sbPopup = document.getElementById('sb-page-dp');
+  if(sbPopup && sbPopup.style.display !== 'none' && !sbPopup.contains(e.target)){
+    if(!e.target.closest('.gn-page-date-btn')) closeSbPageDatePicker();
   }
 });
 
