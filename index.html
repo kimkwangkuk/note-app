@@ -231,7 +231,6 @@ body.drawing-mode #app { display: none; }
 .gn-page-thumb-wrap:hover { border-color: rgba(255,255,255,0.18); }
 .gn-page-thumb-wrap.active { border-color: #5B9CF6; }
 .gn-thumb-canvas { display: block; width: 100%; }
-.gn-thumb-canvas.no-date { filter: blur(3px); opacity: 0.5; }
 .gn-thumb-label { background: #232323; padding: 5px 5px 7px; display: flex; flex-direction:column; align-items:stretch; justify-content:space-between; gap: 5px; flex:1; min-width:0; position:relative; }
 .gn-page-ctx-btn { align-self:flex-end; background:none; border:none; color:rgba(255,255,255,0.3); cursor:pointer; padding:2px 5px; border-radius:4px; font-size:13px; line-height:1; transition:all .12s; }
 .gn-page-ctx-btn:hover { background:rgba(255,255,255,0.1); color:rgba(255,255,255,0.85); }
@@ -319,8 +318,6 @@ body.drawing-mode #app { display: none; }
 #draw-canvas { display: block; cursor: crosshair; touch-action: none; }
 .canvas-lock-overlay { display:none; position:absolute; inset:0; backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px); background:rgba(30,28,35,0.18); z-index:10; pointer-events:none; }
 .canvas-lock-overlay.show { display:block; }
-.canvas-nodate-overlay { display:none; position:absolute; inset:0; backdrop-filter:blur(6px); -webkit-backdrop-filter:blur(6px); background:rgba(30,28,35,0.25); z-index:5; pointer-events:none; }
-.canvas-nodate-overlay.show { display:block; }
 .page-locked-float { display:none; position:absolute; bottom:22px; left:50%; transform:translateX(-50%); z-index:20; }
 .page-locked-float.show { display:flex; }
 .page-locked-float-btn { display:flex; align-items:center; gap:7px; padding:10px 20px; background:rgba(28,26,33,0.88); border:1.5px solid rgba(255,208,64,0.35); border-radius:99px; color:#FFD040; font-family:inherit; font-size:13px; font-weight:600; cursor:pointer; box-shadow:0 4px 20px rgba(0,0,0,0.35); backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px); white-space:nowrap; }
@@ -1410,7 +1407,7 @@ function renderSidebarPages(){
     const locked = isPageLocked(pg);
     return `<div class="gn-page-thumb-wrap ${i===state.pageIdx?'active':''}" id="gn-tw-${i}" onclick="switchPage(${i})">
       <div class="gn-thumb-img-wrap">
-        <canvas class="gn-thumb-canvas${pg.date?'':' no-date'}" id="gn-tc-${i}" width="190" height="253"></canvas>
+        <canvas class="gn-thumb-canvas" id="gn-tc-${i}" width="190" height="253"></canvas>
         ${locked ? `<div class="gn-lock-overlay"><svg width="18" height="18" viewBox="0 0 22 22" fill="none"><rect x="5" y="10" width="12" height="9" rx="2" fill="rgba(255,255,255,0.9)"/><path d="M7.5 10V7.5a3.5 3.5 0 0 1 7 0V10" stroke="rgba(255,255,255,0.9)" stroke-width="1.8" stroke-linecap="round"/></svg></div>` : ''}
       </div>
       <div class="gn-thumb-label">
@@ -1669,13 +1666,6 @@ function redrawPageCanvas(idx){
   // 오버레이 날짜 텍스트 + nodate blur 업데이트
   const dtEl = document.getElementById(`pui-date-text-pg-${idx}`);
   if(dtEl) dtEl.textContent = pg.date ? fmtDateForDisplay(pg.date, nb.type) : '날짜 설정';
-  const slot = document.getElementById(`page-slot-${idx}`);
-  if(slot){
-    const nd = slot.querySelector('.canvas-nodate-overlay');
-    if(nd) nd.classList.toggle('show', !pg.date);
-    const tc = slot.querySelector('.gn-thumb-canvas');
-    if(tc) tc.classList.toggle('no-date', !pg.date);
-  }
 }
 
 // ─── TOOLBAR ────────────────────────────────────
@@ -1726,8 +1716,6 @@ function initAllCanvases(){
     const locked = isPageLocked(pg);
     const lockEl = document.createElement('div');
     lockEl.className = `canvas-lock-overlay${locked?' show':''}`;
-    const nodateEl = document.createElement('div');
-    nodateEl.className = `canvas-nodate-overlay${!pg.date?' show':''}`;
     const floatEl = document.createElement('div');
     floatEl.className = `page-locked-float${locked?' show':''}`;
     floatEl.innerHTML = `<button class="page-locked-float-btn" onclick="showLockedPagePopup()"><svg width="13" height="13" viewBox="0 0 13 13" fill="none"><rect x="2.5" y="6" width="8" height="5.5" rx="1.5" fill="#FFD040"/><path d="M4 6V4.5a2.5 2.5 0 0 1 5 0V6" stroke="#FFD040" stroke-width="1.4" stroke-linecap="round"/></svg>잠긴 페이지</button>`;
@@ -1747,7 +1735,7 @@ function initAllCanvases(){
         <button id="pui-play-pg-${i}" class="pui-tbtn" onclick="activatePageAndToggleTimer(${i})">▶</button>
         <button class="pui-tbtn pui-tbtn-reset" onclick="activatePageAndResetTimer(${i})" title="초기화">↺</button>
       </div>`;
-    wrapper.appendChild(canvas); wrapper.appendChild(nodateEl); wrapper.appendChild(lockEl); wrapper.appendChild(floatEl); wrapper.appendChild(paperUiEl);
+    wrapper.appendChild(canvas); wrapper.appendChild(lockEl); wrapper.appendChild(floatEl); wrapper.appendChild(paperUiEl);
     slot.appendChild(wrapper); list.appendChild(slot);
     canvas.addEventListener('pointerdown', e => onPD(e, i, canvas));
     canvas.addEventListener('pointermove', e => onPM(e, canvas));
