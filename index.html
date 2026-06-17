@@ -402,7 +402,7 @@ body.drawing-mode #app { display: none; }
             <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><rect x="1" y="2" width="11" height="10" rx="1.5" stroke="currentColor" stroke-width="1.2"/><path d="M4 1v2M9 1v2M1 5.5h11" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/><path d="M6.5 7.5v2M5.5 8.5h2" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"/></svg>
           </button>
           <button onclick="showAddPagePurchaseModal()" title="페이지 추가" style="background:none;border:none;padding:0;cursor:pointer;color:rgba(255,255,255,0.65);display:flex;align-items:center;transition:color .15s;" onmouseover="this.style.color='rgba(255,255,255,0.95)'" onmouseout="this.style.color='rgba(255,255,255,0.65)'">
-            <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M6.5 1v11M1 6.5h11" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+            <svg width="13" height="13" viewBox="0 0 14 14" fill="none"><path d="M2 5h10l-1.2 7H3.2L2 5z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/><path d="M5 5V4a2 2 0 0 1 4 0v1" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
           </button>
         </div>
       </div>
@@ -2614,6 +2614,30 @@ function renderMonthlyStats(){
 }
 
 // ─── CLOSE POPUPS ON OUTSIDE CLICK ─────────────
+// ─── CANVAS AREA SCROLL PAGE NAVIGATION ─────────
+let _scrollNavCooldown = false;
+document.addEventListener('wheel', e=>{
+  const area = document.getElementById('gn-canvas-area');
+  if(!area || !area.contains(e.target)) return;
+  if(_scrollNavCooldown) return;
+  const nb = getNotebook(state.notebookId); if(!nb) return;
+
+  const atTop    = area.scrollTop <= 0;
+  const atBottom = area.scrollTop + area.clientHeight >= area.scrollHeight - 2;
+
+  if(e.deltaY > 0 && atBottom && state.pageIdx < nb.pages.length - 1){
+    e.preventDefault();
+    _scrollNavCooldown = true;
+    switchPage(state.pageIdx + 1);
+    setTimeout(()=>{ _scrollNavCooldown = false; }, 600);
+  } else if(e.deltaY < 0 && atTop && state.pageIdx > 0){
+    e.preventDefault();
+    _scrollNavCooldown = true;
+    switchPage(state.pageIdx - 1);
+    setTimeout(()=>{ _scrollNavCooldown = false; }, 600);
+  }
+}, { passive: false });
+
 document.addEventListener('click', e=>{
   const popup = document.getElementById('pui-date-popup');
   if(popup && popup.classList.contains('show') && !popup.contains(e.target)){
