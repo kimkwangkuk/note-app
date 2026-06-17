@@ -233,21 +233,10 @@ body.drawing-mode #app { display: none; }
 .gn-thumb-canvas { display: block; width: 100%; }
 .gn-thumb-label { background: #232323; padding: 8px 7px 7px; display: flex; flex-direction:column; align-items:stretch; justify-content:space-between; gap: 6px; flex:1; min-width:0; }
 .gn-thumb-num { font-size: 11px; font-weight: 700; color: rgba(255,255,255,0.4); flex-shrink: 0; }
-.gn-thumb-ctx-btn { flex-shrink:0; width:16px; height:16px; border:none; background:none; cursor:pointer; color:rgba(255,255,255,0.3); padding:0; display:flex; align-items:center; justify-content:center; border-radius:3px; transition:color .12s,background .12s; }
-.gn-thumb-ctx-btn:hover { color:rgba(255,255,255,0.7); background:rgba(255,255,255,0.08); }
 .gn-page-date-btn { width:100%; display:flex; align-items:center; gap:4px; background:rgba(255,255,255,0.07); border:none; border-radius:5px; padding:5px 6px; cursor:pointer; font-family:inherit; font-size:10px; color:rgba(255,255,255,0.38); transition:all .12s; text-align:left; min-width:0; }
 .gn-page-date-btn:hover { background:rgba(255,255,255,0.13); color:rgba(255,255,255,0.85); }
 .gn-page-date-btn.has-date { color:rgba(255,255,255,0.68); }
 .gn-page-date-btn .gn-date-text { flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
-#page-ctx-menu { position:fixed; background:#fff; border:1px solid #E4E3DF; border-radius:9px; box-shadow:0 4px 16px rgba(0,0,0,0.13); z-index:9999; min-width:148px; overflow:hidden; }
-#page-ctx-menu button { display:block; width:100%; padding:9px 14px; border:none; background:none; font-family:inherit; font-size:12px; color:#1A1918; text-align:left; cursor:pointer; }
-#page-ctx-menu button:hover { background:#F5F4F1; }
-#page-ctx-menu .ctx-sep { height:1px; background:#F0EFEB; margin:2px 0; }
-.page-no-room-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.28); z-index:10000; display:flex; align-items:center; justify-content:center; }
-.page-no-room-box { background:#fff; border-radius:14px; padding:22px 22px 16px; max-width:280px; width:90%; box-shadow:0 8px 32px rgba(0,0,0,0.18); }
-.page-no-room-box h3 { margin:0 0 8px; font-size:14px; font-weight:700; color:#1A1918; }
-.page-no-room-box p { margin:0 0 16px; font-size:12.5px; color:#8A8987; line-height:1.55; }
-.page-no-room-box button { width:100%; padding:10px; border:none; border-radius:8px; background:#18171A; color:#fff; font-family:inherit; font-size:13px; font-weight:600; cursor:pointer; }
 .gn-sb-footer { padding: 12px 10px; border-top: 1px solid rgba(255,255,255,0.06); flex-shrink: 0; }
 .gn-add-btn { width: 100%; padding: 10px; border-radius: 8px; border: 1.5px dashed rgba(255,255,255,0.15); background: none; cursor: pointer; font-family: inherit; font-size: 12.5px; font-weight: 600; color: rgba(255,255,255,0.35); display: flex; align-items: center; justify-content: center; gap: 6px; transition: all .15s; }
 .gn-add-btn:hover { border-color: rgba(255,255,255,0.35); color: rgba(255,255,255,0.7); background: rgba(255,255,255,0.04); }
@@ -1151,104 +1140,6 @@ function showAddPagePurchaseModal(){
   openPurchaseModal('addPage', nb.type, nb.id);
 }
 
-function showAddPageModal(insertIdx=null){
-  const nb = getNotebook(state.notebookId); if(!nb) return;
-  const realIdx = (insertIdx === true) ? 0 : (insertIdx === false) ? null : insertIdx;
-  pm.insertIdx = realIdx;
-  showAddPageChoiceModal(realIdx);
-}
-
-function showAddPageChoiceModal(insertIdx){
-  document.getElementById('add-page-choice-overlay')?.remove();
-  const nb = getNotebook(state.notebookId); if(!nb) return;
-  const spareCount = nb.pages.filter(p => !p.date).length;
-
-  window._addInsertIdx = insertIdx;
-  window._addSpareCount = spareCount;
-  window._addSelectedCount = 1;
-
-  const overlay = document.createElement('div');
-  overlay.id = 'add-page-choice-overlay';
-  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.28);z-index:10000;display:flex;align-items:center;justify-content:center;';
-  overlay.addEventListener('click', e => { if(e.target === overlay) overlay.remove(); });
-  document.body.appendChild(overlay);
-  _renderAddPageCountUI();
-}
-
-function _renderAddPageCountUI(){
-  const overlay = document.getElementById('add-page-choice-overlay'); if(!overlay) return;
-  const count = window._addSelectedCount || 1;
-  const spare = window._addSpareCount || 0;
-
-  overlay.innerHTML = `
-    <div onclick="event.stopPropagation()" style="background:#fff;border-radius:16px;padding:24px 22px 18px;max-width:290px;width:90%;box-shadow:0 8px 32px rgba(0,0,0,0.18);">
-      <h3 style="margin:0 0 20px;font-size:15px;font-weight:700;color:#1A1918;">몇 장 추가할까요?</h3>
-      <div style="display:flex;align-items:center;justify-content:center;gap:20px;margin-bottom:20px;">
-        <button onclick="adjustAddPageCount(-1)" style="width:38px;height:38px;border-radius:50%;border:1.5px solid #E4E3DF;background:#fff;font-size:20px;cursor:pointer;color:#555;display:flex;align-items:center;justify-content:center;line-height:1;">−</button>
-        <span id="add-page-count-val" style="font-size:28px;font-weight:700;color:#1A1918;min-width:44px;text-align:center;">${count}</span>
-        <button onclick="adjustAddPageCount(1)" style="width:38px;height:38px;border-radius:50%;border:1.5px solid #E4E3DF;background:#fff;font-size:20px;cursor:pointer;color:#555;display:flex;align-items:center;justify-content:center;line-height:1;">+</button>
-      </div>
-      <div style="display:flex;gap:8px;">
-        <button onclick="document.getElementById('add-page-choice-overlay').remove()" style="flex:1;padding:11px;border:1px solid #E4E3DF;border-radius:9px;background:#fff;font-family:inherit;font-size:13px;color:#888785;cursor:pointer;">취소</button>
-        <button onclick="doAddFromCount()" style="flex:2;padding:11px;border:none;border-radius:9px;background:#18171A;color:#fff;font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;">추가하기</button>
-      </div>
-    </div>`;
-}
-
-function adjustAddPageCount(delta){
-  window._addSelectedCount = Math.max(1, (window._addSelectedCount || 1) + delta);
-  _renderAddPageCountUI();
-}
-
-function doAddFromCount(){
-  const count = window._addSelectedCount || 1;
-  const spare = window._addSpareCount || 0;
-  const insertIdx = window._addInsertIdx;
-  const nb = getNotebook(state.notebookId); if(!nb) return;
-
-  if(spare >= count){
-    document.getElementById('add-page-choice-overlay')?.remove();
-    _doUseSparePages(insertIdx, count, false);
-  } else {
-    const buyCount = count - spare;
-    document.getElementById('add-page-choice-overlay')?.remove();
-    showAddPageShortagePopup(count, spare, buyCount, insertIdx, nb);
-  }
-}
-
-function showAddPageShortagePopup(count, spare, buyCount, insertIdx, nb){
-  const overlay = document.createElement('div');
-  overlay.id = 'add-shortage-overlay';
-  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.28);z-index:10000;display:flex;align-items:center;justify-content:center;';
-
-  const spareDesc = `부족한 <b>${buyCount}장</b>을 새로 구매합니다.`;
-
-  overlay.innerHTML = `
-    <div onclick="event.stopPropagation()" style="background:#fff;border-radius:16px;padding:24px 22px 18px;max-width:290px;width:90%;box-shadow:0 8px 32px rgba(0,0,0,0.18);">
-      <h3 style="margin:0 0 12px;font-size:15px;font-weight:700;color:#1A1918;">${count}장 중 ${buyCount}장이 부족해요</h3>
-      <p style="margin:0 0 20px;font-size:13px;color:#6B6A68;line-height:1.6;">${spareDesc}</p>
-      <div style="display:flex;gap:8px;">
-        <button onclick="document.getElementById('add-shortage-overlay').remove()" style="flex:1;padding:11px;border:1px solid #E4E3DF;border-radius:9px;background:#fff;font-family:inherit;font-size:13px;color:#888785;cursor:pointer;">취소</button>
-        <button onclick="confirmAddWithPurchase()" style="flex:2;padding:11px;border:none;border-radius:9px;background:#18171A;color:#fff;font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;">${buyCount}장 구매하기</button>
-      </div>
-    </div>`;
-  overlay.addEventListener('click', e => { if(e.target === overlay) overlay.remove(); });
-
-  window._shortageInsertIdx = insertIdx;
-  window._shortageSpare = spare;
-  window._shortageBuyCount = buyCount;
-  window._shortageNbType = nb.type;
-  window._shortageNbId = nb.id;
-  document.body.appendChild(overlay);
-}
-
-function confirmAddWithPurchase(){
-  document.getElementById('add-shortage-overlay')?.remove();
-  pm.insertIdx = window._shortageInsertIdx;
-  pm.betweenQty = window._shortageBuyCount;
-  pm.pendingSpareCount = window._shortageSpare;
-  openPurchaseModal('addPage', window._shortageNbType, window._shortageNbId);
-}
 
 function _doUseSparePages(insertIdx, qty, silent){
   const nb = getNotebook(state.notebookId); if(!nb) return;
@@ -1538,12 +1429,7 @@ function renderSidebarPages(){
         ${locked ? `<div class="gn-lock-overlay"><svg width="18" height="18" viewBox="0 0 22 22" fill="none"><rect x="5" y="10" width="12" height="9" rx="2" fill="rgba(255,255,255,0.9)"/><path d="M7.5 10V7.5a3.5 3.5 0 0 1 7 0V10" stroke="rgba(255,255,255,0.9)" stroke-width="1.8" stroke-linecap="round"/></svg></div>` : ''}
       </div>
       <div class="gn-thumb-label">
-        <div style="display:flex;align-items:center;justify-content:space-between">
-          <span class="gn-thumb-num">${i+1}</span>
-          <button class="gn-thumb-ctx-btn" onclick="showPageCtxMenu(${i},event)" title="페이지 메뉴">
-            <svg width="11" height="11" viewBox="0 0 11 11" fill="none"><circle cx="5.5" cy="2" r="1" fill="currentColor"/><circle cx="5.5" cy="5.5" r="1" fill="currentColor"/><circle cx="5.5" cy="9" r="1" fill="currentColor"/></svg>
-          </button>
-        </div>
+        <span class="gn-thumb-num">${i+1}</span>
         <button class="gn-page-date-btn${pg.date?' has-date':''}" onclick="openSbPageDatePicker(${i},event)">
           <svg width="10" height="10" viewBox="0 0 12 12" fill="none"><rect x="1" y="2" width="10" height="9" rx="1.5" stroke="currentColor" stroke-width="1.3"/><path d="M4 1v2M8 1v2M1 5h10" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
           <span class="gn-date-text">${pg.date ? fmtDateForThumb(pg.date, nb.type) : '날짜 설정'}</span>
@@ -1567,188 +1453,6 @@ function renderSidebarPages(){
 }
 
 // ─── PAGE CONTEXT MENU ──────────────────────────
-function getBoundsForInsert(insertIdx, nb){
-  let min = null, max = null, minIdx = -1, maxIdx = -1;
-  nb.pages.forEach((pg, i) => {
-    if(!pg.date) return;
-    if(i < insertIdx){ if(!min || pg.date > min){ min = pg.date; minIdx = i; } }
-    else             { if(!max || pg.date < max){ max = pg.date; maxIdx = i; } }
-  });
-  return {min, max, minIdx, maxIdx};
-}
-
-// minIdx ~ maxIdx 사이의 날짜 없는 페이지 인덱스 반환
-function getUndatedBetween(minIdx, maxIdx, nb){
-  const result = [];
-  for(let i = minIdx + 1; i < maxIdx; i++){
-    if(!nb.pages[i].date) result.push(i);
-  }
-  return result;
-}
-
-function showPageCtxMenu(pageIdx, e){
-  e.stopPropagation();
-  document.getElementById('page-ctx-menu')?.remove();
-  const nb = getNotebook(state.notebookId); if(!nb) return;
-
-  const menu = document.createElement('div');
-  menu.id = 'page-ctx-menu';
-
-  const makeItem = (label, insertIdx) => {
-    const btn = document.createElement('button');
-    btn.textContent = label;
-    btn.onclick = () => {
-      menu.remove();
-      const {min, max, minIdx, maxIdx} = getBoundsForInsert(insertIdx, nb);
-      if(min && max){
-        const diff = Math.floor((new Date(max) - new Date(min)) / (1000*60*60*24));
-        if(diff <= 1){
-          // 연속 날짜 사이에 날짜 없는 페이지가 있으면 뒤로 보내는 흐름 제안
-          const undated = getUndatedBetween(minIdx, maxIdx, nb);
-          if(undated.length > 0){
-            doPushUndatedAndInsert(insertIdx, undated);
-          } else {
-            showPageNoRoomAlert(min, max);
-          }
-          return;
-        }
-        showInsertBetweenModal(insertIdx, min, max);
-      } else {
-        showAddPageModal(insertIdx);
-      }
-    };
-    return btn;
-  };
-
-  menu.appendChild(makeItem('이전 페이지 추가', pageIdx));
-  const sep = document.createElement('div'); sep.className = 'ctx-sep'; menu.appendChild(sep);
-  menu.appendChild(makeItem('다음 페이지 추가', pageIdx + 1));
-
-  const rect = e.currentTarget.getBoundingClientRect();
-  menu.style.left = Math.min(rect.left, window.innerWidth - 160) + 'px';
-  menu.style.top  = (rect.bottom + 4) + 'px';
-  document.body.appendChild(menu);
-
-  setTimeout(() => {
-    document.addEventListener('click', () => document.getElementById('page-ctx-menu')?.remove(), {once:true});
-  }, 0);
-}
-
-function fmtDateShort(iso){
-  if(!iso) return '';
-  const [,m,d] = iso.split('-');
-  return `${parseInt(m)}월 ${parseInt(d)}일`;
-}
-
-function showInsertBetweenModal(insertIdx, minDate, maxDate){
-  document.getElementById('insert-between-overlay')?.remove();
-  const diff = Math.floor((new Date(maxDate) - new Date(minDate)) / (1000*60*60*24));
-  const maxPages = diff - 1;
-  window._ibInsertIdx = insertIdx;
-  window._ibMin = minDate;
-  window._ibMax2 = maxDate;
-  window._ibMaxPages = maxPages;
-  window._ibQty = 1;
-
-  const overlay = document.createElement('div');
-  overlay.id = 'insert-between-overlay';
-  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.28);z-index:10000;display:flex;align-items:center;justify-content:center;';
-  overlay.innerHTML = `
-    <div style="background:#fff;border-radius:16px;padding:24px 22px 18px;max-width:290px;width:90%;box-shadow:0 8px 32px rgba(0,0,0,0.18);">
-      <p style="margin:0 0 4px;font-size:11px;color:#AEADAB;font-weight:500;">${fmtDateShort(minDate)} ~ ${fmtDateShort(maxDate)} 사이</p>
-      <h3 style="margin:0 0 18px;font-size:15px;font-weight:700;color:#1A1918;">몇 장을 추가할까요?</h3>
-      <div style="display:flex;align-items:center;justify-content:center;gap:20px;margin-bottom:8px;">
-        <button onclick="adjustIbQty(-1)" style="width:38px;height:38px;border-radius:50%;border:1.5px solid #E4E3DF;background:#fff;font-size:20px;cursor:pointer;color:#555;display:flex;align-items:center;justify-content:center;">−</button>
-        <span id="ib-qty-val" style="font-size:28px;font-weight:700;color:#1A1918;min-width:44px;text-align:center;">1</span>
-        <button onclick="adjustIbQty(1)" style="width:38px;height:38px;border-radius:50%;border:1.5px solid #E4E3DF;background:#fff;font-size:20px;cursor:pointer;color:#555;display:flex;align-items:center;justify-content:center;">+</button>
-      </div>
-      <p style="margin:0 0 20px;font-size:11px;color:#AEADAB;text-align:center;">최대 ${maxPages}장까지 추가할 수 있어요</p>
-      <div style="display:flex;gap:8px;">
-        <button onclick="document.getElementById('insert-between-overlay').remove()" style="flex:1;padding:11px;border:1px solid #E4E3DF;border-radius:9px;background:#fff;font-family:inherit;font-size:13px;color:#888785;cursor:pointer;">취소</button>
-        <button onclick="goToPurchaseFromBetween()" style="flex:2;padding:11px;border:none;border-radius:9px;background:#18171A;color:#fff;font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;">다음</button>
-      </div>
-    </div>`;
-  overlay.addEventListener('click', e => { if(e.target === overlay) overlay.remove(); });
-  document.body.appendChild(overlay);
-}
-
-function adjustIbQty(delta){
-  window._ibQty = Math.max(1, Math.min(window._ibMaxPages, (window._ibQty||1) + delta));
-  const el = document.getElementById('ib-qty-val');
-  if(el) el.textContent = window._ibQty;
-}
-
-function goToPurchaseFromBetween(){
-  const qty = window._ibQty || 1;
-  document.getElementById('insert-between-overlay')?.remove();
-  const nb = getNotebook(state.notebookId); if(!nb) return;
-  const spare = nb.pages.filter(p => !p.date).length;
-  const insertIdx = window._ibInsertIdx;
-
-  if(spare >= qty){
-    _doUseSparePages(insertIdx, qty, false);
-  } else {
-    const buyCount = qty - spare;
-    pm.insertIdx        = insertIdx;
-    pm.betweenMin       = window._ibMin;
-    pm.betweenMax       = window._ibMax2;
-    pm.betweenQty       = buyCount;
-    pm.pendingSpareCount = spare;
-    openPurchaseModal('addPage', nb.type, nb.id);
-  }
-}
-
-function showPageNoRoomAlert(minDate, maxDate){
-  const overlay = document.createElement('div');
-  overlay.className = 'page-no-room-overlay';
-  const range = (minDate && maxDate) ? `<br><span style="font-size:11px;color:#C0BFBC;">${fmtDateShort(minDate)} · ${fmtDateShort(maxDate)}</span>` : '';
-  overlay.innerHTML = `
-    <div class="page-no-room-box">
-      <h3>페이지를 추가할 수 없어요</h3>
-      <p>앞뒤 페이지의 날짜가 연속되어 있어<br>사이에 새 날짜를 넣을 공간이 없어요.${range}</p>
-      <button onclick="this.closest('.page-no-room-overlay').remove()">확인</button>
-    </div>`;
-  overlay.addEventListener('click', e => { if(e.target === overlay) overlay.remove(); });
-  document.body.appendChild(overlay);
-}
-
-function showPushUndatedAndInsertModal(insertIdx, minDate, maxDate, minIdx, maxIdx, undatedIndices){
-  const overlay = document.createElement('div');
-  overlay.className = 'page-no-room-overlay';
-  const n = undatedIndices.length;
-  overlay.innerHTML = `
-    <div class="page-no-room-box">
-      <h3>날짜 없는 페이지를 뒤로 보낼까요?</h3>
-      <p>${fmtDateShort(minDate)}과 ${fmtDateShort(maxDate)} 사이에<br>날짜 없는 페이지 <strong>${n}장</strong>이 있어요.<br>맨 뒤로 보내고 이 자리에 새 페이지를 추가할게요.</p>
-      <div style="display:flex;gap:8px;margin-top:4px;">
-        <button onclick="this.closest('.page-no-room-overlay').remove()" style="flex:1;padding:10px;border:1px solid #E4E3DF;border-radius:8px;background:#fff;font-family:inherit;font-size:12.5px;color:#888785;cursor:pointer;">취소</button>
-        <button onclick="doPushUndatedAndInsert(${insertIdx},${JSON.stringify(undatedIndices)})" style="flex:2;padding:10px;border:none;border-radius:8px;background:#18171A;color:#fff;font-family:inherit;font-size:12.5px;font-weight:600;cursor:pointer;">뒤로 보내고 추가하기</button>
-      </div>
-    </div>`;
-  overlay.addEventListener('click', e => { if(e.target === overlay) overlay.remove(); });
-  document.body.appendChild(overlay);
-}
-
-function doPushUndatedAndInsert(insertIdx, undatedIndices){
-  document.querySelector('.page-no-room-overlay')?.remove();
-  const nb = getNotebook(state.notebookId); if(!nb) return;
-
-  // 인덱스 내림차순으로 제거
-  const sorted = [...undatedIndices].sort((a,b)=>b-a);
-  const removed = sorted.map(i => { const [pg] = nb.pages.splice(i,1); return pg; }).reverse();
-
-  // state.pageIdx 보정
-  const removedBeforeCurrent = undatedIndices.filter(i => i < state.pageIdx).length;
-  state.pageIdx -= removedBeforeCurrent;
-  if(openTabs[activeTabIdx]) openTabs[activeTabIdx].pageIdx = state.pageIdx;
-
-  // 맨 뒤에 붙이기
-  nb.pages.push(...removed);
-
-  saveData();
-  showToast(`날짜 없는 페이지 ${removed.length}장을 맨 뒤로 이동했어요`);
-  renderSidebarPages();
-}
 
 function goToTodayPage(){
   const nb = getNotebook(state.notebookId); if(!nb) return;
