@@ -319,6 +319,8 @@ body.drawing-mode #app { display: none; }
 #draw-canvas { display: block; cursor: crosshair; touch-action: none; }
 .canvas-lock-overlay { display:none; position:absolute; inset:0; backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px); background:rgba(30,28,35,0.18); z-index:10; pointer-events:none; }
 .canvas-lock-overlay.show { display:block; }
+.canvas-nodate-overlay { display:none; position:absolute; inset:0; backdrop-filter:blur(6px); -webkit-backdrop-filter:blur(6px); background:rgba(30,28,35,0.25); z-index:5; pointer-events:none; }
+.canvas-nodate-overlay.show { display:block; }
 .page-locked-float { display:none; position:absolute; bottom:22px; left:50%; transform:translateX(-50%); z-index:20; }
 .page-locked-float.show { display:flex; }
 .page-locked-float-btn { display:flex; align-items:center; gap:7px; padding:10px 20px; background:rgba(28,26,33,0.88); border:1.5px solid rgba(255,208,64,0.35); border-radius:99px; color:#FFD040; font-family:inherit; font-size:13px; font-weight:600; cursor:pointer; box-shadow:0 4px 20px rgba(0,0,0,0.35); backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px); white-space:nowrap; }
@@ -1717,6 +1719,8 @@ function initAllCanvases(){
     const locked = isPageLocked(pg);
     const lockEl = document.createElement('div');
     lockEl.className = `canvas-lock-overlay${locked?' show':''}`;
+    const nodateEl = document.createElement('div');
+    nodateEl.className = `canvas-nodate-overlay${!pg.date?' show':''}`;
     const floatEl = document.createElement('div');
     floatEl.className = `page-locked-float${locked?' show':''}`;
     floatEl.innerHTML = `<button class="page-locked-float-btn" onclick="showLockedPagePopup()"><svg width="13" height="13" viewBox="0 0 13 13" fill="none"><rect x="2.5" y="6" width="8" height="5.5" rx="1.5" fill="#FFD040"/><path d="M4 6V4.5a2.5 2.5 0 0 1 5 0V6" stroke="#FFD040" stroke-width="1.4" stroke-linecap="round"/></svg>잠긴 페이지</button>`;
@@ -1736,7 +1740,7 @@ function initAllCanvases(){
         <button id="pui-play-pg-${i}" class="pui-tbtn" onclick="activatePageAndToggleTimer(${i})">▶</button>
         <button class="pui-tbtn pui-tbtn-reset" onclick="activatePageAndResetTimer(${i})" title="초기화">↺</button>
       </div>`;
-    wrapper.appendChild(canvas); wrapper.appendChild(lockEl); wrapper.appendChild(floatEl); wrapper.appendChild(paperUiEl);
+    wrapper.appendChild(canvas); wrapper.appendChild(nodateEl); wrapper.appendChild(lockEl); wrapper.appendChild(floatEl); wrapper.appendChild(paperUiEl);
     slot.appendChild(wrapper); list.appendChild(slot);
     canvas.addEventListener('pointerdown', e => onPD(e, i, canvas));
     canvas.addEventListener('pointermove', e => onPM(e, canvas));
