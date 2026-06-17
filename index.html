@@ -445,9 +445,6 @@ body.drawing-mode #app { display: none; }
       <div class="tb-sep"></div>
       <div id="tb-sizes" style="display:flex;gap:4px;align-items:center"></div>
       <div class="tb-spacer"></div>
-      <span id="pui-timer" class="pui-timer-time">00:00</span>
-      <button class="tb-icon-btn" id="pui-play" onclick="toggleTimer()" style="font-size:9px;letter-spacing:-1px">▶</button>
-      <button class="tb-icon-btn" onclick="resetTimer()" style="font-size:14px" title="타이머 초기화">↺</button>
       <div class="tb-sep"></div>
       <button class="tb-icon-btn" onclick="undoDraw()" title="실행 취소">
         <svg width="15" height="15" viewBox="0 0 15 15" fill="none">
@@ -1411,7 +1408,6 @@ function renderSidebarPages(){
         ${locked ? `<div class="gn-lock-overlay"><svg width="18" height="18" viewBox="0 0 22 22" fill="none"><rect x="5" y="10" width="12" height="9" rx="2" fill="rgba(255,255,255,0.9)"/><path d="M7.5 10V7.5a3.5 3.5 0 0 1 7 0V10" stroke="rgba(255,255,255,0.9)" stroke-width="1.8" stroke-linecap="round"/></svg></div>` : ''}
       </div>
       <div class="gn-thumb-label">
-        <span class="gn-thumb-num">${i+1}</span>
         <button class="gn-page-date-btn${pg.date?' has-date':''}" onclick="openSbPageDatePicker(${i},event)">
           <svg width="10" height="10" viewBox="0 0 12 12" fill="none"><rect x="1" y="2" width="10" height="9" rx="1.5" stroke="currentColor" stroke-width="1.3"/><path d="M4 1v2M8 1v2M1 5h10" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
           <span class="gn-date-text">${pg.date ? fmtDateForThumb(pg.date, nb.type) : '날짜 설정'}</span>
@@ -1514,6 +1510,9 @@ function redrawPageCanvas(idx){
   drawPaper(cx,w,h,nb.type,pg.date,pg.date?(db.studyRecords[pg.date]||0):0);
   getPageStrokes(pg).forEach(s=>drawStroke(cx,s,w,h));
   if(idx===state.pageIdx){ ctx=cx; canvasEl=c; }
+  // 오버레이 날짜 텍스트 업데이트
+  const dtEl = document.getElementById(`pui-date-text-pg-${idx}`);
+  if(dtEl) dtEl.textContent = pg.date ? fmtDateForDisplay(pg.date, nb.type) : '날짜 설정';
 }
 
 // ─── TOOLBAR ────────────────────────────────────
@@ -1577,7 +1576,23 @@ function initAllCanvases(){
     const floatEl = document.createElement('div');
     floatEl.className = `page-locked-float${locked?' show':''}`;
     floatEl.innerHTML = `<button class="page-locked-float-btn" onclick="showLockedPagePopup()"><svg width="13" height="13" viewBox="0 0 13 13" fill="none"><rect x="2.5" y="6" width="8" height="5.5" rx="1.5" fill="#FFD040"/><path d="M4 6V4.5a2.5 2.5 0 0 1 5 0V6" stroke="#FFD040" stroke-width="1.4" stroke-linecap="round"/></svg>잠긴 페이지</button>`;
-    wrapper.appendChild(canvas); wrapper.appendChild(lockEl); wrapper.appendChild(floatEl);
+    const paperUiEl = document.createElement('div');
+    paperUiEl.className = 'paper-ui';
+    paperUiEl.style.height = Math.round(cH * HEADER_RATIO) + 'px';
+    const dateLabel = pg.date ? fmtDateForDisplay(pg.date, nb.type) : '날짜 설정';
+    paperUiEl.innerHTML = `
+      <div class="pui-left">
+        <button class="pui-date-btn${locked?' locked':''}" onclick="${locked?'void(0)':'openSbPageDatePicker('+i+',event)'}">
+          <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><rect x="1" y="2.5" width="10" height="9" rx="1.5" stroke="currentColor" stroke-width="1.3"/><path d="M4 1v3M8 1v3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><line x1="1" y1="6" x2="11" y2="6" stroke="currentColor" stroke-width="1.3"/></svg>
+          <span id="pui-date-text-pg-${i}">${dateLabel}</span>
+        </button>
+      </div>
+      <div class="pui-right">
+        <span id="pui-timer-pg-${i}" class="pui-timer-time">00:00</span>
+        <button id="pui-play-pg-${i}" class="pui-tbtn" onclick="activatePageAndToggleTimer(${i})">▶</button>
+        <button class="pui-tbtn pui-tbtn-reset" onclick="activatePageAndResetTimer(${i})" title="초기화">↺</button>
+      </div>`;
+    wrapper.appendChild(canvas); wrapper.appendChild(lockEl); wrapper.appendChild(floatEl); wrapper.appendChild(paperUiEl);
     slot.appendChild(wrapper); list.appendChild(slot);
     canvas.addEventListener('pointerdown', e => onPD(e, i, canvas));
     canvas.addEventListener('pointermove', e => onPM(e, canvas));
@@ -2598,11 +2613,22 @@ function clearDraw(){
 // ─── TIMER ──────────────────────────────────────
 function currentElapsed(){ return state.timer.running ? state.timer.savedTime+(Date.now()-state.timer.startTime)/1000 : state.timer.savedTime; }
 function updateTimerUI(){
-  const t=document.getElementById('pui-timer'); if(t) t.textContent=fmtTime(currentElapsed());
-  const b=document.getElementById('pui-play');
-  if(b){ b.textContent=state.timer.running?'⏸':'▶'; b.classList.toggle('playing',state.timer.running); }
-  const tt=document.getElementById('pui-timer');
-  if(tt) tt.classList.toggle('running',state.timer.running);
+  const elapsed = fmtTime(currentElapsed());
+  const running = state.timer.running;
+  const idx = state.pageIdx;
+  const pt = document.getElementById(`pui-timer-pg-${idx}`);
+  if(pt){ pt.textContent = elapsed; pt.classList.toggle('running', running); }
+  const pb = document.getElementById(`pui-play-pg-${idx}`);
+  if(pb){ pb.textContent = running ? '⏸' : '▶'; pb.classList.toggle('playing', running); }
+}
+
+function activatePageAndToggleTimer(idx){
+  if(idx !== state.pageIdx) switchPage(idx);
+  toggleTimer();
+}
+function activatePageAndResetTimer(idx){
+  if(idx !== state.pageIdx) switchPage(idx);
+  resetTimer();
 }
 function toggleTimer(){
   if(!state.timer.running){
