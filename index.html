@@ -1688,20 +1688,6 @@ function renderDailyPickerContent(){
   const nb = getNotebook(state.notebookId);
   const pg = nb && nb.pages[state.pageIdx];
   const sel = pg?.date || null;
-  const bounds = getDateBoundsForPage(state.pageIdx, nb);
-
-  // 앞뒤 날짜가 연속이라 설정 가능한 날짜가 없는 경우
-  if(!sel && bounds.min && bounds.max){
-    const diff = Math.floor((new Date(bounds.max) - new Date(bounds.min)) / (1000*60*60*24));
-    if(diff <= 1){
-      return `<div style="padding:12px 4px 4px;text-align:center;">
-        <p style="margin:0 0 6px;font-size:12px;font-weight:600;color:#1A1918;">날짜를 설정할 수 없어요</p>
-        <p style="margin:0 0 14px;font-size:11px;color:#AEADAB;line-height:1.55;">${fmtDateShort(bounds.min)}과 ${fmtDateShort(bounds.max)} 사이라<br>지정 가능한 날짜가 없어요.</p>
-        <button onclick="pushCurrentPageToBack()" style="width:100%;padding:9px;border:none;border-radius:8px;background:#18171A;color:#fff;font-family:inherit;font-size:12.5px;font-weight:600;cursor:pointer;">이 페이지를 맨 뒤로 보내기</button>
-      </div>`;
-    }
-  }
-
   return `<div class="dp-calendar">${renderCalGrid(sel,'selectDay',false,getUsedDates())}${DP_CLEAR_BTN}</div>`;
 }
 
@@ -1826,11 +1812,10 @@ function refreshSbPageDp(){
   const pg = nb.pages[idx]; if(!pg) return;
   const content = document.getElementById('sb-page-dp-content'); if(!content) return;
   const usedDates = new Set(nb.pages.filter((_,i)=> i !== idx && nb.pages[i].date).map(p=>p.date));
-  const bounds = getDateBoundsForPage(idx, nb);
   const yr = sbPageDpState.year, mo = sbPageDpState.month;
   let html;
   if(nb.type === 'weekly'){
-    html = `<div class="dp-calendar">${renderCalGrid(pg.date,'sbSelectDate',true,usedDates,bounds,'sbDpNav',yr,mo)}</div>`;
+    html = `<div class="dp-calendar">${renderCalGrid(pg.date,'sbSelectDate',true,usedDates,{},'sbDpNav',yr,mo)}</div>`;
   } else if(nb.type === 'monthly'){
     const months = ['1월','2월','3월','4월','5월','6월','7월','8월','9월','10월','11월','12월'];
     const grid = months.map((m,i)=>{
@@ -1840,7 +1825,7 @@ function refreshSbPageDp(){
     }).join('');
     html = `<div class="dp-calendar">${dpCalHeader(`${yr}년`,'sbDpNavYear')}<div class="dp-month-grid">${grid}</div></div>`;
   } else {
-    html = `<div class="dp-calendar">${renderCalGrid(pg.date,'sbSelectDate',false,usedDates,bounds,'sbDpNav',yr,mo)}</div>`;
+    html = `<div class="dp-calendar">${renderCalGrid(pg.date,'sbSelectDate',false,usedDates,{},'sbDpNav',yr,mo)}</div>`;
   }
   content.innerHTML = html;
 }
