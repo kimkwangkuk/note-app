@@ -1700,16 +1700,6 @@ function initAllCanvases(){
   let cW = Math.min(Math.max(aW, 320), 760);
   let cH = Math.round(cW*(4/3));
   list.innerHTML = '';
-  // 첫 페이지에 날짜가 있으면 "이전 날짜 추가" 버튼 표시
-  if(nb.pages[0] && nb.pages[0].date){
-    const wrap = document.createElement('div');
-    wrap.className = 'prepend-planner-wrap';
-    wrap.innerHTML = `<button class="prepend-planner-btn" onclick="openPrependPlanner(event)">
-      <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><line x1="6.5" y1="1" x2="6.5" y2="12" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><line x1="1" y1="6.5" x2="12" y2="6.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
-      이전 날짜의 플래너 추가하기
-    </button>`;
-    list.appendChild(wrap);
-  }
   nb.pages.forEach((pg, i) => {
     const slot = document.createElement('div');
     slot.className = 'page-slot'; slot.id = `page-slot-${i}`; slot.dataset.pageIdx = i;
