@@ -1492,29 +1492,44 @@ function openGapPicker(mode){
     showToast('날짜가 설정된 페이지가 아닙니다');
     return;
   }
-  let date1, date2, insertIdx;
+  let insertIdx;
+  let bounds;
   if(mode==='before'){
     let prevDate=null; for(let i=idx-1;i>=0;i--){ if(nb.pages[i].date){ prevDate=nb.pages[i].date; break; } }
-    date1=prevDate; date2=pg.date; insertIdx=idx;
-    if(!date1){ showToast('이전에 날짜가 설정된 페이지가 없습니다'); return; }
+    insertIdx=idx;
+    if(!prevDate){
+      // 첫 페이지 or 이전 날짜 없음 — pg.date 이전 날짜 모두 선택 가능
+      let maxDate;
+      if(nb.type==='daily'){
+        const [y,m,d]=pg.date.split('-').map(Number);
+        maxDate=new Date(Date.UTC(y,m-1,d-1)).toISOString().slice(0,10);
+      } else if(nb.type==='weekly'){
+        maxDate=isoWeekOffset(pg.date,-1);
+      } else {
+        const [y,m]=pg.date.split('-').map(Number);
+        maxDate=m===1?`${y-1}-12`:`${y}-${String(m-1).padStart(2,'0')}`;
+      }
+      bounds={min:null,max:maxDate};
+    } else {
+      bounds=computeGapBounds(prevDate,pg.date,nb.type);
+      if(!bounds){ showToast('연속된 날짜라서 추가할 수 없습니다'); return; }
+    }
   } else {
     let nextDate=null; for(let i=idx+1;i<nb.pages.length;i++){ if(nb.pages[i].date){ nextDate=nb.pages[i].date; break; } }
-    date1=pg.date; date2=nextDate; insertIdx=idx+1;
-    if(!date2){ showToast('이후에 날짜가 설정된 페이지가 없습니다'); return; }
+    insertIdx=idx+1;
+    if(!nextDate){ showToast('이후에 날짜가 설정된 페이지가 없습니다'); return; }
+    bounds=computeGapBounds(pg.date,nextDate,nb.type);
+    if(!bounds){ showToast('연속된 날짜라서 추가할 수 없습니다'); return; }
   }
-  const bounds = computeGapBounds(date1, date2, nb.type);
-  if(!bounds){ showToast('연속된 날짜라서 추가할 수 없습니다'); return; }
   sbPageDpState.gapMode=true; sbPageDpState.prependMode=false;
   sbPageDpState.gapInsertIdx=insertIdx; sbPageDpState.gapBounds=bounds;
   const titleEl=document.getElementById('sb-page-dp-title'); if(titleEl) titleEl.textContent='날짜 추가';
   const clearBtn=document.getElementById('sb-dp-clear-btn'); if(clearBtn) clearBtn.style.visibility='hidden';
-  // 캘린더를 bounds 범위 안 월로 초기화
-  const refDate = new Date((bounds.min||bounds.max)+'T00:00:00');
+  const refDate=new Date(((bounds.min||bounds.max)||new Date().toISOString().slice(0,10))+'T00:00:00');
   sbPageDpState.year=refDate.getFullYear(); sbPageDpState.month=refDate.getMonth();
   refreshSbPageDp();
   const popup=document.getElementById('sb-page-dp'); if(!popup) return;
   popup.style.display='block';
-  // 사이드바 오른쪽에 팝업 위치
   const sb=document.querySelector('.gn-sidebar');
   const sbRect=sb?sb.getBoundingClientRect():{right:200,top:0};
   const popupW=258, popupH=320;
@@ -1843,7 +1858,7 @@ function renderCalGrid(selectedVal, onClickFn, isWeekMode, usedDates=new Set(), 
           const isSel   = (selectedVal === d.isoDate);
           const isToday = (d.isoDate === todayIso);
           const isUsed  = !isSel && usedDates.has(d.isoDate);
-          const isOOB   = !isSel && ((bounds.min && d.isoDate <= bounds.min) || (bounds.max && d.isoDate >= bounds.max));
+          const isOOB   = !isSel && ((bounds.min && d.isoDate < bounds.min) || (bounds.max && d.isoDate > bounds.max));
           const isBlock = isUsed || isOOB;
           let style = `border-radius:50%;width:26px;height:26px;line-height:26px;margin:1px auto;padding:0;`;
           if(isSel)             style += 'cursor:pointer;background:#18171A;color:#fff!important;';
