@@ -327,7 +327,7 @@ body.drawing-mode #app { display: none; }
 .page-locked-float-btn svg { flex-shrink:0; }
 
 /* Paper UI overlay */
-.paper-ui { position: absolute; top: 0; left: 0; right: 0; pointer-events: none; display: flex; align-items: center; padding: 0 20px; gap: 10px; }
+.paper-ui { position: absolute; top: 0; left: 0; right: 0; pointer-events: none; display: flex; align-items: center; padding: 0 20px; gap: 10px; z-index: 6; }
 .pui-left { pointer-events: auto; display: flex; align-items: center; gap: 7px; }
 .pui-date-btn { background: none; border: none; cursor: pointer; font-family: inherit; font-size: 12px; font-weight: 500; color: #9A9997; letter-spacing: 0; padding: 0; line-height: 1; transition: color .15s; display: flex; align-items: center; gap: 4px; }
 .pui-date-btn:hover { color: #1A1918; }
@@ -1666,9 +1666,16 @@ function redrawPageCanvas(idx){
   drawPaper(cx,w,h,nb.type,pg.date,pg.date?(db.studyRecords[pg.date]||0):0);
   getPageStrokes(pg).forEach(s=>drawStroke(cx,s,w,h));
   if(idx===state.pageIdx){ ctx=cx; canvasEl=c; }
-  // 오버레이 날짜 텍스트 업데이트
+  // 오버레이 날짜 텍스트 + nodate blur 업데이트
   const dtEl = document.getElementById(`pui-date-text-pg-${idx}`);
   if(dtEl) dtEl.textContent = pg.date ? fmtDateForDisplay(pg.date, nb.type) : '날짜 설정';
+  const slot = document.getElementById(`page-slot-${idx}`);
+  if(slot){
+    const nd = slot.querySelector('.canvas-nodate-overlay');
+    if(nd) nd.classList.toggle('show', !pg.date);
+    const tc = slot.querySelector('.gn-thumb-canvas');
+    if(tc) tc.classList.toggle('no-date', !pg.date);
+  }
 }
 
 // ─── TOOLBAR ────────────────────────────────────
