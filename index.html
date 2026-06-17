@@ -298,9 +298,11 @@ body.drawing-mode #app { display: none; }
 .size-dot { border-radius: 50%; background: currentColor; flex-shrink: 0; }
 
 /* ── Canvas area ── */
-.gn-canvas-area { flex: 1; overflow: auto; background: #505050; display: flex; align-items: flex-start; justify-content: center; padding: 28px; }
+.gn-canvas-area { flex: 1; overflow: auto; background: #505050; padding: 28px; }
 .gn-canvas-area::-webkit-scrollbar { width: 6px; height: 6px; }
 .gn-canvas-area::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.18); border-radius: 3px; }
+#page-scroll-list { display:flex; flex-direction:column; align-items:center; gap:32px; padding-bottom:40px; }
+.page-slot { flex-shrink:0; }
 .canvas-wrapper { position: relative; line-height: 0; box-shadow: 0 8px 52px rgba(0,0,0,0.5); flex-shrink: 0; }
 #draw-canvas { display: block; cursor: crosshair; touch-action: none; }
 .canvas-lock-overlay { display:none; position:absolute; inset:0; backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px); background:rgba(30,28,35,0.18); z-index:10; pointer-events:none; }
@@ -323,11 +325,11 @@ body.drawing-mode #app { display: none; }
 #pui-date-input { position: absolute; opacity: 0; pointer-events: none; width: 1px; height: 1px; top: 0; left: 0; }
 /* Date popover */
 .pui-date-popup {
-  position: absolute; top: calc(100% + 6px); left: 16px;
+  position: fixed; top: 80px; left: 16px;
   background: #fff; border-radius: 12px;
   box-shadow: 0 4px 24px rgba(0,0,0,0.14), 0 1px 4px rgba(0,0,0,0.06);
   border: 1px solid rgba(0,0,0,0.08);
-  padding: 14px 14px 12px; display: none; z-index: 20;
+  padding: 14px 14px 12px; display: none; z-index: 200;
   pointer-events: auto; min-width: 252px; overflow: hidden;
 }
 .pui-date-popup.show { display: block; animation: fadeIn .12s ease; }
@@ -440,6 +442,10 @@ body.drawing-mode #app { display: none; }
       <div class="tb-sep"></div>
       <div id="tb-sizes" style="display:flex;gap:4px;align-items:center"></div>
       <div class="tb-spacer"></div>
+      <span id="pui-timer" class="pui-timer-time">00:00</span>
+      <button class="tb-icon-btn" id="pui-play" onclick="toggleTimer()" style="font-size:9px;letter-spacing:-1px">▶</button>
+      <button class="tb-icon-btn" onclick="resetTimer()" style="font-size:14px" title="타이머 초기화">↺</button>
+      <div class="tb-sep"></div>
       <button class="tb-icon-btn" onclick="undoDraw()" title="실행 취소">
         <svg width="15" height="15" viewBox="0 0 15 15" fill="none">
           <path d="M3.5 5H9.5C11.4 5 13 6.6 13 8.5S11.4 12 9.5 12H5.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
@@ -454,38 +460,7 @@ body.drawing-mode #app { display: none; }
     </div>
 
     <div class="gn-canvas-area" id="gn-canvas-area">
-      <div class="canvas-wrapper" id="canvas-wrapper">
-        <canvas id="draw-canvas"></canvas>
-        <div class="canvas-lock-overlay" id="canvas-lock-overlay"></div>
-        <div class="page-locked-float" id="page-locked-float">
-          <button class="page-locked-float-btn" onclick="showLockedPagePopup()">
-            <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><rect x="2.5" y="6" width="8" height="5.5" rx="1.5" fill="#FFD040"/><path d="M4 6V4.5a2.5 2.5 0 0 1 5 0V6" stroke="#FFD040" stroke-width="1.4" stroke-linecap="round"/></svg>
-            잠긴 페이지
-          </button>
-        </div>
-        <div class="paper-ui" id="paper-ui">
-          <div class="pui-left" style="position:relative">
-            <button class="pui-date-btn" onclick="toggleDatePopup(event)">
-              <svg width="11" height="11" viewBox="0 0 12 12" fill="none">
-                <rect x="1" y="2" width="10" height="9" rx="1.5" stroke="currentColor" stroke-width="1.2"/>
-                <path d="M4 1v2M8 1v2M1 5h10" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
-              </svg>
-              <span id="pui-date-text">날짜 설정</span>
-            </button>
-            <input type="date" id="pui-date-input" onchange="setPageDate(this.value)"/>
-            <!-- Date popover (content rendered by JS) -->
-            <div class="pui-date-popup" id="pui-date-popup">
-              <label class="pui-dp-label" id="pui-dp-label">날짜 선택 <span id="pui-dp-header-sub"></span></label>
-              <div id="pui-dp-content"></div>
-            </div>
-          </div>
-          <div class="pui-right">
-            <span class="pui-timer-time" id="pui-timer">00:00</span>
-            <button class="pui-tbtn" id="pui-play" onclick="toggleTimer()">▶</button>
-            <button class="pui-tbtn pui-tbtn-reset" onclick="resetTimer()" title="초기화">↺</button>
-          </div>
-        </div>
-      </div>
+      <div id="page-scroll-list"></div>
     </div>
   </div>
 </div>
@@ -1094,6 +1069,7 @@ function confirmPurchase(){
       saveData();
       showToast(`종이 ${pendingSpare + pageCount}장이 추가되었어요 ✓`);
       renderSidebarPages();
+      setTimeout(initAllCanvases, 60);
     } else {
       const newPages = Array.from({length:pageCount},()=>({date:null, origin: isPremium ? 'premium' : 'paid'}));
       if(insertIdx !== null && insertIdx !== undefined){
@@ -1111,8 +1087,10 @@ function confirmPurchase(){
       renderSidebarPages();
       if(sbCalDates){
         _sbCalBindDates(sbCalDates);
+        setTimeout(initAllCanvases, 60);
         return;
       }
+      setTimeout(initAllCanvases, 60);
       switchPage(firstNewIdx);
     }
   } else {
@@ -1170,6 +1148,7 @@ function _doUseSparePages(insertIdx, qty, silent){
   if(!silent) showToast(`종이 ${qty}장이 추가되었어요 ✓`);
   switchPage(realInsert);
   renderSidebarPages();
+  setTimeout(initAllCanvases, 60);
 }
 
 // ─── RENAME ─────────────────────────────────────
@@ -1236,7 +1215,7 @@ function enterDrawing(){
   state.timer = {running:false, startTime:null, savedTime:pg?.date ? (db.studyRecords[pg.date]||0) : 0, interval:null};
   renderSidebarPages();
   renderToolbar();
-  setTimeout(initCanvas, 60);
+  setTimeout(initAllCanvases, 60);
 }
 
 // ─── SIDEBAR CALENDAR POPUP ─────────────────────
@@ -1481,10 +1460,57 @@ function switchPage(idx){
   state.pageIdx = idx;
   const pg = nb.pages[idx];
   state.timer = {running:false, startTime:null, savedTime:pg.date ? (db.studyRecords[pg.date]||0) : 0, interval:null};
+  const newCanvas = document.getElementById(`page-canvas-${idx}`);
+  if(newCanvas){ canvasEl = newCanvas; ctx = newCanvas.getContext('2d'); }
   document.querySelectorAll('.gn-page-thumb-wrap').forEach(el=>el.classList.toggle('active', el.id===`gn-tw-${idx}`));
   document.getElementById(`gn-tw-${idx}`)?.scrollIntoView({behavior:'smooth',block:'nearest'});
-  updatePaperUI();
-  redrawCanvas();
+  scrollToPageSlot(idx);
+  updateTimerUI();
+}
+
+function scrollToPageSlot(idx, behavior='smooth'){
+  const slot = document.getElementById(`page-slot-${idx}`);
+  const area = document.getElementById('gn-canvas-area');
+  if(!slot || !area) return;
+  const slotRect = slot.getBoundingClientRect();
+  const areaRect = area.getBoundingClientRect();
+  const target = area.scrollTop + slotRect.top - areaRect.top;
+  area.scrollTop = target;
+}
+
+let _pageObserver = null;
+function setupPageObserver(){
+  if(_pageObserver) _pageObserver.disconnect();
+  const area = document.getElementById('gn-canvas-area'); if(!area) return;
+  _pageObserver = new IntersectionObserver(entries=>{
+    let best = null, bestRatio = 0;
+    entries.forEach(e=>{ if(e.isIntersecting && e.intersectionRatio > bestRatio){ bestRatio=e.intersectionRatio; best=e.target; } });
+    if(best){
+      const idx = parseInt(best.dataset.pageIdx);
+      if(!isNaN(idx) && idx !== state.pageIdx){
+        state.pageIdx = idx;
+        if(openTabs[activeTabIdx]) openTabs[activeTabIdx].pageIdx = idx;
+        const c = document.getElementById(`page-canvas-${idx}`);
+        if(c){ canvasEl=c; ctx=c.getContext('2d'); }
+        document.querySelectorAll('.gn-page-thumb-wrap').forEach(el=>el.classList.toggle('active',el.id===`gn-tw-${idx}`));
+        document.getElementById(`gn-tw-${idx}`)?.scrollIntoView({behavior:'smooth',block:'nearest'});
+        const nb=getNotebook(state.notebookId), pg=nb&&nb.pages[idx];
+        state.timer.savedTime = pg?.date?(db.studyRecords[pg.date]||0):0;
+        updateTimerUI();
+      }
+    }
+  },{root:area, threshold:[0.3,0.6]});
+  document.querySelectorAll('.page-slot').forEach(el=>_pageObserver.observe(el));
+}
+
+function redrawPageCanvas(idx){
+  const nb=getNotebook(state.notebookId); if(!nb) return;
+  const pg=nb.pages[idx]; if(!pg) return;
+  const c=document.getElementById(`page-canvas-${idx}`); if(!c) return;
+  const cx=c.getContext('2d'), w=c._cssW, h=c._cssH; if(!w||!h) return;
+  drawPaper(cx,w,h,nb.type,pg.date,pg.date?(db.studyRecords[pg.date]||0):0);
+  getPageStrokes(pg).forEach(s=>drawStroke(cx,s,w,h));
+  if(idx===state.pageIdx){ ctx=cx; canvasEl=c; }
 }
 
 // ─── TOOLBAR ────────────────────────────────────
@@ -1509,24 +1535,47 @@ function setDrawColor(i){ draw.colorIdx=i; syncToolUI(); }
 function setDrawSize(i){ draw.sizeIdx=i; syncToolUI(); }
 
 // ─── CANVAS ─────────────────────────────────────
-function initCanvas(){
-  canvasEl = document.getElementById('draw-canvas'); if(!canvasEl) return;
+function initAllCanvases(){
+  const nb = getNotebook(state.notebookId); if(!nb) return;
   const area = document.getElementById('gn-canvas-area');
+  const list = document.getElementById('page-scroll-list');
+  if(!area || !list) return;
   const dpr = window.devicePixelRatio||1;
-  const aW = area.clientWidth-56, aH = area.clientHeight-56;
-  let cW = Math.min(Math.max(aW,320),760);
+  const aW = area.clientWidth - 56;
+  let cW = Math.min(Math.max(aW, 320), 760);
   let cH = Math.round(cW*(4/3));
-  if(cH>aH){ cH=aH; cW=Math.round(cH*0.75); }
-  canvasEl.style.width = cW+'px'; canvasEl.style.height = cH+'px';
-  canvasEl.width = Math.round(cW*dpr); canvasEl.height = Math.round(cH*dpr);
-  canvasEl._dpr = dpr; canvasEl._cssW = cW; canvasEl._cssH = cH;
-  ctx = canvasEl.getContext('2d');
-  ctx.scale(dpr, dpr);
-  const paperUI = document.getElementById('paper-ui');
-  if(paperUI) paperUI.style.height = Math.round(cH*HEADER_RATIO)+'px';
-  updatePaperUI();
-  redrawCanvas();
-  bindEvents();
+  list.innerHTML = '';
+  nb.pages.forEach((pg, i) => {
+    const slot = document.createElement('div');
+    slot.className = 'page-slot'; slot.id = `page-slot-${i}`; slot.dataset.pageIdx = i;
+    const wrapper = document.createElement('div');
+    wrapper.className = 'canvas-wrapper';
+    const canvas = document.createElement('canvas');
+    canvas.id = `page-canvas-${i}`;
+    canvas.style.cssText = `display:block;cursor:crosshair;touch-action:none;width:${cW}px;height:${cH}px;`;
+    canvas.width = Math.round(cW*dpr); canvas.height = Math.round(cH*dpr);
+    canvas._dpr = dpr; canvas._cssW = cW; canvas._cssH = cH;
+    const c = canvas.getContext('2d'); c.scale(dpr, dpr);
+    drawPaper(c, cW, cH, nb.type, pg.date, pg.date ? (db.studyRecords[pg.date]||0) : 0);
+    getPageStrokes(pg).forEach(s => drawStroke(c, s, cW, cH));
+    const locked = isPageLocked(pg);
+    const lockEl = document.createElement('div');
+    lockEl.className = `canvas-lock-overlay${locked?' show':''}`;
+    const floatEl = document.createElement('div');
+    floatEl.className = `page-locked-float${locked?' show':''}`;
+    floatEl.innerHTML = `<button class="page-locked-float-btn" onclick="showLockedPagePopup()"><svg width="13" height="13" viewBox="0 0 13 13" fill="none"><rect x="2.5" y="6" width="8" height="5.5" rx="1.5" fill="#FFD040"/><path d="M4 6V4.5a2.5 2.5 0 0 1 5 0V6" stroke="#FFD040" stroke-width="1.4" stroke-linecap="round"/></svg>잠긴 페이지</button>`;
+    wrapper.appendChild(canvas); wrapper.appendChild(lockEl); wrapper.appendChild(floatEl);
+    slot.appendChild(wrapper); list.appendChild(slot);
+    canvas.addEventListener('pointerdown', e => onPD(e, i, canvas));
+    canvas.addEventListener('pointermove', e => onPM(e, canvas));
+    canvas.addEventListener('pointerup',   e => onPU(e, i, canvas));
+    canvas.addEventListener('pointerleave',e => onPU(e, i, canvas));
+    canvas.addEventListener('pointercancel',e=>onPU(e, i, canvas));
+  });
+  canvasEl = document.getElementById(`page-canvas-${state.pageIdx}`);
+  if(canvasEl) ctx = canvasEl.getContext('2d');
+  scrollToPageSlot(state.pageIdx, 'auto');
+  setupPageObserver();
 }
 
 function updatePaperUI(){
@@ -1705,6 +1754,7 @@ function pushCurrentPageToBack(){
   showToast('페이지를 맨 뒤로 이동했어요');
   switchPage(state.pageIdx);
   renderSidebarPages();
+  setTimeout(initAllCanvases, 60);
 }
 
 function renderWeekPickerContent(){
@@ -1886,12 +1936,9 @@ function setSbPageDate(idx, val){
   pg.date = val || null;
   autoFlushTrappedPages(nb);
   saveData();
-  // 현재 활성 페이지면 UI도 갱신
+  redrawPageCanvas(idx);
   if(idx === state.pageIdx){
-    const dateText = document.getElementById('pui-date-text');
-    if(dateText) dateText.textContent = val ? fmtDateForDisplay(val, nb.type) : '날짜 설정';
     state.timer.savedTime = val ? (db.studyRecords[val]||0) : 0;
-    redrawCanvas();
   }
   renderSidebarPages();
 }
@@ -2383,19 +2430,42 @@ function drawStroke(c, stroke, w, h){
 }
 
 // ─── POINTER EVENTS ─────────────────────────────
-function bindEvents(){
-  if(!canvasEl) return;
-  ['pointerdown','pointermove','pointerup','pointerleave','pointercancel'].forEach(ev=>canvasEl.removeEventListener(ev,handlers[ev]));
-  ['pointerdown','pointermove','pointerup','pointerleave','pointercancel'].forEach(ev=>canvasEl.addEventListener(ev,handlers[ev]));
+function onPD(e, idx, canvas){
+  e.preventDefault();
+  if(idx !== state.pageIdx){
+    stopTimer(true);
+    state.pageIdx = idx;
+    if(openTabs[activeTabIdx]) openTabs[activeTabIdx].pageIdx = idx;
+    canvasEl = canvas; ctx = canvas.getContext('2d');
+    const nb2 = getNotebook(state.notebookId), pg2 = nb2&&nb2.pages[idx];
+    state.timer = {running:false, startTime:null, savedTime: pg2?.date?(db.studyRecords[pg2.date]||0):0, interval:null};
+    document.querySelectorAll('.gn-page-thumb-wrap').forEach(el=>el.classList.toggle('active',el.id===`gn-tw-${idx}`));
+    document.getElementById(`gn-tw-${idx}`)?.scrollIntoView({behavior:'smooth',block:'nearest'});
+    updateTimerUI();
+  }
+  canvas.setPointerCapture(e.pointerId);
+  const r = canvas.getBoundingClientRect();
+  const nx = (e.clientX-r.left)/canvas._cssW, ny = (e.clientY-r.top)/canvas._cssH;
+  if(ny < HEADER_RATIO) return;
+  const nb=getNotebook(state.notebookId), pg=nb&&nb.pages[idx];
+  if(pg&&isPageLocked(pg)){ showToast('프리미엄 구독 시 이용 가능한 페이지입니다.'); return; }
+  if(pg&&!pg.date){ showNoDateAlert(); return; }
+  isDrawing=true; currentStroke={tool:draw.tool,colorIdx:draw.colorIdx,sizeIdx:draw.sizeIdx,points:[[nx,ny]]};
 }
-const handlers = {
-  pointerdown(e){ e.preventDefault(); canvasEl.setPointerCapture(e.pointerId); const {nx,ny}=getCoords(e); if(ny<HEADER_RATIO) return; const _nb=getNotebook(state.notebookId); const _pg=_nb&&_nb.pages[state.pageIdx]; if(_pg&&isPageLocked(_pg)){ showToast('프리미엄 구독 시 이용 가능한 페이지입니다.'); return; } if(_pg&&!_pg.date){ showNoDateAlert(); return; } isDrawing=true; currentStroke={tool:draw.tool,colorIdx:draw.colorIdx,sizeIdx:draw.sizeIdx,points:[[nx,ny]]}; },
-  pointermove(e){ if(!isDrawing||!currentStroke) return; e.preventDefault(); const {nx,ny}=getCoords(e); if(ny<HEADER_RATIO) return; currentStroke.points.push([nx,ny]); redrawCanvas(); drawStroke(ctx,currentStroke,canvasEl._cssW,canvasEl._cssH); },
-  pointerup(e){ if(!isDrawing||!currentStroke) return; isDrawing=false; const nb=getNotebook(state.notebookId); const pg=nb&&nb.pages[state.pageIdx]; if(pg&&currentStroke.points.length>0) pushPageStroke(pg,currentStroke); currentStroke=null; saveData(); drawThumbnail(state.pageIdx); },
-  pointerleave(e){ handlers.pointerup(e); },
-  pointercancel(e){ handlers.pointerup(e); }
-};
-function getCoords(e){ const r=canvasEl.getBoundingClientRect(); return{nx:(e.clientX-r.left)/canvasEl._cssW,ny:(e.clientY-r.top)/canvasEl._cssH}; }
+function onPM(e, canvas){
+  if(!isDrawing||!currentStroke) return; e.preventDefault();
+  const r=canvas.getBoundingClientRect();
+  const nx=(e.clientX-r.left)/canvas._cssW, ny=(e.clientY-r.top)/canvas._cssH;
+  if(ny<HEADER_RATIO) return;
+  currentStroke.points.push([nx,ny]); redrawCanvas(); drawStroke(ctx,currentStroke,canvas._cssW,canvas._cssH);
+}
+function onPU(e, idx, canvas){
+  if(!isDrawing||!currentStroke) return;
+  isDrawing=false;
+  const nb=getNotebook(state.notebookId), pg=nb&&nb.pages[idx];
+  if(pg&&currentStroke.points.length>0) pushPageStroke(pg,currentStroke);
+  currentStroke=null; saveData(); drawThumbnail(idx);
+}
 
 function showNoDateAlert(){
   if(document.getElementById('no-date-alert')) return;
@@ -2523,7 +2593,7 @@ function setPageDate(val){
   const dateBtn=document.querySelector('.pui-date-btn');
   if(dateBtn) dateBtn.classList.remove('locked');
   renderSidebarPages();
-  redrawCanvas();
+  redrawPageCanvas(state.pageIdx);
 }
 
 function clearPageDate(){
@@ -2600,30 +2670,6 @@ function renderMonthlyStats(){
 }
 
 // ─── CLOSE POPUPS ON OUTSIDE CLICK ─────────────
-// ─── CANVAS AREA SCROLL PAGE NAVIGATION ─────────
-let _scrollNavCooldown = false;
-document.addEventListener('wheel', e=>{
-  const area = document.getElementById('gn-canvas-area');
-  if(!area || !area.contains(e.target)) return;
-  if(_scrollNavCooldown) return;
-  const nb = getNotebook(state.notebookId); if(!nb) return;
-
-  const atTop    = area.scrollTop <= 0;
-  const atBottom = area.scrollTop + area.clientHeight >= area.scrollHeight - 2;
-
-  if(e.deltaY > 0 && atBottom && state.pageIdx < nb.pages.length - 1){
-    e.preventDefault();
-    _scrollNavCooldown = true;
-    switchPage(state.pageIdx + 1);
-    setTimeout(()=>{ _scrollNavCooldown = false; }, 600);
-  } else if(e.deltaY < 0 && atTop && state.pageIdx > 0){
-    e.preventDefault();
-    _scrollNavCooldown = true;
-    switchPage(state.pageIdx - 1);
-    setTimeout(()=>{ _scrollNavCooldown = false; }, 600);
-  }
-}, { passive: false });
-
 document.addEventListener('click', e=>{
   const popup = document.getElementById('pui-date-popup');
   if(popup && popup.classList.contains('show') && !popup.contains(e.target)){
@@ -2649,5 +2695,11 @@ document.addEventListener('keydown', e=>{
 render();
 renderTabBar();
 </script>
+<!-- Date popup (moved out of canvas-wrapper) -->
+<input type="date" id="pui-date-input" style="display:none" onchange="setPageDate(this.value)"/>
+<div class="pui-date-popup" id="pui-date-popup">
+  <label class="pui-dp-label" id="pui-dp-label">날짜 선택 <span id="pui-dp-header-sub"></span></label>
+  <div id="pui-dp-content"></div>
+</div>
 </body>
 </html>
