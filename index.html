@@ -1663,11 +1663,12 @@ function renderCalGrid(selectedVal, onClickFn, isWeekMode, usedDates=new Set(), 
           const isOOB   = !isSel && ((bounds.min && d.isoDate <= bounds.min) || (bounds.max && d.isoDate >= bounds.max));
           const isBlock = isUsed || isOOB;
           let style = `border-radius:50%;width:26px;height:26px;line-height:26px;margin:1px auto;padding:0;`;
-          if(isSel)        style += 'cursor:pointer;background:#18171A;color:#fff!important;';
-          else if(isBlock && isToday) style += 'cursor:not-allowed;outline:1.5px solid #C0BFBC;outline-offset:-1px;font-weight:700;opacity:0.35;';
-          else if(isToday) style += 'cursor:pointer;outline:1.5px solid #18171A;outline-offset:-1px;font-weight:700;';
-          else if(isBlock) style += 'cursor:not-allowed;opacity:0.25;';
-          else             style += 'cursor:pointer;';
+          if(isSel)             style += 'cursor:pointer;background:#18171A;color:#fff!important;';
+          else if(isUsed)       style += 'cursor:not-allowed;background:#ECEAE6;color:#B0AFAB!important;';
+          else if(isOOB && isToday) style += 'cursor:not-allowed;outline:1.5px solid #C0BFBC;outline-offset:-1px;font-weight:700;opacity:0.35;';
+          else if(isToday)      style += 'cursor:pointer;outline:1.5px solid #18171A;outline-offset:-1px;font-weight:700;';
+          else if(isOOB)        style += 'cursor:not-allowed;opacity:0.25;';
+          else                  style += 'cursor:pointer;';
           return `<div class="${d.cls}" style="${style}" ${isBlock?'':` onclick="${onClickFn}('${d.isoDate}')"`}>${d.dayNum}</div>`;
         }).join('')}
       </div>`;
