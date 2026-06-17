@@ -253,7 +253,7 @@ body.drawing-mode #app { display: none; }
 .ds-today { background: rgba(255,255,255,0.04); }
 .ds-today .ds-day { color: #fff !important; }
 .ds-today .ds-dow { color: rgba(255,255,255,0.55) !important; }
-.ds-today-dot { width: 4px; height: 4px; border-radius: 50%; background: #5B9CF6; margin-top: 2px; }
+.ds-today-badge { font-size: 8px; font-weight: 700; color: #5B9CF6; background: rgba(91,156,246,0.15); border-radius: 3px; padding: 1px 4px; margin-top: 2px; letter-spacing: 0; }
 .ds-slot.active.ds-today .ds-day, .ds-slot.active.ds-today .ds-dow { color: #5B9CF6 !important; }
 .ds-thumb-sm { display: block; width: 44px; height: 58px; border-radius: 4px; flex-shrink: 0; }
 .ds-empty-box { width: 44px; height: 58px; border: 1.5px dashed rgba(255,255,255,0.22); border-radius: 4px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: border-color .15s; background: rgba(255,255,255,0.03); }
@@ -442,10 +442,12 @@ body.drawing-mode #app { display: none; }
           <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M1 1h1.5l2 7h6l1.5-5H4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/><circle cx="6" cy="12" r="1" fill="currentColor"/><circle cx="10" cy="12" r="1" fill="currentColor"/></svg>
         </button>
       </div>
-      <button id="hide-empty-btn" onclick="toggleHideEmptySlots()" style="display:flex;align-items:center;gap:5px;width:100%;padding:6px 14px;border:none;background:none;cursor:pointer;color:rgba(255,255,255,0.3);font-family:inherit;font-size:10px;font-weight:600;letter-spacing:0.02em;transition:color .15s;border-bottom:1px solid rgba(255,255,255,0.05);flex-shrink:0;" onmouseover="this.style.color='rgba(255,255,255,0.65)'" onmouseout="this.style.color=state.hideEmptySlots?'rgba(255,255,255,0.65)':'rgba(255,255,255,0.3)'">
-        <svg id="hide-empty-icon" width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M2 3.5L5 6.5L8 3.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        <span id="hide-empty-label">빈 날짜 펼치기</span>
-      </button>
+      <div onclick="toggleHideEmptySlots()" style="display:flex;align-items:center;justify-content:space-between;padding:6px 14px;border-bottom:1px solid rgba(255,255,255,0.05);flex-shrink:0;cursor:pointer;" onmouseover="this.style.background='rgba(255,255,255,0.03)'" onmouseout="this.style.background=''">
+        <span style="font-size:10px;font-weight:600;color:rgba(255,255,255,0.3);letter-spacing:0.02em;">날짜 모두 보기</span>
+        <div id="hide-empty-checkbox" style="width:28px;height:16px;border-radius:99px;background:rgba(255,255,255,0.12);position:relative;transition:background .2s;flex-shrink:0;">
+          <div id="hide-empty-knob" style="position:absolute;top:2px;left:2px;width:12px;height:12px;border-radius:50%;background:#fff;transition:transform .2s;"></div>
+        </div>
+      </div>
       <div class="gn-pages-list" id="gn-pages-list"></div>
       <div id="today-float-wrap" style="display:none;padding:6px 10px 2px;flex-shrink:0;">
         <button id="today-float-btn" onclick="goToTodayPage()" style="width:100%;display:flex;align-items:center;justify-content:center;gap:5px;padding:7px 0;border:none;border-radius:7px;background:rgba(255,255,255,0.1);color:rgba(255,255,255,0.75);font-family:inherit;font-size:11px;font-weight:600;cursor:pointer;transition:background .15s;">
@@ -493,12 +495,13 @@ body.drawing-mode #app { display: none; }
       </button>
     </div>
 
-    <div class="gn-canvas-area" id="gn-canvas-area">
+    <div class="gn-canvas-area" id="gn-canvas-area" style="position:relative;">
+      <button id="canvas-today-btn" onclick="goToTodayPage()" style="display:none;position:absolute;bottom:20px;right:20px;z-index:30;padding:6px 14px;border:none;border-radius:99px;background:rgba(91,156,246,0.9);color:#fff;font-family:inherit;font-size:12px;font-weight:600;cursor:pointer;backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);box-shadow:0 2px 12px rgba(0,0,0,0.3);transition:background .15s;" onmouseover="this.style.background='rgba(91,156,246,1)'" onmouseout="this.style.background='rgba(91,156,246,0.9)'">오늘</button>
       <div id="no-page-state" style="display:none;flex-direction:column;align-items:center;justify-content:center;gap:20px;height:100%;width:100%;">
         <div id="no-page-date-label" style="font-size:13px;color:rgba(255,255,255,0.35);"></div>
         <div id="no-page-assign-btn" onclick="assignPageToDate(state.selectedSlot)" style="display:none;width:180px;height:240px;border:2px dashed rgba(255,255,255,0.15);border-radius:12px;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;color:rgba(255,255,255,0.3);transition:border-color .15s,color .15s;" onmouseover="this.style.borderColor='rgba(255,255,255,0.35)';this.style.color='rgba(255,255,255,0.6)'" onmouseout="this.style.borderColor='rgba(255,255,255,0.15)';this.style.color='rgba(255,255,255,0.3)'">
           <svg width="28" height="28" viewBox="0 0 28 28" fill="none"><path d="M14 4v20M4 14h20" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
-          <span style="font-size:12px;font-weight:500;">페이지 할당</span>
+          <span style="font-size:12px;font-weight:500;">페이지 끼워넣기</span>
         </div>
         <div id="no-page-hint" style="font-size:11px;color:rgba(255,255,255,0.2);">날짜 슬롯을 선택해주세요</div>
       </div>
@@ -507,7 +510,7 @@ body.drawing-mode #app { display: none; }
         <div id="slot-assign-overlay" style="display:none;position:absolute;inset:0;z-index:15;display:none;flex-direction:column;align-items:center;justify-content:center;">
           <button onclick="assignPageToDate(state.selectedSlot)" style="padding:12px 28px;border:none;border-radius:10px;background:rgba(30,28,35,0.72);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);color:#fff;font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:8px;transition:background .15s;" onmouseover="this.style.background='rgba(91,156,246,0.85)'" onmouseout="this.style.background='rgba(30,28,35,0.72)'">
             <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M6.5 1v11M1 6.5h11" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
-            페이지 할당
+            페이지 끼워넣기
           </button>
         </div>
         <div class="canvas-lock-overlay" id="canvas-lock-overlay"></div>
@@ -1071,24 +1074,16 @@ function openPurchaseModal(mode, productId, notebookId=null){
   pm.notebookId = notebookId;
   const p = PRODUCTS.find(x=>x.id===productId);
   const el = document.getElementById('purchase-modal');
-  document.getElementById('pm-title').textContent = mode==='addPage' ? '종이 추가' : p.name;
+  document.getElementById('pm-title').textContent = mode==='addPage' ? '종이 구매' : p.name;
   if(pm.betweenMin && pm.betweenMax){
-    document.getElementById('pm-sub').innerHTML = `<span style="color:#AEADAB;font-size:11px;">${fmtDateShort(pm.betweenMin)} ~ ${fmtDateShort(pm.betweenMax)} 사이</span><br>${p.name} 속지를 추가합니다`;
+    document.getElementById('pm-sub').innerHTML = `<span style="color:#AEADAB;font-size:11px;">${fmtDateShort(pm.betweenMin)} ~ ${fmtDateShort(pm.betweenMax)} 사이</span><br>${p.name} 속지를 구매합니다`;
   } else {
-    document.getElementById('pm-sub').textContent = mode==='addPage' ? `${p.name} 속지를 추가합니다` : '추가할 장수를 선택하세요';
+    document.getElementById('pm-sub').textContent = mode==='addPage' ? `${p.name} 속지를 구매합니다` : '구매할 장수를 선택하세요';
   }
-  document.getElementById('pm-confirm-btn').textContent = mode==='addPage' ? '추가하기' : '구매하기';
+  document.getElementById('pm-confirm-btn').textContent = '구매하기';
   document.getElementById('pm-premium-banner').classList.toggle('show', isPremium);
   const previewWrap = document.getElementById('pm-preview-wrap');
-  const previewCanvas = document.getElementById('pm-preview-canvas');
-  if(mode === 'addPage' && previewWrap && previewCanvas){
-    previewWrap.style.display = 'block';
-    const pc = previewCanvas.getContext('2d');
-    const w = previewCanvas.width, h = previewCanvas.height;
-    drawPaper(pc, w, h, productId, getTodayIso(), 0);
-  } else if(previewWrap){
-    previewWrap.style.display = 'none';
-  }
+  if(previewWrap) previewWrap.style.display = 'none';
   renderPurchaseQty();
   el.classList.add('show');
 }
@@ -1391,6 +1386,16 @@ function enterDrawing(){
   const gnNameEl = document.getElementById('gn-nb-name'); if(gnNameEl) gnNameEl.textContent = nb.name;
   const pg = nb.pages[state.pageIdx];
   state.timer = {running:false, startTime:null, savedTime:pg?.date ? (db.studyRecords[pg.date]||0) : 0, interval:null};
+  // 오늘 날짜 페이지가 없으면 오늘 빈 슬롯을 기본 포커스로
+  const today = getTodayIso();
+  if(!pg?.date || pg.date !== today){
+    const todayPageIdx = nb.pages.findIndex(p => p.date === today);
+    if(todayPageIdx >= 0) state.pageIdx = todayPageIdx;
+    else state.selectedSlot = today;
+  }
+  const list = document.getElementById('gn-pages-list');
+  if(list) list._dsDidInit = false;
+  updateHideEmptyUI();
   renderSidebarPages();
   renderToolbar();
   setTimeout(initCanvas, 60);
@@ -1609,18 +1614,40 @@ function generateDateSlots(nb){
   return slots;
 }
 
+function updateHideEmptyUI(){
+  const cb = document.getElementById('hide-empty-checkbox');
+  const knob = document.getElementById('hide-empty-knob');
+  // ON(파란색) = 빈 날짜 보이는 상태 = hideEmptySlots false
+  const isOn = !state.hideEmptySlots;
+  if(cb) cb.style.background = isOn ? '#5B9CF6' : 'rgba(255,255,255,0.12)';
+  if(knob) knob.style.transform = isOn ? 'translateX(12px)' : '';
+}
+
 function toggleHideEmptySlots(){
   state.hideEmptySlots = !state.hideEmptySlots;
-  const btn = document.getElementById('hide-empty-btn');
-  const label = document.getElementById('hide-empty-label');
-  const icon = document.getElementById('hide-empty-icon');
-  if(btn) btn.style.color = state.hideEmptySlots ? 'rgba(255,255,255,0.65)' : 'rgba(255,255,255,0.3)';
-  if(label) label.textContent = state.hideEmptySlots ? '빈 날짜 접기' : '빈 날짜 펼치기';
-  if(icon) icon.style.transform = state.hideEmptySlots ? 'rotate(-90deg)' : '';
+  updateHideEmptyUI();
+
+  // 빈 날짜 숨길 때: 빈 슬롯 포커스 해제 후 포커스된 날짜 기준으로 캔버스 갱신
+  if(state.hideEmptySlots && state.selectedSlot){
+    state.selectedSlot = null;
+    const nb = getNotebook(state.notebookId);
+    const today = getTodayIso();
+    const todayIdx = nb ? nb.pages.findIndex(p => p.date === today) : -1;
+    if(todayIdx >= 0) switchPage(todayIdx);
+    else updatePaperUI();
+  }
+
   renderSidebarPages();
   requestAnimationFrame(()=>{
-    const todayEl = document.querySelector('.ds-slot.ds-today');
-    if(todayEl) todayEl.scrollIntoView({block:'nearest'});
+    let focusedEl = null;
+    if(state.selectedSlot){
+      focusedEl = [...document.querySelectorAll('.ds-slot.empty')].find(el=>el.getAttribute('onclick')?.includes(`'${state.selectedSlot}'`));
+    }
+    if(!focusedEl) focusedEl = document.getElementById(`gn-tw-${state.pageIdx}`);
+    if(focusedEl){
+      const list = document.getElementById('gn-pages-list');
+      if(list) list.scrollTop = focusedEl.offsetTop - list.offsetTop;
+    }
   });
 }
 
@@ -1712,7 +1739,7 @@ function renderSidebarPages(){
         <div class="ds-date-col">
           <span class="ds-dow">${dow}</span>
           <span class="ds-day">${dayNum}</span>
-          ${isToday?'<div class="ds-today-dot"></div>':''}
+          ${isToday?'<div class="ds-today-badge">오늘</div>':''}
         </div>
         <button class="ds-more-btn" onclick="event.stopPropagation();toggleDsMenu(${pageIdx})" title="더보기">⋯</button>
         <div class="ds-more-menu" id="ds-menu-${pageIdx}">
@@ -1721,14 +1748,14 @@ function renderSidebarPages(){
       </div>`;
     } else {
       const isSlotSel = state.selectedSlot===dateStr;
-      html += `<div class="ds-slot empty ${canAssign?'can-assign':''} ${isToday?'ds-today':''} ${isSlotSel?'slot-selected':''}" onclick="selectEmptySlot('${dateStr}')">
-        <div class="ds-empty-box" ${canAssign?`onclick="event.stopPropagation();assignPageToDate('${dateStr}')"`:''}>
-          ${canAssign?`<span class="ds-plus-icon">+</span>`:''}
+      html += `<div class="ds-slot empty can-assign ${isToday?'ds-today':''} ${isSlotSel?'slot-selected':''}" onclick="selectEmptySlot('${dateStr}')">
+        <div class="ds-empty-box" onclick="event.stopPropagation();assignPageToDate('${dateStr}')">
+          <span class="ds-plus-icon">+</span>
         </div>
         <div class="ds-date-col">
           <span class="ds-dow">${dow}</span>
           <span class="ds-day">${dayNum}</span>
-          ${isToday?'<div class="ds-today-dot"></div>':''}
+          ${isToday?'<div class="ds-today-badge">오늘</div>':''}
         </div>
       </div>`;
     }
@@ -1749,7 +1776,9 @@ function renderSidebarPages(){
     nb.pages.forEach((_,i)=>drawThumbnail(i));
     if(!list._dsDidInit){
       list._dsDidInit = true;
-      document.getElementById(`gn-tw-${state.pageIdx}`)?.scrollIntoView({block:'nearest'});
+      const todayEl = document.querySelector('.ds-slot.ds-today');
+      if(todayEl) todayEl.scrollIntoView({block:'center'});
+      else document.getElementById(`gn-tw-${state.pageIdx}`)?.scrollIntoView({block:'nearest'});
     }
   });
 
@@ -2048,6 +2077,7 @@ function initCanvas(){
   redrawCanvas();
   bindEvents();
   initSwipeNav();
+  initWheelNav();
 }
 
 let _swipe = null;
@@ -2077,38 +2107,86 @@ function initSwipeNav(){
 }
 
 function navigateDateBySwipe(delta){
-  const nb = getNotebook(state.notebookId); if(!nb) return;
-  const currentDate = state.selectedSlot || nb.pages[state.pageIdx]?.date;
-  if(!currentDate) return;
-
-  const d = new Date(currentDate + 'T00:00:00');
-  d.setDate(d.getDate() + delta);
-  const targetDate = isoFromDate(d);
-
   const outClass = delta > 0 ? 'swipe-out-up' : 'swipe-out-down';
   const inClass  = delta > 0 ? 'swipe-in-up'  : 'swipe-in-down';
   const target = document.getElementById('canvas-wrapper') || document.getElementById('no-page-state');
   if(target) target.classList.add(outClass);
-
   setTimeout(()=>{
     if(target) target.classList.remove(outClass);
-    const pageIdx = nb.pages.findIndex(pg => pg.date === targetDate);
-    if(pageIdx >= 0){
-      switchPage(pageIdx);
-    } else {
-      selectEmptySlot(targetDate);
-      document.getElementById(`gn-tw-${state.pageIdx}`)?.classList.remove('active');
-    }
-    // 사이드바 스크롤
-    const slotEl = pageIdx >= 0
-      ? document.getElementById(`gn-tw-${pageIdx}`)
-      : [...document.querySelectorAll('.ds-slot.empty')].find(el=>el.getAttribute('onclick')?.includes(`'${targetDate}'`));
-    slotEl?.scrollIntoView({behavior:'smooth', block:'nearest'});
-    // 인 애니메이션
+    doNavigateDate(delta, inClass);
+  }, 150);
+}
+
+function doNavigateDate(delta, inClass){
+  const nb = getNotebook(state.notebookId); if(!nb) return;
+  const currentDate = state.selectedSlot || nb.pages[state.pageIdx]?.date;
+  if(!currentDate) return;
+  const d = new Date(currentDate + 'T00:00:00');
+  d.setDate(d.getDate() + delta);
+  const targetDate = isoFromDate(d);
+  const pageIdx = nb.pages.findIndex(pg => pg.date === targetDate);
+  if(pageIdx >= 0) switchPage(pageIdx);
+  else {
+    selectEmptySlot(targetDate);
+    document.getElementById(`gn-tw-${state.pageIdx}`)?.classList.remove('active');
+  }
+  const slotEl = pageIdx >= 0
+    ? document.getElementById(`gn-tw-${pageIdx}`)
+    : [...document.querySelectorAll('.ds-slot.empty')].find(el=>el.getAttribute('onclick')?.includes(`'${targetDate}'`));
+  slotEl?.scrollIntoView({behavior:'smooth', block:'nearest'});
+  if(inClass){
     const inTarget = document.getElementById('canvas-wrapper')?.style.display !== 'none'
       ? document.getElementById('canvas-wrapper') : document.getElementById('no-page-state');
     if(inTarget){ inTarget.classList.add(inClass); setTimeout(()=>inTarget.classList.remove(inClass), 200); }
-  }, 150);
+  }
+}
+
+function initWheelNav(){
+  const area = document.getElementById('gn-canvas-area');
+  if(!area || area._wheelBound) return;
+  area._wheelBound = true;
+  let accum = 0, locked = false, timer = null;
+  function getEl(){
+    const cw = document.getElementById('canvas-wrapper');
+    if(cw && cw.style.display !== 'none') return cw;
+    return document.getElementById('no-page-state');
+  }
+  area.addEventListener('wheel', e=>{
+    e.preventDefault();
+    if(locked) return;
+    accum += e.deltaY;
+    // 스크롤 방향으로 콘텐츠 드래그 피드백
+    const drag = -Math.sign(accum) * Math.min(Math.abs(accum) * 0.22, 65);
+    const el = getEl();
+    if(el) el.style.transform = `translateY(${drag}px)`;
+    clearTimeout(timer);
+    timer = setTimeout(()=>{
+      const el2 = getEl();
+      if(Math.abs(accum) >= 70){
+        locked = true;
+        const dir = accum > 0 ? 1 : -1;
+        const inClass = dir > 0 ? 'swipe-in-up' : 'swipe-in-down';
+        accum = 0;
+        if(el2){
+          el2.style.transition = 'transform .15s ease, opacity .15s ease';
+          el2.style.transform = `translateY(${dir > 0 ? -60 : 60}px)`;
+          el2.style.opacity = '0';
+        }
+        setTimeout(()=>{
+          if(el2){ el2.style.transition = ''; el2.style.transform = ''; el2.style.opacity = ''; }
+          doNavigateDate(dir, inClass);
+          setTimeout(()=>{ locked = false; }, 300);
+        }, 150);
+      } else {
+        accum = 0;
+        if(el2){
+          el2.style.transition = 'transform .2s ease';
+          el2.style.transform = '';
+          setTimeout(()=>{ if(el2) el2.style.transition = ''; }, 200);
+        }
+      }
+    }, 60);
+  }, {passive:false});
 }
 
 function updatePaperUI(){
@@ -2125,12 +2203,11 @@ function updatePaperUI(){
     const nb2 = getNotebook(state.notebookId);
     const spareCount = nb2 ? nb2.pages.filter(p=>!p.date).length : 0;
     const hasSlot = !!state.selectedSlot;
-    const canAssign = hasSlot && spareCount > 0;
     const dateLabel = document.getElementById('no-page-date-label');
     const assignBtn = document.getElementById('no-page-assign-btn');
     const hint = document.getElementById('no-page-hint');
     if(dateLabel) dateLabel.textContent = hasSlot ? fmtDateForDisplay(state.selectedSlot, nb2?.type) : '';
-    if(assignBtn) assignBtn.style.display = canAssign ? 'flex' : 'none';
+    if(assignBtn) assignBtn.style.display = hasSlot ? 'flex' : 'none';
     if(hint) hint.style.display = hasSlot ? 'none' : 'block';
   }
 
@@ -2141,6 +2218,12 @@ function updatePaperUI(){
   document.getElementById('canvas-lock-overlay')?.classList.toggle('show', locked);
   document.getElementById('page-locked-float')?.classList.toggle('show', locked);
   updateTimerUI();
+  // 현재 보는 날짜가 오늘이 아닐 때 오늘 버튼 표시
+  const todayBtn = document.getElementById('canvas-today-btn');
+  if(todayBtn){
+    const currentDate = state.selectedSlot || pg?.date;
+    todayBtn.style.display = (currentDate && currentDate !== getTodayIso()) ? 'block' : 'none';
+  }
 }
 
 function showLockedPagePopup(){
