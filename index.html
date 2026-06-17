@@ -234,6 +234,7 @@ body.drawing-mode #app { display: none; }
 .gn-thumb-label { background: #232323; padding: 5px 5px 7px; display: flex; flex-direction:column; align-items:stretch; justify-content:space-between; gap: 5px; flex:1; min-width:0; position:relative; }
 .gn-page-ctx-btn { align-self:flex-end; background:none; border:none; color:rgba(255,255,255,0.3); cursor:pointer; padding:2px 5px; border-radius:4px; font-size:13px; line-height:1; transition:all .12s; }
 .gn-page-ctx-btn:hover { background:rgba(255,255,255,0.1); color:rgba(255,255,255,0.85); }
+.dp-range-hint { text-align:center; font-size:10.5px; color:rgba(0,0,0,0.35); padding:6px 8px 2px; line-height:1.4; }
 #sb-ctx-menu { position:fixed; background:#1E1D22; border-radius:9px; box-shadow:0 4px 20px rgba(0,0,0,0.4); border:1px solid rgba(255,255,255,0.08); padding:4px; z-index:10002; display:none; min-width:148px; }
 .sb-ctx-item { display:block; width:100%; background:none; border:none; color:rgba(255,255,255,0.82); font-family:inherit; font-size:12px; text-align:left; padding:7px 10px; border-radius:6px; cursor:pointer; transition:background .1s; white-space:nowrap; }
 .sb-ctx-item:hover { background:rgba(255,255,255,0.08); }
@@ -1523,6 +1524,7 @@ function openGapPicker(mode){
   }
   sbPageDpState.gapMode=true; sbPageDpState.prependMode=false;
   sbPageDpState.gapInsertIdx=insertIdx; sbPageDpState.gapBounds=bounds;
+  sbPageDpState.gapRangeStart=null;
   const titleEl=document.getElementById('sb-page-dp-title'); if(titleEl) titleEl.textContent='날짜 추가';
   const clearBtn=document.getElementById('sb-dp-clear-btn'); if(clearBtn) clearBtn.style.visibility='hidden';
   const refDate=new Date(((bounds.min||bounds.max)||new Date().toISOString().slice(0,10))+'T00:00:00');
@@ -1538,16 +1540,46 @@ function openGapPicker(mode){
   popup.style.left=Math.max(8,left)+'px'; popup.style.top=top+'px';
 }
 
-function doInsertGapPage(val){
+function doInsertGapPages(start, end){
   const nb=getNotebook(state.notebookId); if(!nb) return;
-  let spareIdx=-1;
-  for(let i=nb.pages.length-1;i>=0;i--){ if(!nb.pages[i].date&&!isPageLocked(nb.pages[i])){ spareIdx=i; break; } }
-  if(spareIdx<0){ closeSbPageDatePicker(); openPurchaseModal('addPage',nb.type,nb.id); return; }
-  const [pg]=nb.pages.splice(spareIdx,1); pg.date=val;
-  let insertAt=sbPageDpState.gapInsertIdx;
-  if(spareIdx<insertAt) insertAt--;
-  nb.pages.splice(insertAt,0,pg);
-  if(state.pageIdx>=insertAt) state.pageIdx++;
+  const bounds=sbPageDpState.gapBounds;
+  const usedDates=new Set(nb.pages.filter(p=>p.date).map(p=>p.date));
+  const dates=[];
+  if(nb.type==='daily'){
+    const [sy,sm,sd]=start.split('-').map(Number);
+    const [ey,em,ed]=end.split('-').map(Number);
+    for(let ms=Date.UTC(sy,sm-1,sd);ms<=Date.UTC(ey,em-1,ed);ms+=86400000){
+      const iso=new Date(ms).toISOString().slice(0,10);
+      if((!bounds.min||iso>=bounds.min)&&(!bounds.max||iso<=bounds.max)&&!usedDates.has(iso)) dates.push(iso);
+    }
+  } else if(nb.type==='weekly'){
+    let cur=start;
+    while(cur<=end){
+      if((!bounds.min||cur>=bounds.min)&&(!bounds.max||cur<=bounds.max)&&!usedDates.has(cur)) dates.push(cur);
+      cur=isoWeekOffset(cur,1);
+    }
+  } else {
+    let [cy,cm]=start.split('-').map(Number);
+    const [ey,em]=end.split('-').map(Number);
+    while(cy<ey||(cy===ey&&cm<=em)){
+      const iso=`${cy}-${String(cm).padStart(2,'0')}`;
+      if((!bounds.min||iso>=bounds.min)&&(!bounds.max||iso<=bounds.max)&&!usedDates.has(iso)) dates.push(iso);
+      if(++cm>12){cm=1;cy++;}
+    }
+  }
+  if(!dates.length){ closeSbPageDatePicker(); return; }
+  let insertOffset=0;
+  for(const date of dates){
+    let spareIdx=-1;
+    for(let i=nb.pages.length-1;i>=0;i--){ if(!nb.pages[i].date&&!isPageLocked(nb.pages[i])){ spareIdx=i; break; } }
+    if(spareIdx<0){ openPurchaseModal('addPage',nb.type,nb.id); break; }
+    const [pg]=nb.pages.splice(spareIdx,1); pg.date=date;
+    let at=sbPageDpState.gapInsertIdx+insertOffset;
+    if(spareIdx<at) at--;
+    nb.pages.splice(at,0,pg);
+    if(state.pageIdx>=at) state.pageIdx++;
+    insertOffset++;
+  }
   if(openTabs[activeTabIdx]) openTabs[activeTabIdx].pageIdx=state.pageIdx;
   saveData(); closeSbPageDatePicker();
   renderSidebarPages(); setTimeout(initAllCanvases,60);
@@ -1966,7 +1998,7 @@ function hasPageContent(pg){
 }
 
 // ─── SIDEBAR PAGE DATE PICKER ───────────────────
-let sbPageDpState = { targetIdx:-1, year:new Date().getFullYear(), month:new Date().getMonth(), prependMode:false, gapMode:false, gapInsertIdx:-1, gapBounds:{min:null,max:null} };
+let sbPageDpState = { targetIdx:-1, year:new Date().getFullYear(), month:new Date().getMonth(), prependMode:false, gapMode:false, gapInsertIdx:-1, gapBounds:{min:null,max:null}, gapRangeStart:null };
 
 function openSbPageDatePicker(idx, e){
   e.stopPropagation();
@@ -2004,6 +2036,7 @@ function closeSbPageDatePicker(){
   sbPageDpState.targetIdx = -1;
   sbPageDpState.prependMode = false;
   sbPageDpState.gapMode = false;
+  sbPageDpState.gapRangeStart = null;
 }
 
 function sbDpNav(delta){
@@ -2022,23 +2055,28 @@ function refreshSbPageDp(){
   if(sbPageDpState.gapMode){
     const bounds = sbPageDpState.gapBounds;
     const usedDates = new Set(nb.pages.filter(p=>p.date).map(p=>p.date));
-    let html;
+    const rangeStart = sbPageDpState.gapRangeStart;
+    const titleEl = document.getElementById('sb-page-dp-title');
+    if(titleEl) titleEl.textContent = rangeStart ? '끝 날짜 선택' : '날짜 추가';
+    const hint = `<div class="dp-range-hint">${rangeStart ? `시작: ${rangeStart} &nbsp;·&nbsp; 끝 날짜를 선택하세요` : '날짜를 선택하면 범위로 추가할 수 있습니다'}</div>`;
+    let cal;
     if(nb.type === 'weekly'){
-      html = `<div class="dp-calendar">${renderCalGrid(null,'sbSelectDate',true,usedDates,bounds,'sbDpNav',yr,mo)}</div>`;
+      cal = renderCalGrid(rangeStart,'sbSelectDate',true,usedDates,bounds,'sbDpNav',yr,mo);
     } else if(nb.type === 'monthly'){
       const months = ['1월','2월','3월','4월','5월','6월','7월','8월','9월','10월','11월','12월'];
       const grid = months.map((m,mi)=>{
         const val = `${yr}-${String(mi+1).padStart(2,'0')}`;
-        const isUsed = usedDates.has(val);
+        const isSel = val === rangeStart;
+        const isUsed = !isSel && usedDates.has(val);
         const isOOB = (bounds.min && val < bounds.min) || (bounds.max && val > bounds.max);
         const blocked = isUsed || isOOB;
-        return `<button class="dp-month-btn${isUsed?' used':''}${isOOB?' oob':''}" ${blocked?'disabled':''} onclick="${blocked?'':'sbSelectDate(\''+val+'\')'}">${m}</button>`;
+        return `<button class="dp-month-btn${isSel?' selected':''}${isUsed?' used':''}${isOOB?' oob':''}" ${blocked?'disabled':''} onclick="${blocked?'':'sbSelectDate(\''+val+'\')'}">${m}</button>`;
       }).join('');
-      html = `<div class="dp-calendar">${dpCalHeader(`${yr}년`,'sbDpNavYear')}<div class="dp-month-grid">${grid}</div></div>`;
+      cal = `${dpCalHeader(`${yr}년`,'sbDpNavYear')}<div class="dp-month-grid">${grid}</div>`;
     } else {
-      html = `<div class="dp-calendar">${renderCalGrid(null,'sbSelectDate',false,usedDates,bounds,'sbDpNav',yr,mo)}</div>`;
+      cal = renderCalGrid(rangeStart,'sbSelectDate',false,usedDates,bounds,'sbDpNav',yr,mo);
     }
-    content.innerHTML = html;
+    content.innerHTML = `<div class="dp-calendar">${cal}</div>${hint}`;
     return;
   }
 
@@ -2092,7 +2130,18 @@ function refreshSbPageDp(){
 
 function sbSelectDate(val){
   if(sbPageDpState.prependMode){ doPrependPlanner(val); return; }
-  if(sbPageDpState.gapMode){ doInsertGapPage(val); return; }
+  if(sbPageDpState.gapMode){
+    if(!sbPageDpState.gapRangeStart){
+      sbPageDpState.gapRangeStart = val;
+      refreshSbPageDp();
+      return;
+    }
+    const a = sbPageDpState.gapRangeStart;
+    const start = a <= val ? a : val;
+    const end   = a <= val ? val : a;
+    doInsertGapPages(start, end);
+    return;
+  }
   const idx = sbPageDpState.targetIdx;
   const nb = getNotebook(state.notebookId); if(!nb) return;
   const pg = nb.pages[idx]; if(!pg) return;
