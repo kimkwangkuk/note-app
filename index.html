@@ -233,13 +233,12 @@ body.drawing-mode #app { display: none; }
 .gn-thumb-canvas { position:absolute; inset:0; display:block; width:100%; height:100%; }
 .gn-thumb-page-num { position:absolute; top:5px; left:5px; z-index:2; font-size:8.5px; font-weight:700; color:rgba(0,0,0,0.38); background:rgba(255,255,255,0.65); border-radius:4px; padding:2px 4px; line-height:1; pointer-events:none; }
 .gn-thumb-label { padding: 5px 5px 6px 7px; display: flex; flex-direction:row; align-items:center; justify-content:space-between; min-width:0; gap:2px; }
-.gn-thumb-group-header { grid-column: 1 / -1; padding: 10px 2px 4px; font-size: 10.5px; font-weight: 700; color: rgba(255,255,255,0.35); letter-spacing: 0.02em; user-select: none; }
+.gn-thumb-group-header { grid-column: 1 / -1; padding: 10px 2px 4px; font-size: 10.5px; font-weight: 700; color: rgba(255,255,255,0.35); letter-spacing: 0.02em; user-select: none; display:flex; align-items:center; justify-content:space-between; }
 .gn-thumb-group-header:first-child { padding-top: 2px; }
-#srp-popup { position:fixed; bottom:24px; right:24px; z-index:1000; background:#fff; border-radius:14px; box-shadow:0 4px 24px rgba(0,0,0,0.18); padding:14px 16px 12px; width:218px; cursor:pointer; transition:opacity .2s, transform .2s; }
-#srp-popup:hover { box-shadow:0 6px 28px rgba(0,0,0,0.22); }
-.srp-close-btn { position:absolute; top:8px; right:10px; background:none; border:none; font-size:16px; color:#AEADAB; cursor:pointer; padding:2px 4px; line-height:1; border-radius:4px; }
-.srp-close-btn:hover { background:#F5F4F1; color:#555; }
-#srp-modal-content { display:grid; grid-template-columns:1fr 1fr 1fr; gap:7px; }
+.gn-nodate-badge { display:inline-flex; align-items:center; justify-content:center; min-width:18px; height:15px; background:rgba(255,255,255,0.1); color:rgba(255,255,255,0.5); font-size:9px; font-weight:700; border-radius:99px; padding:0 6px; letter-spacing:0; }
+.gn-nodate-stack-outer { position:relative; padding:4px 4px 8px; }
+.gn-nodate-back-card { position:absolute; left:4px; right:4px; top:4px; bottom:8px; background:#fff; border:1.5px solid rgba(0,0,0,0.08); border-radius:7px; transform-origin:bottom center; }
+.gn-nodate-count-badge { position:absolute; bottom:14px; right:10px; background:rgba(0,0,0,0.6); color:#fff; font-size:10px; font-weight:700; padding:2px 7px; border-radius:99px; pointer-events:none; backdrop-filter:blur(4px); }
 .gn-page-ctx-btn { flex-shrink:0; background:none; border:none; color:rgba(255,255,255,0.22); cursor:pointer; padding:2px 4px; border-radius:4px; font-size:12px; line-height:1; transition:all .12s; }
 .gn-page-ctx-btn:hover { background:rgba(255,255,255,0.1); color:rgba(255,255,255,0.85); }
 .dp-range-hint { text-align:center; font-size:10.5px; color:rgba(0,0,0,0.35); padding:6px 8px 2px; line-height:1.4; }
@@ -258,6 +257,29 @@ body.drawing-mode #app { display: none; }
 .gn-add-line { display: flex; align-items: center; justify-content: center; padding: 6px 10px; flex-shrink: 0; }
 .gn-add-line-inner { display: flex; align-items: center; gap: 5px; width: 100%; border: 1px dashed rgba(255,255,255,0.2); border-radius: 6px; padding: 5px 0; justify-content: center; color: rgba(255,255,255,0.35); font-size: 10.5px; font-weight: 600; font-family: inherit; background: none; cursor: pointer; transition: all .15s; }
 .gn-add-line-inner:hover { border-color: rgba(255,255,255,0.45); color: rgba(255,255,255,0.75); }
+
+/* ── Add Page Modal (light) ── */
+.addpage-overlay { position:fixed; inset:0; z-index:900; background:rgba(0,0,0,0.45); display:none; align-items:center; justify-content:center; }
+.addpage-overlay.show { display:flex; animation:fadeIn .15s ease; }
+.addpage-popup { background:#fff; border-radius:20px; padding:24px 20px 20px; width:310px; box-shadow:0 20px 60px rgba(0,0,0,0.22); }
+.addpage-popup-title { font-size:18px; font-weight:700; color:#1A1918; margin-bottom:5px; letter-spacing:-0.02em; }
+.addpage-popup-sub { font-size:13px; color:#AEADAB; margin-bottom:18px; }
+.addpage-cal-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:10px; }
+.addpage-cal-title { font-size:13.5px; font-weight:700; color:#1A1918; }
+.addpage-cal-nav { width:28px; height:28px; border:none; background:none; cursor:pointer; border-radius:7px; display:flex; align-items:center; justify-content:center; color:#AEADAB; font-size:17px; line-height:1; font-family:inherit; padding:0; transition:all .12s; }
+.addpage-cal-nav:hover { background:#F0EFEC; color:#1A1918; }
+.addpage-cal-grid-wrap { display:grid; grid-template-columns:repeat(7,1fr); }
+.addpage-cal-day-name { text-align:center; font-size:10.5px; font-weight:600; color:#C0BFBC; padding:3px 0 7px; }
+.addpage-cal-day { text-align:center; font-size:13px; padding:7px 2px; cursor:pointer; color:#1A1918; border-radius:50%; transition:background .1s, color .1s; position:relative; }
+.addpage-cal-day:hover:not(.taken):not(.other-month) { background:#F0EFEC; }
+.addpage-cal-day.in-range { background:#EAF0FF; border-radius:0; }
+.addpage-cal-day.range-start { background:#1A1918 !important; color:#fff !important; border-radius:50%; }
+.addpage-cal-day.range-end { background:#1A1918 !important; color:#fff !important; border-radius:50%; }
+.addpage-cal-day.taken { color:#D0CFCC; pointer-events:none; }
+.addpage-cal-day.other-month { color:#E0DFDC; pointer-events:none; }
+.addpage-confirm-btn { width:100%; padding:15px; border:none; border-radius:14px; background:#1A1918; color:#fff; font-family:inherit; font-size:15px; font-weight:700; cursor:pointer; margin-top:16px; transition:background .15s; letter-spacing:-0.02em; }
+.addpage-confirm-btn:hover { background:#333; }
+.addpage-confirm-btn:disabled { opacity:0.28; cursor:not-allowed; }
 
 /* ── Sidebar Calendar Popup ── */
 .scal-overlay { position:fixed; inset:0; z-index:800; background:rgba(0,0,0,0.55); display:none; align-items:center; justify-content:center; }
@@ -291,26 +313,32 @@ body.drawing-mode #app { display: none; }
 .scal-cancel-btn { padding:11px 16px; border:none; border-radius:10px; background:rgba(255,255,255,0.08); color:rgba(255,255,255,0.5); font-family:inherit; font-size:13px; font-weight:600; cursor:pointer; transition:all .15s; }
 .scal-cancel-btn:hover { background:rgba(255,255,255,0.14); }
 
+/* Gap Insert Button */
+.gap-insert-btn { position:absolute; right:-44px; bottom:-30px; width:32px; height:32px; border-radius:50%; background:rgba(255,255,255,0.05); border:none; cursor:pointer; display:flex; align-items:center; justify-content:center; color:rgba(255,255,255,0.6); font-size:11px; letter-spacing:1.5px; line-height:1; transition:all .15s; z-index:10; backdrop-filter:blur(4px); -webkit-backdrop-filter:blur(4px); box-shadow:0 2px 8px rgba(0,0,0,0.35); }
+.gap-insert-btn:hover { background:rgba(91,156,246,0.9); color:#fff; transform:scale(1.08); }
+
 /* ── Main ── */
 .gn-main { flex: 1; display: flex; flex-direction: column; min-width: 0; overflow: hidden; }
 
 /* ── Toolbar ── */
-.gn-toolbar { height: 48px; background: #141414; border-bottom: 1px solid rgba(255,255,255,0.06); display: flex; align-items: center; padding: 0 10px; gap: 3px; flex-shrink: 0; }
-.tb-sep { width: 1px; height: 20px; background: rgba(255,255,255,0.1); margin: 0 5px; flex-shrink: 0; }
+.gn-toolbar { height: 50px; background: #141414; border-bottom: 1px solid rgba(255,255,255,0.06); display: flex; align-items: center; padding: 0 12px; gap: 0; flex-shrink: 0; }
 .tb-spacer { flex: 1; }
-.tb-icon-btn { width: 34px; height: 34px; border-radius: 7px; border: none; background: none; cursor: pointer; display: flex; align-items: center; justify-content: center; color: rgba(255,255,255,0.45); transition: background .12s, color .12s; flex-shrink: 0; }
-.tb-icon-btn:hover { background: rgba(255,255,255,0.1); color: rgba(255,255,255,0.9); }
-.tb-tool-btn { height: 30px; padding: 0 10px; border-radius: 7px; border: none; background: rgba(255,255,255,0.06); cursor: pointer; display: flex; align-items: center; gap: 5px; color: rgba(255,255,255,0.4); font-size: 12px; font-weight: 600; font-family: inherit; transition: all .12s; flex-shrink: 0; }
-.tb-tool-btn:hover { background: rgba(255,255,255,0.11); color: rgba(255,255,255,0.8); }
-.tb-tool-btn.active { background: rgba(255,255,255,0.16); color: #fff; }
-.tb-tool-ico { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
-.color-dot { width: 19px; height: 19px; border-radius: 50%; cursor: pointer; border: 2px solid transparent; transition: all .12s; flex-shrink: 0; }
+.tb-icon-btn { width: 34px; height: 34px; border-radius: 8px; border: none; background: none; cursor: pointer; display: flex; align-items: center; justify-content: center; color: rgba(255,255,255,0.4); transition: background .12s, color .12s; flex-shrink: 0; }
+.tb-icon-btn:hover { background: rgba(255,255,255,0.09); color: rgba(255,255,255,0.88); }
+/* Pill group */
+.tb-pill { display: flex; align-items: center; background: rgba(255,255,255,0.08); border-radius: 11px; padding: 4px 5px; gap: 1px; border: 1px solid rgba(255,255,255,0.05); }
+.tb-pill-btn { width: 32px; height: 32px; border-radius: 7px; border: none; background: none; cursor: pointer; display: flex; align-items: center; justify-content: center; color: rgba(255,255,255,0.42); transition: all .12s; flex-shrink: 0; }
+.tb-pill-btn:hover { background: rgba(255,255,255,0.1); color: rgba(255,255,255,0.88); }
+.tb-pill-btn.active { background: rgba(255,255,255,0.16); color: #fff; }
+.tb-pill-sep { width: 1px; height: 16px; background: rgba(255,255,255,0.1); margin: 0 4px; flex-shrink: 0; }
+.color-dot { width: 14px; height: 14px; border-radius: 50%; cursor: pointer; border: 1.5px solid transparent; transition: all .12s; flex-shrink: 0; }
 .color-dot:hover { transform: scale(1.2); }
-.color-dot.active { border-color: #fff; }
-.size-btn { height: 28px; padding: 0 8px; border-radius: 6px; border: none; background: rgba(255,255,255,0.06); cursor: pointer; color: rgba(255,255,255,0.4); font-size: 11px; font-weight: 700; font-family: inherit; transition: all .12s; flex-shrink: 0; display: flex; align-items: center; gap: 4px; }
-.size-btn:hover { background: rgba(255,255,255,0.11); color: rgba(255,255,255,0.8); }
-.size-btn.active { background: rgba(255,255,255,0.16); color: #fff; }
+.color-dot.active { border-color: rgba(255,255,255,0.85); box-shadow: 0 0 0 1px rgba(255,255,255,0.25); }
+.size-btn { height: 26px; padding: 0 7px; border-radius: 6px; border: none; background: none; cursor: pointer; color: rgba(255,255,255,0.38); font-size: 10px; font-weight: 700; font-family: inherit; transition: all .12s; flex-shrink: 0; display: flex; align-items: center; gap: 3px; }
+.size-btn:hover { background: rgba(255,255,255,0.1); color: rgba(255,255,255,0.8); }
+.size-btn.active { background: rgba(255,255,255,0.15); color: #fff; }
 .size-dot { border-radius: 50%; background: currentColor; flex-shrink: 0; }
+.tb-lucide { width: 22px; height: 22px; stroke: currentColor; stroke-width: 1.8; fill: none; flex-shrink: 0; }
 
 /* ── Canvas area ── */
 .gn-canvas-area { flex: 1; overflow: auto; background: #505050; padding: 28px; scroll-behavior: smooth; }
@@ -342,15 +370,11 @@ body.drawing-mode #app { display: none; }
 .page-locked-float-btn svg { flex-shrink:0; }
 
 /* Paper UI overlay */
-.paper-ui { position: absolute; top: 0; left: 0; right: 0; pointer-events: none; display: flex; align-items: center; padding: 0 20px; gap: 10px; z-index: 6; }
-.pui-left { pointer-events: auto; display: flex; align-items: center; gap: 7px; }
-.pui-date-btn { background: none; border: none; cursor: pointer; font-family: inherit; font-size: 12px; font-weight: 500; color: #9A9997; letter-spacing: 0; padding: 0; line-height: 1; transition: color .15s, border-color .15s, background .15s; display: flex; align-items: center; gap: 4px; border-radius: 6px; }
-.pui-date-btn:hover { color: #1A1918; }
-.pui-date-btn svg { opacity: 0.32; transition: opacity .15s; }
-.pui-date-btn:hover svg { opacity: 0.65; }
-.pui-date-btn.no-date { border: 1.5px dashed #C8C7C3; padding: 5px 10px; color: #B0AFAC; }
-.pui-date-btn.no-date:hover { border-color: #9A9997; color: #555452; background: rgba(0,0,0,0.03); }
-.pui-date-btn.no-date svg { opacity: 0.5; }
+.paper-ui { position: absolute; top: 0; left: 0; right: 0; pointer-events: none; display: grid; grid-template-columns: 1fr 1fr; z-index: 6; }
+.pui-date-btn { background: none; border: none; cursor: pointer; font-family: inherit; font-weight: 700; color: #1A1918; letter-spacing: -0.02em; padding: 0; line-height: 1; transition: color .15s; display: block; text-align: left; }
+.pui-date-btn:hover { color: #5B7FF9; }
+.pui-date-btn.no-date { color: #C8C7C3; border-bottom: 1.5px dashed #C8C7C3; padding-bottom: 2px; }
+.pui-date-btn.no-date:hover { color: #9A9997; border-color: #9A9997; }
 /* Persistent nodate popup embedded in card */
 .nodate-top-popup { display:none; position:absolute; left:16px; background:#fff; border-radius:10px; box-shadow:0 4px 24px rgba(0,0,0,0.18),0 1px 4px rgba(0,0,0,0.07); border:1px solid rgba(0,0,0,0.08); padding:5px; z-index:20; min-width:148px; pointer-events:auto; animation:ndtp-in .38s cubic-bezier(0.22,1,0.36,1); }
 .nodate-top-popup.show { display:block; }
@@ -409,13 +433,14 @@ body.drawing-mode #app { display: none; }
 .dp-month-btn.used { opacity: 0.28; cursor: not-allowed; }
 .dp-month-btn:disabled { pointer-events: none; }
 .pui-right { margin-left: auto; pointer-events: auto; display: flex; align-items: center; gap: 6px; }
-.pui-timer-time { font-size: 12px; font-weight: 600; color: #AEADAB; font-variant-numeric: tabular-nums; letter-spacing: -0.2px; min-width: 36px; line-height: 1; }
-.pui-timer-time.running { color: #3A7BFF; }
+.pui-timer-time { font-variant-numeric: tabular-nums; }
+.pui-timer-time.running { color: #3A7BFF !important; }
 .pui-tbtn { width: 22px; height: 22px; border-radius: 50%; border: 1px solid #E4E3DF; background: rgba(255,255,255,0.85); color: #AEADAB; cursor: pointer; font-size: 8px; display: flex; align-items: center; justify-content: center; transition: all .15s; font-family: inherit; }
 .pui-tbtn:hover { border-color: #1A1918; color: #1A1918; background: #fff; }
 .pui-tbtn.playing { background: #1A1918; color: #fff; border-color: #1A1918; }
 .pui-tbtn-reset { font-size: 12px; }
 </style>
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
 </head>
 <body>
 
@@ -451,39 +476,58 @@ body.drawing-mode #app { display: none; }
 
   <div class="gn-main">
     <div class="gn-toolbar">
+      <!-- Left: sidebar toggle -->
       <button class="tb-icon-btn" onclick="toggleSidebar()" title="사이드바">
-        <svg width="15" height="11" viewBox="0 0 15 11" fill="none">
-          <rect y="0" width="15" height="1.8" rx="0.9" fill="currentColor"/>
-          <rect y="4.6" width="15" height="1.8" rx="0.9" fill="currentColor"/>
-          <rect y="9.2" width="15" height="1.8" rx="0.9" fill="currentColor"/>
-        </svg>
+        <i data-lucide="panel-left" class="tb-lucide"></i>
       </button>
-      <div class="tb-sep"></div>
-      <button class="tb-tool-btn active" id="tb-pen" onclick="setDrawTool('pen')">
-        <span class="tb-tool-ico" id="tb-pen-ico"></span>펜
-      </button>
-      <button class="tb-tool-btn" id="tb-hi" onclick="setDrawTool('highlighter')">
-        <span class="tb-tool-ico" style="background:#FFE066;border-radius:2px"></span>형광펜
-      </button>
-      <button class="tb-tool-btn" id="tb-er" onclick="setDrawTool('eraser')">
-        <span style="font-size:10px;line-height:1">◻</span>지우개
-      </button>
-      <div class="tb-sep"></div>
-      <div id="tb-colors" style="display:flex;gap:5px;align-items:center"></div>
-      <div class="tb-sep"></div>
-      <div id="tb-sizes" style="display:flex;gap:4px;align-items:center"></div>
+
       <div class="tb-spacer"></div>
-      <div class="tb-sep"></div>
-      <button class="tb-icon-btn" onclick="undoDraw()" title="실행 취소">
-        <svg width="15" height="15" viewBox="0 0 15 15" fill="none">
-          <path d="M3.5 5H9.5C11.4 5 13 6.6 13 8.5S11.4 12 9.5 12H5.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-          <path d="M3.5 5L1.5 7l2 2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
+
+      <!-- Center: pill tool group -->
+      <div class="tb-pill">
+        <!-- Pen -->
+        <button class="tb-pill-btn active" id="tb-pen" onclick="setDrawTool('pen')" title="펜" style="position:relative;">
+          <i data-lucide="pencil" class="tb-lucide"></i>
+          <span id="tb-pen-ico" style="position:absolute;width:5px;height:5px;border-radius:50%;bottom:4px;right:4px;pointer-events:none;"></span>
+        </button>
+        <!-- Highlighter -->
+        <button class="tb-pill-btn" id="tb-hi" onclick="setDrawTool('highlighter')" title="형광펜">
+          <i data-lucide="highlighter" class="tb-lucide"></i>
+        </button>
+        <!-- Eraser -->
+        <button class="tb-pill-btn" id="tb-er" onclick="setDrawTool('eraser')" title="지우개">
+          <i data-lucide="eraser" class="tb-lucide"></i>
+        </button>
+
+        <div class="tb-pill-sep"></div>
+
+        <!-- Colors -->
+        <div id="tb-colors" style="display:flex;gap:3px;align-items:center;padding:0 2px;"></div>
+
+        <div class="tb-pill-sep"></div>
+
+        <!-- Sizes -->
+        <div id="tb-sizes" style="display:flex;gap:2px;align-items:center;"></div>
+
+        <div class="tb-pill-sep"></div>
+
+        <!-- Undo -->
+        <button class="tb-pill-btn" onclick="undoDraw()" title="실행 취소 (⌘Z)">
+          <i data-lucide="undo-2" class="tb-lucide"></i>
+        </button>
+      </div>
+
+      <div class="tb-spacer"></div>
+
+      <!-- Right: action buttons -->
+      <button class="tb-icon-btn" onclick="openAddPageModal()" title="페이지 추가">
+        <i data-lucide="file-plus" class="tb-lucide"></i>
       </button>
-      <button class="tb-icon-btn" onclick="clearDraw()" title="모두 지우기">
-        <svg width="15" height="15" viewBox="0 0 15 15" fill="none">
-          <path d="M11 8.5L8.5 11M9.5 3L12.5 6L7 11.5H4.5V9L9.5 3Z" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
+      <button class="tb-icon-btn" onclick="showToast('준비 중이에요')" title="내보내기">
+        <i data-lucide="upload" class="tb-lucide"></i>
+      </button>
+      <button class="tb-icon-btn" onclick="showToast('준비 중이에요')" title="더보기">
+        <i data-lucide="ellipsis" class="tb-lucide"></i>
       </button>
     </div>
 
@@ -491,13 +535,6 @@ body.drawing-mode #app { display: none; }
       <div id="page-scroll-list"></div>
     </div>
   </div>
-</div>
-
-<!-- Study Record Reminder Popup -->
-<div id="srp-popup" style="display:none;" onclick="openSrpModal()">
-  <button class="srp-close-btn" onclick="closeSrpPopup(event)">×</button>
-  <div style="font-size:12.5px;font-weight:600;color:#1A1918;line-height:1.45;padding-right:14px;margin-bottom:8px;">최근 기록되지 않은<br>공부 날짜가 있어요.</div>
-  <div style="font-size:12px;color:#5B7FF9;font-weight:600;">확인하기 →</div>
 </div>
 
 <!-- Sidebar Calendar Popup -->
@@ -543,6 +580,43 @@ body.drawing-mode #app { display: none; }
       </div>
     </div>
     <button class="btn btn-primary" style="width:100%;justify-content:center;height:46px;font-size:14px" id="scal-shortage-buy-btn" onclick="sbCalDoPurchase()">구매하기</button>
+  </div>
+</div>
+
+<!-- Gap Insert Modal -->
+<div class="scal-overlay" id="gap-insert-overlay" onclick="closeGapInsertModal()">
+  <div class="scal-popup" onclick="event.stopPropagation()">
+    <div style="margin-bottom:14px">
+      <div style="font-size:15px;font-weight:700;color:rgba(255,255,255,0.88);margin-bottom:5px">날짜 사이에 플래너 추가</div>
+      <div style="font-size:12px;color:rgba(255,255,255,0.38);line-height:1.6" id="gap-insert-range-label"></div>
+    </div>
+    <div class="scal-header">
+      <button class="scal-nav" onclick="gapNavMonth(-1)">‹</button>
+      <span class="scal-title" id="gap-cal-title"></span>
+      <button class="scal-nav" onclick="gapNavMonth(1)">›</button>
+    </div>
+    <div class="scal-days-hdr" id="gap-cal-days-hdr"></div>
+    <div id="gap-cal-grid"></div>
+    <div class="scal-footer">
+      <button class="scal-cancel-btn" onclick="closeGapInsertModal()">취소</button>
+      <button class="scal-confirm-btn" id="gap-insert-confirm-btn" onclick="confirmGapInsert()" disabled>추가</button>
+    </div>
+  </div>
+</div>
+
+<!-- Add Page Modal -->
+<div class="addpage-overlay" id="addpage-overlay" onclick="closeAddPageModal()">
+  <div class="addpage-popup" onclick="event.stopPropagation()">
+    <div class="addpage-popup-title" id="addpage-popup-title">페이지 추가</div>
+    <div class="addpage-popup-sub" id="addpage-popup-sub">추가할 페이지의 날짜를 선택해주세요.</div>
+    <div class="addpage-cal-header">
+      <button class="addpage-cal-nav" onclick="addPageNavMonth(-1)">‹</button>
+      <span class="addpage-cal-title" id="addpage-cal-title"></span>
+      <button class="addpage-cal-nav" onclick="addPageNavMonth(1)">›</button>
+    </div>
+    <div class="addpage-cal-grid-wrap" id="addpage-cal-days-hdr"></div>
+    <div class="addpage-cal-grid-wrap" id="addpage-cal-grid"></div>
+    <button class="addpage-confirm-btn" id="addpage-confirm-btn" onclick="confirmAddPage()" disabled>날짜 선택</button>
   </div>
 </div>
 
@@ -760,6 +834,19 @@ function getDateInputType(nbType){
   if(nbType==='monthly') return 'month';
   return 'date';
 }
+function fmtDatePaper(val, nbType){
+  if(!val) return null;
+  if(nbType==='weekly'){ return fmtWeekShort(val)||val; }
+  if(nbType==='monthly'){ const [y,m]=val.split('-'); return `${y.slice(2)}.${m}`; }
+  const [y,m,d]=val.split('-'); return `${y.slice(2)}.${m}.${d}`;
+}
+function fmtDday(dateIso){
+  if(!dateIso) return '';
+  const today = getTodayIso();
+  const diff = Math.round((new Date(dateIso+'T00:00:00') - new Date(today+'T00:00:00')) / 86400000);
+  if(diff === 0) return 'D-day';
+  return diff > 0 ? `D-${diff}` : `D+${Math.abs(diff)}`;
+}
 function fmtDateForDisplay(val, nbType){
   if(!val) return '날짜 설정';
   if(nbType==='weekly') return fmtWeekStr(val) || val;
@@ -822,7 +909,6 @@ function openOrSwitchTab(notebookId){
     openTabs.push({notebookId, pageIdx:initIdx});
     activeTabIdx = openTabs.length - 1;
     state.notebookId = notebookId;
-    _srpDismissed = false;
     state.pageIdx = initIdx;
     state.view = 'page';
     enterDrawing();
@@ -864,7 +950,6 @@ function closeTab(idx, e){
     document.getElementById('gn-layout').style.display = 'none';
     document.body.classList.remove('drawing-mode');
     state.view = 'home';
-    document.getElementById('srp-popup').style.display = 'none';
     render();
   } else if(wasActive){
     const newIdx = Math.min(idx, openTabs.length-1);
@@ -886,7 +971,6 @@ function goHome(){
   document.getElementById('gn-layout').style.display = 'none';
   document.body.classList.remove('drawing-mode');
   state.view = 'home';
-  document.getElementById('srp-popup').style.display = 'none';
   render();
   renderTabBar();
 }
@@ -1220,7 +1304,7 @@ function showToast(msg){
 // DRAWING MODE
 // ══════════════════════════════════════════════
 let canvasEl=null, ctx=null, isDrawing=false, currentStroke=null;
-const HEADER_RATIO = 0.072;
+const HEADER_RATIO = 0.175;
 
 function getInitialPageIdx(nb){
   if(!nb||!nb.pages.length) return 0;
@@ -1414,6 +1498,258 @@ function sbCalDoPurchase(){
   openPurchaseModal('addPage', nb.type, nb.id);
 }
 
+// ── Gap Insert Modal ─────────────────────────────
+let gapCalState = { year: new Date().getFullYear(), month: new Date().getMonth(), minDate: null, maxDate: null, rangeStart: null, rangeEnd: null };
+
+function _dateDiffDays(a, b){
+  return Math.round((new Date(b) - new Date(a)) / 86400000);
+}
+
+function _getGapRangeDates(){
+  const { rangeStart, rangeEnd, minDate, maxDate } = gapCalState;
+  if(!rangeStart) return [];
+  const nb = getNotebook(state.notebookId);
+  const takenDates = new Set(nb ? nb.pages.filter(pg=>pg.date).map(pg=>pg.date) : []);
+  const end = rangeEnd || rangeStart;
+  const dates = [];
+  const cursor = new Date(rangeStart);
+  const endD = new Date(end);
+  while(cursor <= endD){
+    const iso = `${cursor.getFullYear()}-${String(cursor.getMonth()+1).padStart(2,'0')}-${String(cursor.getDate()).padStart(2,'0')}`;
+    if(iso > minDate && iso < maxDate && !takenDates.has(iso)) dates.push(iso);
+    cursor.setDate(cursor.getDate()+1);
+  }
+  return dates;
+}
+
+function openGapInsertModal(minDate, maxDate){
+  gapCalState.minDate = minDate;
+  gapCalState.maxDate = maxDate;
+  gapCalState.rangeStart = null;
+  gapCalState.rangeEnd = null;
+  const d = new Date(minDate); d.setDate(d.getDate()+1);
+  gapCalState.year = d.getFullYear();
+  gapCalState.month = d.getMonth();
+  const fmtD = iso => { const [,m,day] = iso.split('-').map(Number); return `${m}월 ${day}일`; };
+  document.getElementById('gap-insert-range-label').textContent = `${fmtD(minDate)} 이후 ~ ${fmtD(maxDate)} 이전`;
+  renderGapCalGrid();
+  document.getElementById('gap-insert-overlay').classList.add('show');
+}
+
+function closeGapInsertModal(){
+  document.getElementById('gap-insert-overlay').classList.remove('show');
+  gapCalState.rangeStart = null;
+  gapCalState.rangeEnd = null;
+}
+
+function gapNavMonth(delta){
+  gapCalState.month += delta;
+  if(gapCalState.month < 0){ gapCalState.month=11; gapCalState.year--; }
+  if(gapCalState.month > 11){ gapCalState.month=0; gapCalState.year++; }
+  renderGapCalGrid();
+}
+
+function renderGapCalGrid(){
+  const nb = getNotebook(state.notebookId); if(!nb) return;
+  const { year, month, minDate, maxDate, rangeStart, rangeEnd } = gapCalState;
+  const takenDates = new Set(nb.pages.filter(pg=>pg.date).map(pg=>pg.date));
+  const selectedDates = new Set(_getGapRangeDates());
+  const monthNames = ['1월','2월','3월','4월','5월','6월','7월','8월','9월','10월','11월','12월'];
+  const dayNames = ['월','화','수','목','금','토','일'];
+  document.getElementById('gap-cal-title').textContent = `${year}년 ${monthNames[month]}`;
+  document.getElementById('gap-cal-days-hdr').innerHTML = dayNames.map(n=>`<div class="scal-day-name">${n}</div>`).join('');
+  const firstDay = new Date(year, month, 1);
+  const dow = (firstDay.getDay()+6)%7;
+  const cursor = new Date(year, month, 1-dow);
+  let rows = '';
+  for(let w=0; w<6; w++){
+    let hasMonth = false;
+    const cells = [];
+    for(let d=0; d<7; d++){
+      const inMonth = cursor.getMonth()===month;
+      if(inMonth) hasMonth = true;
+      const dayNum = cursor.getDate(), dow2 = cursor.getDay();
+      const isoDate = `${cursor.getFullYear()}-${String(cursor.getMonth()+1).padStart(2,'0')}-${String(dayNum).padStart(2,'0')}`;
+      cells.push({dayNum, inMonth, dow2, isoDate});
+      cursor.setDate(cursor.getDate()+1);
+    }
+    if(!hasMonth && w>0) break;
+    rows += `<div class="scal-row">${cells.map(({dayNum,inMonth,dow2,isoDate})=>{
+      const isBoundary = isoDate === minDate || isoDate === maxDate;
+      const outOfRange = isoDate < minDate || isoDate > maxDate;
+      const isTaken = !isBoundary && takenDates.has(isoDate);
+      const isStart = isoDate === rangeStart;
+      const isEnd = isoDate === rangeEnd;
+      const inSel = selectedDates.has(isoDate) && !isStart && !isEnd;
+      const disabled = outOfRange || isBoundary || isTaken;
+      let cls = 'scal-day';
+      if(!inMonth || (outOfRange && !isBoundary)) cls += ' scal-other';
+      else if(dow2===6) cls += ' scal-sat';
+      else if(dow2===0) cls += ' scal-sun';
+      if(isBoundary) cls += ' scal-taken';
+      else if(isStart || isEnd) cls += ' scal-range-start';
+      else if(inSel) cls += ' scal-in-range';
+      const dot = isBoundary ? `<div class="scal-dot"></div>` : (isStart||isEnd||inSel) ? `<div class="scal-dot dot-range"></div>` : `<div class="scal-dot-ph"></div>`;
+      const clickFn = disabled ? '' : `onclick="gapPickDate('${isoDate}')"`;
+      return `<div class="${cls}" ${clickFn}><div class="scal-num">${dayNum}</div>${dot}</div>`;
+    }).join('')}</div>`;
+  }
+  document.getElementById('gap-cal-grid').innerHTML = rows;
+  const dates = _getGapRangeDates();
+  const btn = document.getElementById('gap-insert-confirm-btn');
+  btn.disabled = dates.length === 0;
+  btn.textContent = dates.length > 0 ? `${dates.length}장 추가` : '추가';
+}
+
+function gapPickDate(isoDate){
+  const { rangeStart, rangeEnd } = gapCalState;
+  if(!rangeStart || rangeEnd){
+    gapCalState.rangeStart = isoDate;
+    gapCalState.rangeEnd = null;
+  } else {
+    if(isoDate < rangeStart){ gapCalState.rangeStart = isoDate; gapCalState.rangeEnd = rangeStart; }
+    else if(isoDate === rangeStart){ gapCalState.rangeStart = null; gapCalState.rangeEnd = null; }
+    else { gapCalState.rangeEnd = isoDate; }
+  }
+  renderGapCalGrid();
+}
+
+function confirmGapInsert(){
+  const dates = _getGapRangeDates(); if(!dates.length) return;
+  const nb = getNotebook(state.notebookId); if(!nb) return;
+  const sparePages = nb.pages.filter(pg=>!pg.date&&!isPageLocked(pg));
+  closeGapInsertModal();
+  if(sparePages.length >= dates.length){
+    dates.forEach((date, i) => { sparePages[i].date = date; });
+    autoFlushTrappedPages(nb);
+    saveData();
+    renderSidebarPages();
+    setTimeout(initAllCanvases, 60);
+    showToast(`${dates.length}장에 날짜가 추가됐어요 ✓`);
+  } else {
+    window._sbCalPendingDates = dates;
+    window._sbCalSpareCount = sparePages.length;
+    pm.pendingSpareCount = sparePages.length;
+    pm.betweenQty = dates.length - sparePages.length;
+    pm.insertIdx = null;
+    openPurchaseModal('addPage', nb.type, nb.id);
+  }
+}
+
+// ── Add Page Modal ──────────────────────────────
+let addPageCalState = { year: 0, month: 0, maxDate: null, minDate: null };
+let addPageRange = { start: null, end: null };
+
+function openAddPageModal(){
+  const today = new Date();
+  addPageCalState = { year: today.getFullYear(), month: today.getMonth(), maxDate: null, minDate: null };
+  addPageRange = { start: null, end: null };
+  document.getElementById('addpage-popup-sub').textContent = '추가할 페이지의 날짜를 선택해주세요.';
+  renderAddPageCalGrid();
+  document.getElementById('addpage-overlay').classList.add('show');
+}
+
+function openPrependCalModal(beforeDate){
+  // Navigate to month before the first page
+  const d = new Date(beforeDate + 'T00:00:00');
+  d.setDate(d.getDate() - 1);
+  addPageCalState = { year: d.getFullYear(), month: d.getMonth(), maxDate: beforeDate, minDate: null };
+  addPageRange = { start: null, end: null };
+  document.getElementById('addpage-popup-sub').textContent = '첫 페이지 이전 날짜를 선택해주세요.';
+  renderAddPageCalGrid();
+  document.getElementById('addpage-overlay').classList.add('show');
+}
+function closeAddPageModal(){
+  document.getElementById('addpage-overlay').classList.remove('show');
+  addPageRange = { start: null, end: null };
+}
+function addPageNavMonth(delta){
+  addPageCalState.month += delta;
+  if(addPageCalState.month < 0){ addPageCalState.month=11; addPageCalState.year--; }
+  if(addPageCalState.month > 11){ addPageCalState.month=0; addPageCalState.year++; }
+  renderAddPageCalGrid();
+}
+function getAddPageRangeDates(){
+  if(!addPageRange.start) return [];
+  if(!addPageRange.end) return [addPageRange.start];
+  const dates=[], cursor=new Date(addPageRange.start+'T00:00:00'), end=new Date(addPageRange.end+'T00:00:00');
+  while(cursor<=end){
+    dates.push(`${cursor.getFullYear()}-${String(cursor.getMonth()+1).padStart(2,'0')}-${String(cursor.getDate()).padStart(2,'0')}`);
+    cursor.setDate(cursor.getDate()+1);
+  }
+  return dates;
+}
+function renderAddPageCalGrid(){
+  const nb = getNotebook(state.notebookId); if(!nb) return;
+  const takenDates = new Set(nb.pages.filter(pg=>pg.date).map(pg=>pg.date));
+  const { year, month } = addPageCalState;
+  const monthNames=['1월','2월','3월','4월','5월','6월','7월','8월','9월','10월','11월','12월'];
+  const dayNames=['월','화','수','목','금','토','일'];
+  const rangeDates = getAddPageRangeDates();
+  const rangeSet = new Set(rangeDates);
+  document.getElementById('addpage-cal-title').textContent=`${year}년 ${monthNames[month]}`;
+  document.getElementById('addpage-cal-days-hdr').innerHTML=dayNames.map(n=>`<div class="addpage-cal-day-name">${n}</div>`).join('');
+  const firstDay=new Date(year,month,1), dow=(firstDay.getDay()+6)%7;
+  const cursor=new Date(year,month,1-dow);
+  let html='';
+  for(let w=0;w<6;w++){
+    let hasMonth=false;
+    const cells=[];
+    for(let d=0;d<7;d++){
+      const inMonth=cursor.getMonth()===month;
+      if(inMonth) hasMonth=true;
+      const iso=`${cursor.getFullYear()}-${String(cursor.getMonth()+1).padStart(2,'0')}-${String(cursor.getDate()).padStart(2,'0')}`;
+      const taken=takenDates.has(iso);
+      const outOfRange=(addPageCalState.maxDate&&iso>=addPageCalState.maxDate)||(addPageCalState.minDate&&iso<=addPageCalState.minDate);
+      const isStart=iso===addPageRange.start, isEnd=iso===addPageRange.end;
+      const inRange=rangeSet.has(iso)&&!isStart&&!isEnd;
+      let cls='addpage-cal-day';
+      if(!inMonth) cls+=' other-month';
+      else if(outOfRange||taken) cls+=' taken';
+      if(isStart) cls+=' range-start';
+      else if(isEnd) cls+=' range-end';
+      else if(inRange) cls+=' in-range';
+      const onclick=(inMonth&&!taken&&!outOfRange)?`addPagePickDate('${iso}')`:'';
+      cells.push(`<div class="${cls}"${onclick?' onclick="'+onclick+'"':''}>${cursor.getDate()}</div>`);
+      cursor.setDate(cursor.getDate()+1);
+    }
+    if(hasMonth) html+=cells.join('');
+  }
+  document.getElementById('addpage-cal-grid').innerHTML=html;
+  const available=getAddPageRangeDates().filter(d=>!takenDates.has(d));
+  const btn=document.getElementById('addpage-confirm-btn');
+  btn.textContent=available.length>0?`${available.length}장 추가`:'날짜 선택';
+  btn.disabled=available.length===0;
+}
+function addPagePickDate(iso){
+  if(!addPageRange.start||(addPageRange.start&&addPageRange.end)){
+    addPageRange={start:iso,end:null};
+  } else if(iso<addPageRange.start){
+    addPageRange={start:iso,end:addPageRange.start};
+  } else {
+    addPageRange.end=iso;
+  }
+  renderAddPageCalGrid();
+}
+function confirmAddPage(){
+  const nb=getNotebook(state.notebookId); if(!nb) return;
+  const takenDates=new Set(nb.pages.filter(pg=>pg.date).map(pg=>pg.date));
+  const dates=getAddPageRangeDates().filter(d=>!takenDates.has(d));
+  if(!dates.length) return;
+  const sparePages=nb.pages.filter(pg=>!pg.date&&!isPageLocked(pg));
+  closeAddPageModal();
+  if(sparePages.length>=dates.length){
+    _sbCalBindDates(dates);
+  } else {
+    window._sbCalPendingDates=dates;
+    window._sbCalSpareCount=sparePages.length;
+    pm.pendingSpareCount=sparePages.length;
+    pm.betweenQty=dates.length-sparePages.length;
+    pm.insertIdx=null;
+    openPurchaseModal('addPage',nb.type,nb.id);
+  }
+}
+
 function _sbCalBindDates(dates){
   const nb = getNotebook(state.notebookId); if(!nb) return;
   let lastIdx = -1;
@@ -1423,8 +1759,11 @@ function _sbCalBindDates(dates){
   });
   saveData();
   renderSidebarPages();
-  setTimeout(initAllCanvases, 60);
-  if(lastIdx>=0) switchPage(lastIdx);
+  const idxToSwitch = lastIdx;
+  setTimeout(() => {
+    initAllCanvases(true);
+    if(idxToSwitch >= 0) requestAnimationFrame(() => switchPage(idxToSwitch));
+  }, 60);
   showToast(`${dates.length}개 날짜가 추가됐어요 ✓`);
 }
 
@@ -1495,8 +1834,18 @@ function renderSidebarPages(scrollToRecent=false){
     html += g.indices.map(thumbHtml).join('');
   });
   if(nodateIndices.length > 0){
-    html += `<div class="gn-thumb-group-header">날짜 없는 페이지</div>`;
-    html += nodateIndices.map(thumbHtml).join('');
+    html += `<div class="gn-thumb-group-header">날짜 없는 페이지<span style="color:rgba(255,255,255,0.35);font-weight:700;">${nodateIndices.length}</span></div>`;
+    const firstIdx = nodateIndices[0];
+    const isActive = nodateIndices.includes(state.pageIdx);
+    html += `<div class="gn-page-thumb-wrap ${isActive?'active':''}" id="gn-tw-${firstIdx}" onclick="switchPage(${firstIdx})" style="overflow:visible;">
+      <div class="gn-nodate-stack-outer">
+        ${nodateIndices.length >= 3 ? `<div class="gn-nodate-back-card" style="transform:rotate(3deg) translateX(5px);"></div>` : ''}
+        ${nodateIndices.length >= 2 ? `<div class="gn-nodate-back-card" style="transform:rotate(1.5deg) translateX(2px);"></div>` : ''}
+        <div class="gn-thumb-img-wrap" style="border-radius:7px;position:relative;">
+          <canvas class="gn-thumb-canvas" id="gn-tc-${firstIdx}" width="190" height="253"></canvas>
+        </div>
+      </div>
+    </div>`;
   }
   list.innerHTML = html;
   // 오늘 플로팅 버튼 표시 여부
@@ -1520,141 +1869,6 @@ function renderSidebarPages(scrollToRecent=false){
       document.getElementById(`gn-tw-${state.pageIdx}`)?.scrollIntoView({behavior:'smooth',block:'nearest'});
     }
   });
-}
-
-// ── 공부 기록 미추가 알림 팝업 ──────────────────────────────
-let _srpDismissed = false;
-
-function _buildOrphanBtnsHtml(idx, fmtFn){
-  const orphans = _getSrpOrphans();
-  if(!orphans.length) return '';
-  const fmtSecs = s => { const h=Math.floor(s/3600),m=Math.floor((s%3600)/60); return h>0?`${h}시간${m>0?' '+m+'분':''}`:`${m}분`; };
-  const items = orphans.map(({date,secs}) => `
-    <button onclick="applyCanvasQuickDate(${idx},'${date}')" style="width:100%;display:flex;align-items:center;justify-content:space-between;gap:8px;padding:7px 10px;background:none;border:none;border-radius:7px;cursor:pointer;font-family:inherit;font-size:12px;color:#1A1918;transition:background .12s;" onmouseover="this.style.background='#F5F4F1'" onmouseout="this.style.background='none'">
-      <span style="font-weight:500;">${fmtFn(date)}</span>
-      <span style="font-size:10px;color:#AEADAB;">${fmtSecs(secs)}</span>
-    </button>`).join('');
-  return `<div style="padding:5px 10px 2px;font-size:9.5px;color:#AEADAB;letter-spacing:0.01em;">공부 기록만 있는 날짜</div>
-    ${items}
-    <div style="height:1px;background:#F0EFEC;margin:2px 0;"></div>`;
-}
-
-function _getSrpOrphans(){
-  const nb = getNotebook(state.notebookId); if(!nb || nb.type !== 'daily') return [];
-  const todayIso = getTodayIso();
-  const usedDates = new Set(nb.pages.filter(p=>p.date).map(p=>p.date));
-  const sorted = nb.pages.filter(p=>p.date).map(p=>p.date).sort();
-  if(!sorted.length) return [];
-  // 오늘 이전 페이지 중 가장 마지막 날짜 기준
-  const prevDates = sorted.filter(d => d < todayIso);
-  if(!prevDates.length) return [];
-  const prevDate = prevDates[prevDates.length - 1];
-  return Object.entries(db.studyRecords||{})
-    .filter(([date,secs]) => secs>0 && !usedDates.has(date) && date>prevDate && date<todayIso)
-    .sort(([a],[b]) => a<b?-1:1)
-    .map(([date,secs]) => ({date,secs}));
-}
-
-function updateSrpPopup(){
-  const popup = document.getElementById('srp-popup'); if(!popup) return;
-  if(_srpDismissed || state.view !== 'page'){ popup.style.display='none'; return; }
-  const nb = getNotebook(state.notebookId);
-  if(!nb){ popup.style.display='none'; return; }
-  // nodate 스택이 캔버스에 있을 때만 표시
-  const hasNodate = !!document.getElementById('nodate-stack-slot');
-  if(!hasNodate){ popup.style.display='none'; return; }
-  const orphans = _getSrpOrphans();
-  if(!orphans.length){ popup.style.display='none'; return; }
-  popup.style.display = 'block';
-}
-
-function closeSrpPopup(e){
-  e && e.stopPropagation();
-  _srpDismissed = true;
-  document.getElementById('srp-popup').style.display = 'none';
-}
-
-function openSrpModal(){
-  const nb = getNotebook(state.notebookId); if(!nb) return;
-  const orphans = _getSrpOrphans(); if(!orphans.length) return;
-  document.getElementById('srp-popup').style.display = 'none';
-
-  const fmtSecs = s => { const h=Math.floor(s/3600),m=Math.floor((s%3600)/60); return h>0?`${h}시간${m>0?' '+m+'분':''}`:`${m}분`; };
-
-  let listHtml = '';
-  orphans.forEach(({date,secs}) => {
-    const label = fmtDateShort(date);
-    listHtml += `
-      <label style="display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid #F5F4F2;cursor:pointer;" onclick="event.stopPropagation()">
-        <input type="checkbox" value="${date}" checked onchange="srpUpdateBtn()"
-          style="width:16px;height:16px;flex-shrink:0;cursor:pointer;accent-color:#18171A;">
-        <span style="flex:1;font-size:13px;font-weight:600;color:#1A1918;">${label}</span>
-        <span style="font-size:11px;color:#AEADAB;">${fmtSecs(secs)}</span>
-      </label>`;
-  });
-
-  const overlay = document.createElement('div');
-  overlay.id = 'srp-modal';
-  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.42);z-index:10001;display:flex;align-items:center;justify-content:center;';
-  overlay.onclick = e => { if(e.target===overlay) closeSrpModal(); };
-  overlay.innerHTML = `
-    <div onclick="event.stopPropagation()" style="background:#fff;border-radius:16px;width:288px;max-height:60vh;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 10px 48px rgba(0,0,0,0.24);">
-      <div style="padding:16px 16px 0;flex-shrink:0;">
-        <div style="font-size:14px;font-weight:700;color:#1A1918;margin-bottom:12px;">기록된 날짜 추가</div>
-      </div>
-      <div style="flex:1;overflow-y:auto;padding:0 16px;">
-        <div id="srp-modal-content">${listHtml}</div>
-      </div>
-      <div style="padding:12px 16px;flex-shrink:0;">
-        <button id="srp-confirm-btn" onclick="confirmSrpAdd()" style="width:100%;padding:12px;border:none;border-radius:10px;background:#18171A;font-family:inherit;font-size:13px;font-weight:700;color:#fff;cursor:pointer;"></button>
-      </div>
-    </div>`;
-  document.body.appendChild(overlay);
-  srpUpdateBtn();
-}
-
-function srpUpdateBtn(){
-  const nb = getNotebook(state.notebookId); if(!nb) return;
-  const count = document.querySelectorAll('#srp-modal-content input[type=checkbox]:checked').length;
-  const btn = document.getElementById('srp-confirm-btn'); if(!btn) return;
-  if(count === 0){
-    btn.textContent = '날짜를 선택하세요';
-    btn.disabled = true; btn.style.opacity = '0.35';
-  } else {
-    btn.textContent = `${count}장 추가`;
-    btn.disabled = false; btn.style.opacity = '1';
-  }
-}
-
-function closeSrpModal(){
-  document.getElementById('srp-modal')?.remove();
-  updateSrpPopup();
-}
-
-function confirmSrpAdd(){
-  const nb = getNotebook(state.notebookId); if(!nb) return;
-  const dates = [...document.querySelectorAll('#srp-modal-content input[type=checkbox]:checked')]
-    .map(cb => cb.value).sort();
-  if(!dates.length) return;
-  const sparePages = nb.pages.filter(p=>!p.date&&!isPageLocked(p));
-  if(sparePages.length >= dates.length){
-    for(let i=0;i<dates.length;i++) sparePages[i].date = dates[i];
-    autoFlushTrappedPages(nb);
-    saveData();
-    closeSrpModal();
-    _srpDismissed = true;
-    document.getElementById('srp-popup').style.display = 'none';
-    renderSidebarPages();
-    showToast(`${dates.length}장에 날짜가 설정됐어요`);
-    setTimeout(initAllCanvases, 60);
-  } else {
-    window._sbCalPendingDates = dates;
-    window._sbCalSpareCount = sparePages.length;
-    pm.pendingSpareCount = sparePages.length;
-    pm.insertIdx = null;
-    closeSrpModal();
-    openPurchaseModal('addPage', nb.type, nb.id);
-  }
 }
 
 // ─── PAGE CONTEXT MENU ──────────────────────────
@@ -1877,7 +2091,16 @@ function scrollToPageSlot(idx, behavior='smooth'){
   if(!slot || !area) return;
   const slotRect = slot.getBoundingClientRect();
   const areaRect = area.getBoundingClientRect();
-  const target = Math.max(0, area.scrollTop + slotRect.top - areaRect.top - 40);
+  let target = Math.max(0, area.scrollTop + slotRect.top - areaRect.top - 40);
+  // When scrolling to the first dated page, cap so the prepend button stays visible (8px gap)
+  const prependWrap = document.querySelector('.prepend-planner-wrap');
+  const datedIndices = nb ? getSortedPageIndices().filter(i => nb.pages[i].date) : [];
+  const isFirstDated = pg && pg.date && datedIndices[0] === idx;
+  if(prependWrap && isFirstDated){
+    const prependRect = prependWrap.getBoundingClientRect();
+    const maxScroll = area.scrollTop + prependRect.top - areaRect.top - 8;
+    target = Math.min(target, Math.max(0, maxScroll));
+  }
   if(behavior === 'auto'){
     area.classList.add('no-smooth');
     area.scrollTop = target;
@@ -1928,7 +2151,9 @@ function redrawPageCanvas(idx){
   getPageStrokes(pg).forEach(s=>drawStroke(cx,s,w,h));
   if(idx===state.pageIdx){ ctx=cx; canvasEl=c; }
   const dtEl = document.getElementById(`pui-date-text-pg-${idx}`);
-  if(dtEl) dtEl.textContent = pg.date ? fmtDateForDisplay(pg.date, nb.type) : '날짜 설정';
+  if(dtEl) dtEl.textContent = pg.date ? fmtDatePaper(pg.date, nb.type) : '날짜 설정';
+  const ddayEl = document.getElementById(`pui-dday-pg-${idx}`);
+  if(ddayEl) ddayEl.textContent = (pg.date && nb.type === 'daily') ? fmtDday(pg.date) : '';
   const puiEl = document.querySelector(`#page-slot-${idx} .paper-ui, #nodate-card-${idx} .paper-ui`);
   if(puiEl) puiEl.style.display = '';
 }
@@ -1940,6 +2165,7 @@ function renderToolbar(){
   const sc = document.getElementById('tb-sizes');
   if(sc) sc.innerHTML = DRAW_SIZES.map((s,i)=>`<button class="size-btn ${draw.sizeIdx===i?'active':''}" onclick="setDrawSize(${i})"><div class="size-dot" style="width:${Math.round(s.p*1.5+2)}px;height:${Math.round(s.p*1.5+2)}px"></div>${s.l}</button>`).join('');
   syncToolUI();
+  if(typeof lucide !== 'undefined') lucide.createIcons();
 }
 function syncToolUI(){
   ['pen','hi','er'].forEach(id=>document.getElementById('tb-'+id)?.classList.remove('active'));
@@ -1978,19 +2204,37 @@ function makePageWrapper(i, pg, nb, cW, cH, dpr){
   nodateEl.innerHTML = `<button class="pnd-date-btn" onclick="openCanvasDateQuickPick(${i},event,this)"><svg width="28" height="28" viewBox="0 0 24 24" fill="none"><rect x="3" y="5" width="18" height="17" rx="2.5" stroke="currentColor" stroke-width="1.5"/><path d="M8 3v4M16 3v4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="3" y1="10" x2="21" y2="10" stroke="currentColor" stroke-width="1.5"/></svg><span>날짜 설정</span></button>`;
   const paperUiEl = document.createElement('div');
   paperUiEl.className = 'paper-ui';
-  paperUiEl.style.height = Math.round(cH * HEADER_RATIO) + 'px';
-  const dateLabel = pg.date ? fmtDateForDisplay(pg.date, nb.type) : '날짜 설정';
+  const hh2 = Math.round(cH * HEADER_RATIO);
+  paperUiEl.style.height = hh2 + 'px';
+  const fsVal = Math.round(Math.min(hh2 * 0.24, 36));
+  const fsLabel = Math.round(Math.min(hh2 * 0.1, 12));
+  const padH = Math.round(hh2 * 0.11);
+  const padV = Math.round(hh2 * 0.13);
+  const gap = Math.round(hh2 * 0.06);
+  const dateStr = pg.date ? fmtDatePaper(pg.date, nb.type) : null;
+  const ddayStr = (pg.date && nb.type === 'daily') ? fmtDday(pg.date) : '';
+  const timerInit = pg.date ? fmtTime(db.studyRecords[pg.date]||0) : '00:00';
+  const padVRow = Math.round(hh2 * 0.07);
+  const gapRow  = Math.round(hh2 * 0.04);
+  const colStyleDate = `display:flex;flex-direction:column;justify-content:center;padding:${padV}px ${padH}px;gap:${gap}px;overflow:hidden;box-sizing:border-box;`;
+  const colStyleRow  = `display:flex;flex-direction:column;justify-content:center;padding:${padVRow}px ${padH}px;gap:${gapRow}px;overflow:hidden;box-sizing:border-box;`;
   paperUiEl.innerHTML = `
-    <div class="pui-left">
-      <button class="pui-date-btn${locked?' locked':''}${!pg.date?' no-date':''}" onclick="${locked||!pg.date?'void(0)':'openCanvasDateQuickPick('+i+',event,this)'}">
-        <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><rect x="1" y="2.5" width="10" height="9" rx="1.5" stroke="currentColor" stroke-width="1.3"/><path d="M4 1v3M8 1v3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><line x1="1" y1="6" x2="11" y2="6" stroke="currentColor" stroke-width="1.3"/></svg>
-        <span id="pui-date-text-pg-${i}">${dateLabel}</span>
+    <div style="${colStyleDate}pointer-events:auto;">
+      <span style="font-size:${fsLabel}px;font-weight:500;color:#AEADAB;letter-spacing:0.02em;display:block;">Date</span>
+      <button class="pui-date-btn${locked?' locked':''}${!pg.date?' no-date':''}" style="font-size:${fsVal}px;"
+        onclick="${locked?'void(0)':'openCanvasDateQuickPick('+i+',event,this)'}">
+        <span id="pui-date-text-pg-${i}">${dateStr||'날짜 설정'}</span>
       </button>
     </div>
-    <div class="pui-right">
-      <span id="pui-timer-pg-${i}" class="pui-timer-time">00:00</span>
-      <button id="pui-play-pg-${i}" class="pui-tbtn" onclick="activatePageAndToggleTimer(${i})">▶</button>
-      <button class="pui-tbtn pui-tbtn-reset" onclick="activatePageAndResetTimer(${i})" title="초기화">↺</button>
+    <div style="display:grid;grid-template-rows:1fr 1fr;pointer-events:auto;height:100%;box-sizing:border-box;">
+      <div style="${colStyleRow}border-bottom:0.7px solid #E2E1DD;text-align:right;">
+        <span style="font-size:${fsLabel}px;font-weight:500;color:#AEADAB;display:block;">Dday</span>
+        <span id="pui-dday-pg-${i}" style="font-size:${fsVal}px;font-weight:700;color:#1A1918;letter-spacing:-0.02em;line-height:1;display:block;">${ddayStr}</span>
+      </div>
+      <div style="${colStyleRow}text-align:right;">
+        <span style="font-size:${fsLabel}px;font-weight:500;color:#AEADAB;display:block;">Total Time</span>
+        <span id="pui-timer-pg-${i}" class="pui-timer-time" style="font-size:${fsVal}px;font-weight:700;color:#1A1918;letter-spacing:-0.02em;line-height:1;display:block;">${timerInit}</span>
+      </div>
     </div>`;
   // Persistent date-pick popup for dateless pages (always visible on top card)
   if(!pg.date){
@@ -2027,13 +2271,40 @@ function initAllCanvases(skipAutoScroll){
   const datedIndices = sortedIndices.filter(i => nb.pages[i].date);
   const nodateIndices = sortedIndices.filter(i => !nb.pages[i].date);
 
+  // Prepend button (before first dated page)
+  if(datedIndices.length > 0){
+    const firstDate = nb.pages[datedIndices[0]].date;
+    const prependWrap = document.createElement('div');
+    prependWrap.className = 'prepend-planner-wrap';
+    prependWrap.innerHTML = `<button class="prepend-planner-btn" onclick="openPrependCalModal('${firstDate}')">
+      <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><line x1="6" y1="1" x2="6" y2="11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="1" y1="6" x2="11" y2="6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+      이전 일자 추가
+    </button>`;
+    list.appendChild(prependWrap);
+  }
+
   // Render dated pages individually (existing behaviour)
-  datedIndices.forEach(i => {
+  datedIndices.forEach((i, j) => {
     const pg = nb.pages[i];
     const slot = document.createElement('div');
     slot.className = 'page-slot'; slot.id = `page-slot-${i}`; slot.dataset.pageIdx = i;
     const wrapper = makePageWrapper(i, pg, nb, cW, cH, dpr);
     slot.appendChild(wrapper); list.appendChild(slot);
+    // Gap insert button between dated pages with date gaps
+    const nextI = datedIndices[j+1];
+    if(nextI !== undefined && pg.date){
+      const nextDate = nb.pages[nextI].date;
+      if(nextDate && _dateDiffDays(pg.date, nextDate) > 1){
+        slot.style.position = 'relative';
+        slot.style.overflow = 'visible';
+        const gapBtn = document.createElement('button');
+        gapBtn.className = 'gap-insert-btn';
+        gapBtn.title = '날짜 사이에 플래너 추가';
+        gapBtn.textContent = '•••';
+        gapBtn.onclick = (e) => { e.stopPropagation(); openGapInsertModal(pg.date, nextDate); };
+        slot.appendChild(gapBtn);
+      }
+    }
   });
 
   // Render dateless pages as a stacked pile
@@ -2071,8 +2342,8 @@ function initAllCanvases(skipAutoScroll){
     const buyWrap = document.createElement('div');
     buyWrap.className = 'prepend-planner-wrap';
     buyWrap.innerHTML = `<button class="prepend-planner-btn" onclick="showAddPagePurchaseModal()">
-      <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="1" y="3" width="12" height="10" rx="1.5" stroke="currentColor" stroke-width="1.3"/><path d="M5 3V2a2 2 0 0 1 4 0v1" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><path d="M1 7h12" stroke="currentColor" stroke-width="1.3"/></svg>
-      속지 구매
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><line x1="7" y1="2" x2="7" y2="12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="2" y1="7" x2="12" y2="7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+      페이지 추가
     </button>`;
     list.appendChild(buyWrap);
   }
@@ -2081,7 +2352,6 @@ function initAllCanvases(skipAutoScroll){
   if(canvasEl) ctx = canvasEl.getContext('2d');
   if(!skipAutoScroll) scrollToPageSlot(state.pageIdx, 'auto');
   setupPageObserver();
-  setTimeout(updateSrpPopup, 80);
 }
 
 // Stack offsets: position 0 = top, 1 = mid-back, 2 = far-back
@@ -2717,6 +2987,22 @@ function sbSelectToday(){
 function setSbPageDate(idx, val, focusAfter){
   const nb = getNotebook(state.notebookId); if(!nb) return;
   const pg = nb.pages[idx]; if(!pg) return;
+
+  // When removing date, find neighbor to scroll to
+  let neighborIdx = -1;
+  if(!val && pg.date){
+    const sorted = getSortedPageIndices();
+    const pos = sorted.indexOf(idx);
+    for(let j = pos + 1; j < sorted.length; j++){
+      if(nb.pages[sorted[j]].date){ neighborIdx = sorted[j]; break; }
+    }
+    if(neighborIdx < 0){
+      for(let j = pos - 1; j >= 0; j--){
+        if(nb.pages[sorted[j]].date){ neighborIdx = sorted[j]; break; }
+      }
+    }
+  }
+
   pg.date = val || null;
   autoFlushTrappedPages(nb);
   saveData();
@@ -2724,12 +3010,20 @@ function setSbPageDate(idx, val, focusAfter){
     state.timer.savedTime = val ? (db.studyRecords[val]||0) : 0;
   }
   renderSidebarPages();
-  setTimeout(() => {
-    initAllCanvases(focusAfter && !!val);
-    if(focusAfter && val){
-      requestAnimationFrame(() => requestAnimationFrame(() => scrollToPageSlot(idx)));
-    }
-  }, 60);
+
+  if(neighborIdx >= 0){
+    setTimeout(() => {
+      initAllCanvases(true);
+      requestAnimationFrame(() => switchPage(neighborIdx));
+    }, 60);
+  } else {
+    setTimeout(() => {
+      initAllCanvases(focusAfter && !!val);
+      if(focusAfter && val){
+        requestAnimationFrame(() => requestAnimationFrame(() => scrollToPageSlot(idx)));
+      }
+    }, 60);
+  }
 }
 
 // ─── CANVAS DATE QUICK PICK ─────────────────────
@@ -2995,6 +3289,9 @@ function drawPaper(c, w, h, type, dateVal, studyTime){
   c.fillStyle = '#FAFAF8'; c.fillRect(0,0,w,hh);
   c.strokeStyle = '#E2E1DD'; c.lineWidth = 0.7;
   c.beginPath(); c.moveTo(0,hh); c.lineTo(w,hh); c.stroke();
+  // Header grid lines
+  c.beginPath(); c.moveTo(w*0.5,0); c.lineTo(w*0.5,hh); c.stroke();
+  c.beginPath(); c.moveTo(w*0.5,hh*0.5); c.lineTo(w,hh*0.5); c.stroke();
   // Body
   if(type === 'daily'){
     drawDailyPlannerBody(c, w, h, hh, studyTime||0);
@@ -3658,5 +3955,10 @@ renderTabBar();
   <label class="pui-dp-label" id="pui-dp-label">날짜 선택 <span id="pui-dp-header-sub"></span></label>
   <div id="pui-dp-content"></div>
 </div>
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    if(typeof lucide !== 'undefined') lucide.createIcons();
+  });
+</script>
 </body>
 </html>
