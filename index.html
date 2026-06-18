@@ -235,8 +235,6 @@ body.drawing-mode #app { display: none; }
 .gn-thumb-label { padding: 5px 5px 6px 7px; display: flex; flex-direction:row; align-items:center; justify-content:space-between; min-width:0; gap:2px; }
 .gn-thumb-group-header { grid-column: 1 / -1; padding: 10px 2px 4px; font-size: 10.5px; font-weight: 700; color: rgba(255,255,255,0.35); letter-spacing: 0.02em; user-select: none; }
 .gn-thumb-group-header:first-child { padding-top: 2px; }
-.gn-orphan-record-btn { border: 1.5px dashed rgba(255,255,255,0.16) !important; background: transparent !important; cursor: pointer; transition: border-color .15s, background .15s; display:flex; flex-direction:column; border-radius:9px; min-height:110px; align-items:center; justify-content:center; gap:3px; padding:14px 8px; }
-.gn-orphan-record-btn:hover { border-color: rgba(255,255,255,0.32) !important; background: rgba(255,255,255,0.03) !important; }
 #srp-popup { position:fixed; bottom:24px; right:24px; z-index:1000; background:#fff; border-radius:14px; box-shadow:0 4px 24px rgba(0,0,0,0.18); padding:14px 16px 12px; width:218px; cursor:pointer; transition:opacity .2s, transform .2s; }
 #srp-popup:hover { box-shadow:0 6px 28px rgba(0,0,0,0.22); }
 .srp-close-btn { position:absolute; top:8px; right:10px; background:none; border:none; font-size:16px; color:#AEADAB; cursor:pointer; padding:2px 4px; line-height:1; border-radius:4px; }
@@ -1477,62 +1475,24 @@ function renderSidebarPages(scrollToRecent=false){
   const datedIndices = sortedIndices.filter(i => nb.pages[i].date);
   const nodateIndices = sortedIndices.filter(i => !nb.pages[i].date);
   const todayIso = getTodayIso();
+  const hasTodayPage = nb.pages.some(p => p.date === todayIso);
 
-  // Orphaned study record dates: have records but no page, between last dated page and today
-  const usedDates = new Set(nb.pages.filter(p => p.date).map(p => p.date));
-  const hasTodayPage = usedDates.has(todayIso);
-  let orphanItems = [];
-  if(nb.type === 'daily' && datedIndices.length > 0){
-    const lastDate = nb.pages[datedIndices[datedIndices.length - 1]].date;
-    orphanItems = Object.entries(db.studyRecords || {})
-      .filter(([date, secs]) => secs > 0 && !usedDates.has(date) && date > lastDate && date < todayIso)
-      .sort(([a],[b]) => a < b ? -1 : 1)
-      .map(([date, secs]) => ({ date, secs }));
-  }
-
-  function orphanBtnHtml(date, secs){
-    const h = Math.floor(secs/3600), m = Math.floor((secs%3600)/60);
-    const timeStr = h > 0 ? `${h}시간${m > 0 ? ' '+m+'분' : ''}` : `${m}분`;
-    return `<div class="gn-orphan-record-btn" onclick="addOrphanStudyPage('${date}')">
-      <svg width="13" height="13" viewBox="0 0 12 12" fill="none" style="opacity:0.3;margin-bottom:1px;"><rect x="1" y="2" width="10" height="9" rx="1.5" stroke="rgba(255,255,255,0.8)" stroke-width="1.3"/><path d="M4 1v2M8 1v2M1 5h10" stroke="rgba(255,255,255,0.8)" stroke-width="1.3" stroke-linecap="round"/></svg>
-      <span style="font-size:11px;font-weight:700;color:rgba(255,255,255,0.6);">${fmtDateForThumb(date, nb.type)}</span>
-      <span style="font-size:9.5px;color:rgba(255,255,255,0.35);">공부 ${timeStr}</span>
-      <span style="font-size:8.5px;color:rgba(255,255,255,0.2);margin-top:1px;">페이지 없음 · 탭해서 추가</span>
-    </div>`;
-  }
-
-  // Group dated pages by month, interleaving orphan items chronologically
+  // Group dated pages by month
   const monthGroups = [];
   let lastKey = null;
   datedIndices.forEach(i => {
     const key = _getMonthGroupKey(nb.pages[i].date, nb.type);
     if(key !== lastKey){
-      monthGroups.push({ key, label: _fmtGroupHeader(key, nb.type), items: [] });
+      monthGroups.push({ key, label: _fmtGroupHeader(key, nb.type), indices: [] });
       lastKey = key;
     }
-    monthGroups[monthGroups.length-1].items.push({ type: 'page', idx: i });
-  });
-  // Insert orphan items into correct month group position
-  orphanItems.forEach(({ date, secs }) => {
-    const key = _getMonthGroupKey(date, nb.type);
-    let group = monthGroups.find(g => g.key === key);
-    if(!group){
-      group = { key, label: _fmtGroupHeader(key, nb.type), items: [] };
-      const pos = monthGroups.findIndex(g => g.key > key);
-      if(pos === -1) monthGroups.push(group); else monthGroups.splice(pos, 0, group);
-    }
-    const insertPos = group.items.findIndex(item => {
-      const d = item.type === 'page' ? nb.pages[item.idx].date : item.date;
-      return d > date;
-    });
-    if(insertPos === -1) group.items.push({ type: 'orphan', date, secs });
-    else group.items.splice(insertPos, 0, { type: 'orphan', date, secs });
+    monthGroups[monthGroups.length-1].indices.push(i);
   });
 
   let html = '';
   monthGroups.forEach(g => {
     html += `<div class="gn-thumb-group-header">${g.label}</div>`;
-    html += g.items.map(item => item.type === 'page' ? thumbHtml(item.idx) : orphanBtnHtml(item.date, item.secs)).join('');
+    html += g.indices.map(thumbHtml).join('');
   });
   if(nodateIndices.length > 0){
     html += `<div class="gn-thumb-group-header">날짜 없는 페이지</div>`;
@@ -1605,7 +1565,6 @@ function updateSrpPopup(){
   if(!hasNodate){ popup.style.display='none'; return; }
   const orphans = _getSrpOrphans();
   if(!orphans.length){ popup.style.display='none'; return; }
-  document.getElementById('srp-count').textContent = orphans.length;
   popup.style.display = 'block';
 }
 
@@ -1624,8 +1583,7 @@ function openSrpModal(){
 
   let listHtml = '';
   orphans.forEach(({date,secs}) => {
-    const d = new Date(date+'T00:00:00');
-    const label = `${d.getMonth()+1}월 ${d.getDate()}일`;
+    const label = fmtDateShort(date);
     listHtml += `
       <label style="display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid #F5F4F2;cursor:pointer;" onclick="event.stopPropagation()">
         <input type="checkbox" value="${date}" checked onchange="srpUpdateBtn()"
@@ -1695,21 +1653,6 @@ function confirmSrpAdd(){
     pm.pendingSpareCount = sparePages.length;
     pm.insertIdx = null;
     closeSrpModal();
-    openPurchaseModal('addPage', nb.type, nb.id);
-  }
-}
-
-function addOrphanStudyPage(date){
-  const nb = getNotebook(state.notebookId); if(!nb) return;
-  const spare = nb.pages.find(p => !p.date && !isPageLocked(p));
-  if(spare){
-    spare.date = date;
-    autoFlushTrappedPages(nb);
-    saveData();
-    renderSidebarPages();
-    showToast(`${fmtDateShort(date)} 페이지가 추가됐어요`);
-    setTimeout(initAllCanvases, 60);
-  } else {
     openPurchaseModal('addPage', nb.type, nb.id);
   }
 }
