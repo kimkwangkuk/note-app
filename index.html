@@ -84,7 +84,7 @@ body.drawing-mode #app { display: none; }
 .tb-premium-btn { flex-shrink:0; height:26px; padding:0 11px; border-radius:6px; border:none; cursor:pointer; font-family:inherit; font-size:12px; font-weight:600; margin:auto 6px 7px 0; transition:all .15s; }
 .tb-premium-btn.on  { background:rgba(255,200,60,0.18); color:#FFD040; }
 .tb-premium-btn.off { background:rgba(255,255,255,0.08); color:rgba(255,255,255,0.35); }
-.gn-thumb-img-wrap { position:relative; flex-shrink:0; width:70px; }
+.gn-thumb-img-wrap { position:relative; width:100%; height:0; padding-bottom:133.33%; overflow:hidden; }
 .gn-lock-overlay { position:absolute; inset:0; background:rgba(0,0,0,0.52); display:flex; align-items:center; justify-content:center; pointer-events:none; }
 .gn-lock-overlay svg { opacity:0.85; }
 
@@ -224,15 +224,16 @@ body.drawing-mode #app { display: none; }
 .gn-sb-head svg { flex-shrink: 0; opacity: 0.4; transition: opacity .15s; }
 .gn-sb-head:hover svg { opacity: 0.7; }
 .gn-sb-nb-name { font-size: 13px; font-weight: 700; color: rgba(255,255,255,0.75); letter-spacing: -0.2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.gn-pages-list { flex: 1; overflow-y: auto; padding: 10px; display: flex; flex-direction: column; gap: 6px; }
+.gn-pages-list { flex: 1; overflow-y: auto; padding: 10px; display: grid; grid-template-columns: 1fr 1fr; gap: 7px; align-content: start; }
 .gn-pages-list::-webkit-scrollbar { width: 3px; }
 .gn-pages-list::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.12); border-radius: 99px; }
-.gn-page-thumb-wrap { cursor: pointer; border-radius: 7px; overflow: hidden; border: 2px solid transparent; transition: border-color .15s; flex-shrink: 0; display:flex; align-items:stretch; }
-.gn-page-thumb-wrap:hover { border-color: rgba(255,255,255,0.18); }
-.gn-page-thumb-wrap.active { border-color: #5B9CF6; }
-.gn-thumb-canvas { display: block; width: 100%; }
-.gn-thumb-label { background: #232323; padding: 5px 5px 7px; display: flex; flex-direction:column; align-items:stretch; justify-content:space-between; gap: 5px; flex:1; min-width:0; position:relative; }
-.gn-page-ctx-btn { align-self:flex-end; background:none; border:none; color:rgba(255,255,255,0.3); cursor:pointer; padding:2px 5px; border-radius:4px; font-size:13px; line-height:1; transition:all .12s; }
+.gn-page-thumb-wrap { cursor: pointer; border-radius: 9px; overflow: hidden; border: 2px solid rgba(255,255,255,0.06); transition: border-color .15s, box-shadow .15s; display:flex; flex-direction:column; background:#1C1B19; }
+.gn-page-thumb-wrap:hover { border-color: rgba(255,255,255,0.2); box-shadow: 0 2px 10px rgba(0,0,0,0.3); }
+.gn-page-thumb-wrap.active { border-color: #5B9CF6; box-shadow: 0 0 0 1px rgba(91,156,246,0.25); }
+.gn-thumb-canvas { position:absolute; inset:0; display:block; width:100%; height:100%; }
+.gn-thumb-page-num { position:absolute; top:5px; left:5px; z-index:2; font-size:8.5px; font-weight:700; color:rgba(0,0,0,0.38); background:rgba(255,255,255,0.65); border-radius:4px; padding:2px 4px; line-height:1; pointer-events:none; }
+.gn-thumb-label { padding: 5px 5px 6px 7px; display: flex; flex-direction:row; align-items:center; justify-content:space-between; min-width:0; gap:2px; }
+.gn-page-ctx-btn { flex-shrink:0; background:none; border:none; color:rgba(255,255,255,0.22); cursor:pointer; padding:2px 4px; border-radius:4px; font-size:12px; line-height:1; transition:all .12s; }
 .gn-page-ctx-btn:hover { background:rgba(255,255,255,0.1); color:rgba(255,255,255,0.85); }
 .dp-range-hint { text-align:center; font-size:10.5px; color:rgba(0,0,0,0.35); padding:6px 8px 2px; line-height:1.4; }
 #sb-ctx-menu { position:fixed; background:#1E1D22; border-radius:9px; box-shadow:0 4px 20px rgba(0,0,0,0.4); border:1px solid rgba(255,255,255,0.08); padding:4px; z-index:10002; display:none; min-width:148px; }
@@ -241,10 +242,9 @@ body.drawing-mode #app { display: none; }
 .sb-ctx-item:disabled { color:rgba(255,255,255,0.25); cursor:default; }
 .sb-ctx-item:disabled:hover { background:none; }
 .gn-thumb-num { font-size: 11px; font-weight: 700; color: rgba(255,255,255,0.4); flex-shrink: 0; }
-.gn-page-date-btn { width:100%; display:flex; align-items:center; gap:4px; background:rgba(255,255,255,0.07); border:none; border-radius:5px; padding:5px 6px; cursor:pointer; font-family:inherit; font-size:10px; color:rgba(255,255,255,0.38); transition:all .12s; text-align:left; min-width:0; }
-.gn-page-date-btn:hover { background:rgba(255,255,255,0.13); color:rgba(255,255,255,0.85); }
-.gn-page-date-btn.has-date { color:rgba(255,255,255,0.68); }
-.gn-page-date-btn .gn-date-text { flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.gn-page-date-label { flex:1; display:flex; align-items:center; gap:3px; font-size:9px; color:rgba(255,255,255,0.28); min-width:0; overflow:hidden; }
+.gn-page-date-label.has-date { color:rgba(255,255,255,0.62); }
+.gn-page-date-label .gn-date-text { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
 .gn-sb-footer { padding: 12px 10px; border-top: 1px solid rgba(255,255,255,0.06); flex-shrink: 0; }
 .gn-add-btn { width: 100%; padding: 10px; border-radius: 8px; border: 1.5px dashed rgba(255,255,255,0.15); background: none; cursor: pointer; font-family: inherit; font-size: 12.5px; font-weight: 600; color: rgba(255,255,255,0.35); display: flex; align-items: center; justify-content: center; gap: 6px; transition: all .15s; }
 .gn-add-btn:hover { border-color: rgba(255,255,255,0.35); color: rgba(255,255,255,0.7); background: rgba(255,255,255,0.04); }
@@ -318,6 +318,11 @@ body.drawing-mode #app { display: none; }
 #draw-canvas { display: block; cursor: crosshair; touch-action: none; }
 .canvas-lock-overlay { display:none; position:absolute; inset:0; backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px); background:rgba(30,28,35,0.18); z-index:10; pointer-events:none; }
 .canvas-lock-overlay.show { display:block; }
+.page-nodate-overlay { display:none; position:absolute; inset:0; background:rgba(230,228,222,0.92); z-index:5; align-items:center; justify-content:center; }
+.page-nodate-overlay.show { display:flex; }
+.pnd-date-btn { display:flex; flex-direction:column; align-items:center; gap:14px; padding:28px 40px; border-radius:16px; border:1.5px dashed #D0CFC9; background:none; cursor:pointer; font-family:inherit; color:#9A9997; transition:all .15s; }
+.pnd-date-btn:hover { border-color:#9A9997; color:#1A1918; background:#FAFAF8; }
+.pnd-date-btn span { font-size:13px; font-weight:500; letter-spacing:0.01em; }
 .page-locked-float { display:none; position:absolute; bottom:22px; left:50%; transform:translateX(-50%); z-index:20; }
 .page-locked-float.show { display:flex; }
 .page-locked-float-btn { display:flex; align-items:center; gap:7px; padding:10px 20px; background:rgba(28,26,33,0.88); border:1.5px solid rgba(255,208,64,0.35); border-radius:99px; color:#FFD040; font-family:inherit; font-size:13px; font-weight:600; cursor:pointer; box-shadow:0 4px 20px rgba(0,0,0,0.35); backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px); white-space:nowrap; }
@@ -649,10 +654,7 @@ function isPageLocked(pg){ return !isPremium && pg?.origin === 'premium'; }
 // ─── DATA ───────────────────────────────────────
 function loadData(){
   return {
-    notebooks:[{
-      id:'nb_0', name:'봄 학기 플래너', type:'daily', color:NB_COLORS[0],
-      pages: Array.from({length:30},()=>({date:null, origin:'paid'}))
-    }],
+    notebooks:[],
     strokesByDate: {},
     studyRecords: {
       '2026-06-01':5820, '2026-06-02':9040, '2026-06-03':3600,
@@ -1394,6 +1396,7 @@ function _sbCalBindDates(dates){
   });
   saveData();
   renderSidebarPages();
+  setTimeout(initAllCanvases, 60);
   if(lastIdx>=0) switchPage(lastIdx);
   showToast(`${dates.length}개 날짜가 추가됐어요 ✓`);
 }
@@ -1405,18 +1408,18 @@ function renderSidebarPages(){
   const thumbs = sortedIndices.map(i=>{
     const pg = nb.pages[i];
     const locked = isPageLocked(pg);
+    const pageNum = sortedIndices.indexOf(i) + 1;
     return `<div class="gn-page-thumb-wrap ${i===state.pageIdx?'active':''}" id="gn-tw-${i}" onclick="switchPage(${i})">
       <div class="gn-thumb-img-wrap">
         <canvas class="gn-thumb-canvas" id="gn-tc-${i}" width="190" height="253"></canvas>
+        <span class="gn-thumb-page-num">${pageNum}</span>
         ${locked ? `<div class="gn-lock-overlay"><svg width="18" height="18" viewBox="0 0 22 22" fill="none"><rect x="5" y="10" width="12" height="9" rx="2" fill="rgba(255,255,255,0.9)"/><path d="M7.5 10V7.5a3.5 3.5 0 0 1 7 0V10" stroke="rgba(255,255,255,0.9)" stroke-width="1.8" stroke-linecap="round"/></svg></div>` : ''}
       </div>
       <div class="gn-thumb-label">
-        ${pg.date ? `<button class="gn-page-ctx-btn" onclick="openPageCtxMenu(${i},event)">···</button>` : '<div style="height:21px"></div>'}
-        <button class="gn-page-date-btn${pg.date?' has-date':''}" onclick="openSbPageDatePicker(${i},event)">
-          <svg width="10" height="10" viewBox="0 0 12 12" fill="none"><rect x="1" y="2" width="10" height="9" rx="1.5" stroke="currentColor" stroke-width="1.3"/><path d="M4 1v2M8 1v2M1 5h10" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
-          <span class="gn-date-text">${pg.date ? fmtDateForThumb(pg.date, nb.type) : '날짜 설정'}</span>
-          <svg width="8" height="8" viewBox="0 0 8 8" fill="none"><path d="M2 3l2 2 2-2" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        </button>
+        <div class="gn-page-date-label${pg.date?' has-date':''}">
+          ${pg.date ? `<svg width="9" height="9" viewBox="0 0 12 12" fill="none"><rect x="1" y="2" width="10" height="9" rx="1.5" stroke="currentColor" stroke-width="1.3"/><path d="M4 1v2M8 1v2M1 5h10" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg><span class="gn-date-text">${fmtDateForThumb(pg.date, nb.type)}</span>` : ''}
+        </div>
+        <button class="gn-page-ctx-btn" onclick="openPageCtxMenu(${i},event)">···</button>
       </div>
     </div>`;
   }).join('');
@@ -1473,16 +1476,34 @@ function openPageCtxMenu(idx, e){
   _ctxTargetIdx = idx;
   const nb = getNotebook(state.notebookId); if(!nb) return;
   const pg = nb.pages[idx];
+  const hasDt = !!pg?.date;
   const menu = document.getElementById('sb-ctx-menu'); if(!menu) return;
+  document.getElementById('sb-ctx-before').style.display = hasDt ? '' : 'none';
+  document.getElementById('sb-ctx-after').style.display  = hasDt ? '' : 'none';
+  menu.querySelector('.sb-ctx-divider').style.display     = hasDt ? '' : 'none';
   menu.style.display = 'block';
   const btn = e.currentTarget;
   const rect = btn.getBoundingClientRect();
   let left = rect.right + 4, top = rect.top;
   if(left + 160 > window.innerWidth - 8) left = rect.left - 160 - 4;
-  if(top + 80 > window.innerHeight - 8) top = window.innerHeight - 88;
+  if(top + 100 > window.innerHeight - 8) top = window.innerHeight - 108;
   menu.style.left = Math.max(8,left)+'px'; menu.style.top = Math.max(8,top)+'px';
 }
 function closePageCtxMenu(){ document.getElementById('sb-ctx-menu').style.display='none'; _ctxTargetIdx=-1; }
+
+function removeSbPage(){
+  const idx = _ctxTargetIdx; closePageCtxMenu();
+  const nb = getNotebook(state.notebookId); if(!nb) return;
+  if(nb.pages.length <= 1){ showToast('마지막 페이지는 삭제할 수 없어요.'); return; }
+  nb.pages.splice(idx, 1);
+  if(state.pageIdx >= nb.pages.length) state.pageIdx = nb.pages.length - 1;
+  else if(state.pageIdx > idx) state.pageIdx--;
+  if(openTabs[activeTabIdx]) openTabs[activeTabIdx].pageIdx = state.pageIdx;
+  saveData();
+  renderSidebarPages();
+  setTimeout(initAllCanvases, 60);
+  showToast('페이지가 제거됐어요.');
+}
 
 function openGapPicker(mode){
   const idx = _ctxTargetIdx; if(idx<0) return;
@@ -1627,7 +1648,7 @@ function scrollToPageSlot(idx, behavior='smooth'){
   const slotRect = slot.getBoundingClientRect();
   const areaRect = area.getBoundingClientRect();
   const target = area.scrollTop + slotRect.top - areaRect.top;
-  area.scrollTop = target;
+  area.scrollTo({top: target, behavior});
 }
 
 let _pageObserver = null;
@@ -1660,12 +1681,15 @@ function redrawPageCanvas(idx){
   const pg=nb.pages[idx]; if(!pg) return;
   const c=document.getElementById(`page-canvas-${idx}`); if(!c) return;
   const cx=c.getContext('2d'), w=c._cssW, h=c._cssH; if(!w||!h) return;
-  drawPaper(cx,w,h,nb.type,pg.date,pg.date?(db.studyRecords[pg.date]||0):0);
+  drawPaper(cx,w,h,nb.type,pg.date||null,pg.date?(db.studyRecords[pg.date]||0):0);
   getPageStrokes(pg).forEach(s=>drawStroke(cx,s,w,h));
   if(idx===state.pageIdx){ ctx=cx; canvasEl=c; }
-  // 오버레이 날짜 텍스트 + nodate blur 업데이트
   const dtEl = document.getElementById(`pui-date-text-pg-${idx}`);
   if(dtEl) dtEl.textContent = pg.date ? fmtDateForDisplay(pg.date, nb.type) : '날짜 설정';
+  const puiEl = document.querySelector(`#page-slot-${idx} .paper-ui`);
+  if(puiEl) puiEl.style.display = pg.date ? '' : 'none';
+  const ndEl = document.getElementById(`pnd-${idx}`);
+  if(ndEl) ndEl.classList.toggle('show', !pg.date);
 }
 
 // ─── TOOLBAR ────────────────────────────────────
@@ -1700,7 +1724,8 @@ function initAllCanvases(){
   let cW = Math.min(Math.max(aW, 320), 760);
   let cH = Math.round(cW*(4/3));
   list.innerHTML = '';
-  nb.pages.forEach((pg, i) => {
+  getSortedPageIndices().forEach((i) => {
+    const pg = nb.pages[i];
     const slot = document.createElement('div');
     slot.className = 'page-slot'; slot.id = `page-slot-${i}`; slot.dataset.pageIdx = i;
     const wrapper = document.createElement('div');
@@ -1711,7 +1736,7 @@ function initAllCanvases(){
     canvas.width = Math.round(cW*dpr); canvas.height = Math.round(cH*dpr);
     canvas._dpr = dpr; canvas._cssW = cW; canvas._cssH = cH;
     const c = canvas.getContext('2d'); c.scale(dpr, dpr);
-    drawPaper(c, cW, cH, nb.type, pg.date, pg.date ? (db.studyRecords[pg.date]||0) : 0);
+    drawPaper(c, cW, cH, nb.type, pg.date||null, pg.date?(db.studyRecords[pg.date]||0):0);
     getPageStrokes(pg).forEach(s => drawStroke(c, s, cW, cH));
     const locked = isPageLocked(pg);
     const lockEl = document.createElement('div');
@@ -1719,13 +1744,18 @@ function initAllCanvases(){
     const floatEl = document.createElement('div');
     floatEl.className = `page-locked-float${locked?' show':''}`;
     floatEl.innerHTML = `<button class="page-locked-float-btn" onclick="showLockedPagePopup()"><svg width="13" height="13" viewBox="0 0 13 13" fill="none"><rect x="2.5" y="6" width="8" height="5.5" rx="1.5" fill="#FFD040"/><path d="M4 6V4.5a2.5 2.5 0 0 1 5 0V6" stroke="#FFD040" stroke-width="1.4" stroke-linecap="round"/></svg>잠긴 페이지</button>`;
+    const nodateEl = document.createElement('div');
+    nodateEl.className = `page-nodate-overlay${pg.date?'':' show'}`;
+    nodateEl.id = `pnd-${i}`;
+    nodateEl.innerHTML = `<button class="pnd-date-btn" onclick="openCanvasDateQuickPick(${i},event,this)"><svg width="28" height="28" viewBox="0 0 24 24" fill="none"><rect x="3" y="5" width="18" height="17" rx="2.5" stroke="currentColor" stroke-width="1.5"/><path d="M8 3v4M16 3v4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="3" y1="10" x2="21" y2="10" stroke="currentColor" stroke-width="1.5"/></svg><span>날짜 설정</span></button>`;
     const paperUiEl = document.createElement('div');
     paperUiEl.className = 'paper-ui';
     paperUiEl.style.height = Math.round(cH * HEADER_RATIO) + 'px';
+    if(!pg.date) paperUiEl.style.display = 'none';
     const dateLabel = pg.date ? fmtDateForDisplay(pg.date, nb.type) : '날짜 설정';
     paperUiEl.innerHTML = `
       <div class="pui-left">
-        <button class="pui-date-btn${locked?' locked':''}" onclick="${locked?'void(0)':'openSbPageDatePicker('+i+',event)'}">
+        <button class="pui-date-btn${locked?' locked':''}" onclick="${locked?'void(0)':'openCanvasDateQuickPick('+i+',event,this)'}">
           <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><rect x="1" y="2.5" width="10" height="9" rx="1.5" stroke="currentColor" stroke-width="1.3"/><path d="M4 1v3M8 1v3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><line x1="1" y1="6" x2="11" y2="6" stroke="currentColor" stroke-width="1.3"/></svg>
           <span id="pui-date-text-pg-${i}">${dateLabel}</span>
         </button>
@@ -1735,7 +1765,7 @@ function initAllCanvases(){
         <button id="pui-play-pg-${i}" class="pui-tbtn" onclick="activatePageAndToggleTimer(${i})">▶</button>
         <button class="pui-tbtn pui-tbtn-reset" onclick="activatePageAndResetTimer(${i})" title="초기화">↺</button>
       </div>`;
-    wrapper.appendChild(canvas); wrapper.appendChild(lockEl); wrapper.appendChild(floatEl); wrapper.appendChild(paperUiEl);
+    wrapper.appendChild(canvas); wrapper.appendChild(lockEl); wrapper.appendChild(floatEl); wrapper.appendChild(nodateEl); wrapper.appendChild(paperUiEl);
     slot.appendChild(wrapper); list.appendChild(slot);
     canvas.addEventListener('pointerdown', e => onPD(e, i, canvas));
     canvas.addEventListener('pointermove', e => onPM(e, canvas));
@@ -1992,6 +2022,33 @@ let sbPageDpState = { targetIdx:-1, year:new Date().getFullYear(), month:new Dat
 
 function openSbPageDatePicker(idx, e){
   e.stopPropagation();
+  const nb = getNotebook(state.notebookId);
+  const pg = nb?.pages[idx];
+  // 날짜가 있으면 제거 팝업만 표시
+  if(pg?.date){
+    const existing = document.getElementById('sb-date-remove-popup');
+    if(existing){ existing.remove(); return; }
+    let dateLabel;
+    if(nb.type === 'weekly') dateLabel = fmtWeekShort(pg.date);
+    else if(nb.type === 'monthly') dateLabel = fmtMonthStr(pg.date);
+    else dateLabel = fmtDateShort(pg.date);
+    const popup = document.createElement('div');
+    popup.id = 'sb-date-remove-popup';
+    popup.style.cssText = 'position:fixed;background:#fff;border-radius:10px;box-shadow:0 4px 24px rgba(0,0,0,0.18),0 1px 4px rgba(0,0,0,0.07);border:1px solid rgba(0,0,0,0.08);padding:5px;z-index:9999;min-width:140px;';
+    popup.onclick = ev => ev.stopPropagation();
+    popup.innerHTML = `<button onclick="setSbPageDate(${idx},'');document.getElementById('sb-date-remove-popup')?.remove();showToast('날짜가 해제되었어요.');" style="width:100%;display:flex;align-items:center;gap:8px;padding:8px 10px;background:none;border:none;border-radius:7px;cursor:pointer;font-family:inherit;font-size:11.5px;color:#D04040;transition:background .12s;" onmouseover="this.style.background='#FEF2F2'" onmouseout="this.style.background='none'"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 3h8M5 3V2h2v1M4.5 3l.5 7M7.5 3l-.5 7" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>날짜 제거 <span style="margin-left:auto;font-size:10.5px;color:#C0BFBB;">${dateLabel}</span></button>`;
+    document.body.appendChild(popup);
+    const btn = e.currentTarget;
+    const rect = btn.getBoundingClientRect ? btn.getBoundingClientRect() : {left:0,bottom:0,top:0,right:0};
+    const pw = 170, ph = 44;
+    let left = rect.left, top = rect.bottom + 6;
+    if(left + pw > window.innerWidth - 8) left = window.innerWidth - pw - 8;
+    if(top + ph > window.innerHeight - 8) top = rect.top - ph - 6;
+    popup.style.left = Math.max(8, left) + 'px';
+    popup.style.top = Math.max(8, top) + 'px';
+    setTimeout(() => document.addEventListener('click', () => document.getElementById('sb-date-remove-popup')?.remove(), {once:true}), 0);
+    return;
+  }
   const popup = document.getElementById('sb-page-dp'); if(!popup) return;
   if(sbPageDpState.targetIdx === idx && popup.style.display !== 'none'){
     closeSbPageDatePicker(); return;
@@ -2235,11 +2292,138 @@ function setSbPageDate(idx, val){
   pg.date = val || null;
   autoFlushTrappedPages(nb);
   saveData();
-  redrawPageCanvas(idx);
   if(idx === state.pageIdx){
     state.timer.savedTime = val ? (db.studyRecords[val]||0) : 0;
   }
   renderSidebarPages();
+  setTimeout(initAllCanvases, 60);
+}
+
+// ─── CANVAS DATE QUICK PICK ─────────────────────
+function _addOneDateUnit(dateVal, type){
+  if(type === 'weekly') return isoWeekOffset(dateVal, 1);
+  if(type === 'monthly'){
+    const [y, m] = dateVal.split('-').map(Number);
+    const nm = m === 12 ? 1 : m + 1, ny = m === 12 ? y + 1 : y;
+    return `${ny}-${String(nm).padStart(2,'0')}`;
+  }
+  const [y,m,d] = dateVal.split('-').map(Number);
+  const dt = new Date(y, m-1, d); dt.setDate(dt.getDate()+1);
+  return `${dt.getFullYear()}-${String(dt.getMonth()+1).padStart(2,'0')}-${String(dt.getDate()).padStart(2,'0')}`;
+}
+
+function _getTodayVal(nb){
+  const today = getTodayIso();
+  if(nb.type === 'weekly') return getISOWeek(new Date());
+  if(nb.type === 'monthly') return today.slice(0,7);
+  return today;
+}
+
+function openCanvasDateQuickPick(idx, event, anchorEl){
+  event.stopPropagation();
+  const nb = getNotebook(state.notebookId); if(!nb) return;
+  closeCanvasDateQuickPick();
+  const pg = nb.pages[idx]; if(!pg) return;
+  const anchor = anchorEl || event.currentTarget;
+
+  // 날짜가 이미 있으면 제거 팝업만 표시
+  if(pg.date){
+    let dateLabel;
+    if(nb.type === 'weekly') dateLabel = fmtWeekShort(pg.date);
+    else if(nb.type === 'monthly') dateLabel = fmtMonthStr(pg.date);
+    else dateLabel = fmtDateShort(pg.date);
+    const popup = document.createElement('div');
+    popup.id = 'canvas-dq-popup';
+    popup.style.cssText = 'position:fixed;background:#fff;border-radius:10px;box-shadow:0 4px 24px rgba(0,0,0,0.18),0 1px 4px rgba(0,0,0,0.07);border:1px solid rgba(0,0,0,0.08);padding:5px;z-index:9999;min-width:140px;';
+    popup.onclick = e => e.stopPropagation();
+    popup.innerHTML = `<button onclick="applyCanvasQuickDate(${idx},'')" style="width:100%;display:flex;align-items:center;gap:8px;padding:8px 10px;background:none;border:none;border-radius:7px;cursor:pointer;font-family:inherit;font-size:11.5px;color:#D04040;transition:background .12s;" onmouseover="this.style.background='#FEF2F2'" onmouseout="this.style.background='none'"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 3h8M5 3V2h2v1M4.5 3l.5 7M7.5 3l-.5 7" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>날짜 제거 <span style="margin-left:auto;font-size:10.5px;color:#C0BFBB;">${dateLabel}</span></button>`;
+    document.body.appendChild(popup);
+    const r = anchor.getBoundingClientRect();
+    const pw = 170, ph = 44;
+    let left = r.left, top = r.bottom + 6;
+    if(left + pw > window.innerWidth - 8) left = window.innerWidth - pw - 8;
+    if(top + ph > window.innerHeight - 8) top = r.top - ph - 6;
+    popup.style.left = Math.max(8, left) + 'px';
+    popup.style.top = Math.max(8, top) + 'px';
+    setTimeout(() => document.addEventListener('click', closeCanvasDateQuickPick, {once:true}), 0);
+    return;
+  }
+
+  // 정렬 순서에서 이전 페이지를 찾아 다음 날짜 제안
+  const sortedIdxs = getSortedPageIndices();
+  const posInSorted = sortedIdxs.indexOf(idx);
+  const prevPg = posInSorted > 0 ? nb.pages[sortedIdxs[posInSorted - 1]] : null;
+
+  let suggestVal = null;
+  if(prevPg?.date){
+    const nextVal = _addOneDateUnit(prevPg.date, nb.type);
+    if(!nb.pages.some((p, i) => i !== idx && p.date === nextVal)) suggestVal = nextVal;
+  }
+  if(!suggestVal){
+    const todayVal = _getTodayVal(nb);
+    if(!nb.pages.some((p, i) => i !== idx && p.date === todayVal)) suggestVal = todayVal;
+  }
+
+  // 제안 날짜도 없으면 바로 캘린더 열기
+  if(!suggestVal){
+    const slot = document.getElementById(`page-slot-${idx}`);
+    const btn = slot?.querySelector('.pui-date-btn');
+    if(btn) openSbPageDatePicker(idx, {currentTarget: btn, stopPropagation: ()=>{}});
+    return;
+  }
+
+  const todayVal = _getTodayVal(nb);
+  const isToday = suggestVal === todayVal;
+  let suggestLabel;
+  if(nb.type === 'weekly') suggestLabel = fmtWeekShort(suggestVal);
+  else if(nb.type === 'monthly') suggestLabel = fmtMonthStr(suggestVal);
+  else suggestLabel = fmtDateShort(suggestVal);
+
+  const firstBtnInner = isToday
+    ? `<span style="font-size:12px;font-weight:600;color:#1A1918;">오늘</span><span style="font-size:10.5px;color:#AEADAB;">${suggestLabel}</span>`
+    : `<span style="font-size:12px;font-weight:600;color:#1A1918;">${suggestLabel}</span>`;
+
+  const popup = document.createElement('div');
+  popup.id = 'canvas-dq-popup';
+  popup.style.cssText = 'position:fixed;background:#fff;border-radius:10px;box-shadow:0 4px 24px rgba(0,0,0,0.18),0 1px 4px rgba(0,0,0,0.07);border:1px solid rgba(0,0,0,0.08);padding:5px;z-index:9999;min-width:160px;';
+  popup.onclick = e => e.stopPropagation();
+  popup.innerHTML = `
+    <button onclick="applyCanvasQuickDate(${idx},'${suggestVal}')" style="width:100%;display:flex;justify-content:space-between;align-items:center;gap:10px;padding:8px 10px;background:none;border:none;border-radius:7px;cursor:pointer;font-family:inherit;text-align:left;transition:background .12s;" onmouseover="this.style.background='#F5F4F1'" onmouseout="this.style.background='none'">
+      ${firstBtnInner}
+    </button>
+    <div style="height:1px;background:#F0EFEC;margin:2px 0;"></div>
+    <button onclick="openSbPageDatePickerFromCanvas(${idx})" style="width:100%;display:flex;align-items:center;gap:7px;padding:8px 10px;background:none;border:none;border-radius:7px;cursor:pointer;font-family:inherit;font-size:11.5px;color:#555452;transition:background .12s;" onmouseover="this.style.background='#F5F4F1'" onmouseout="this.style.background='none'">
+      <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><rect x="1" y="2" width="10" height="9" rx="1.5" stroke="currentColor" stroke-width="1.3"/><path d="M4 1v2M8 1v2M1 5h10" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+      직접 선택
+    </button>`;
+
+  document.body.appendChild(popup);
+
+  const r = anchor.getBoundingClientRect();
+  const pw = 168, ph = 88;
+  let left = r.left, top = r.bottom + 6;
+  if(left + pw > window.innerWidth - 8) left = window.innerWidth - pw - 8;
+  if(top + ph > window.innerHeight - 8) top = r.top - ph - 6;
+  popup.style.left = Math.max(8, left) + 'px';
+  popup.style.top = Math.max(8, top) + 'px';
+
+  setTimeout(() => document.addEventListener('click', closeCanvasDateQuickPick, {once:true}), 0);
+}
+
+function closeCanvasDateQuickPick(){
+  document.getElementById('canvas-dq-popup')?.remove();
+}
+
+function applyCanvasQuickDate(idx, val){
+  closeCanvasDateQuickPick();
+  setSbPageDate(idx, val);
+}
+
+function openSbPageDatePickerFromCanvas(idx){
+  closeCanvasDateQuickPick();
+  const slot = document.getElementById(`page-slot-${idx}`);
+  const btn = slot?.querySelector('.pui-date-btn');
+  if(btn) openSbPageDatePicker(idx, {currentTarget: btn, stopPropagation: ()=>{}});
 }
 
 function toggleDatePopup(e){
@@ -3013,6 +3197,8 @@ renderTabBar();
 <div id="sb-ctx-menu" onclick="event.stopPropagation()">
   <button id="sb-ctx-before" class="sb-ctx-item" onclick="openGapPicker('before')">이전 날짜 추가</button>
   <button id="sb-ctx-after"  class="sb-ctx-item" onclick="openGapPicker('after')">이후 날짜 추가</button>
+  <div class="sb-ctx-divider" style="height:1px;background:rgba(255,255,255,0.08);margin:3px 4px;"></div>
+  <button class="sb-ctx-item" style="color:#E07070;" onclick="removeSbPage()">페이지 빼기</button>
 </div>
 
 <!-- Date popup (moved out of canvas-wrapper) -->
