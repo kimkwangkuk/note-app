@@ -84,7 +84,7 @@ body.drawing-mode #app { display: none; }
 .tb-premium-btn { flex-shrink:0; height:26px; padding:0 11px; border-radius:6px; border:none; cursor:pointer; font-family:inherit; font-size:12px; font-weight:600; margin:auto 6px 7px 0; transition:all .15s; }
 .tb-premium-btn.on  { background:rgba(255,200,60,0.18); color:#FFD040; }
 .tb-premium-btn.off { background:rgba(255,255,255,0.08); color:rgba(255,255,255,0.35); }
-.gn-thumb-img-wrap { position:relative; width:100%; height:0; padding-bottom:133.33%; overflow:hidden; }
+.gn-thumb-img-wrap { position:relative; width:100%; height:122px; min-height:122px; flex-shrink:0; overflow:hidden; border-radius:7px 7px 0 0; }
 .gn-lock-overlay { position:absolute; inset:0; background:rgba(0,0,0,0.52); display:flex; align-items:center; justify-content:center; pointer-events:none; }
 .gn-lock-overlay svg { opacity:0.85; }
 
@@ -227,12 +227,21 @@ body.drawing-mode #app { display: none; }
 .gn-pages-list { flex: 1; overflow-y: auto; padding: 10px; display: grid; grid-template-columns: 1fr 1fr; gap: 7px; align-content: start; }
 .gn-pages-list::-webkit-scrollbar { width: 3px; }
 .gn-pages-list::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.12); border-radius: 99px; }
-.gn-page-thumb-wrap { cursor: pointer; border-radius: 9px; overflow: hidden; border: 2px solid rgba(255,255,255,0.06); transition: border-color .15s, box-shadow .15s; display:flex; flex-direction:column; background:#1C1B19; }
+.gn-page-thumb-wrap { cursor: pointer; border-radius: 9px; border: 2px solid rgba(255,255,255,0.06); transition: border-color .15s, box-shadow .15s; display:flex; flex-direction:column; background:#1C1B19; }
 .gn-page-thumb-wrap:hover { border-color: rgba(255,255,255,0.2); box-shadow: 0 2px 10px rgba(0,0,0,0.3); }
 .gn-page-thumb-wrap.active { border-color: #5B9CF6; box-shadow: 0 0 0 1px rgba(91,156,246,0.25); }
 .gn-thumb-canvas { position:absolute; inset:0; display:block; width:100%; height:100%; }
 .gn-thumb-page-num { position:absolute; top:5px; left:5px; z-index:2; font-size:8.5px; font-weight:700; color:rgba(0,0,0,0.38); background:rgba(255,255,255,0.65); border-radius:4px; padding:2px 4px; line-height:1; pointer-events:none; }
 .gn-thumb-label { padding: 5px 5px 6px 7px; display: flex; flex-direction:row; align-items:center; justify-content:space-between; min-width:0; gap:2px; }
+.gn-thumb-group-header { grid-column: 1 / -1; padding: 10px 2px 4px; font-size: 10.5px; font-weight: 700; color: rgba(255,255,255,0.35); letter-spacing: 0.02em; user-select: none; }
+.gn-thumb-group-header:first-child { padding-top: 2px; }
+.gn-orphan-record-btn { border: 1.5px dashed rgba(255,255,255,0.16) !important; background: transparent !important; cursor: pointer; transition: border-color .15s, background .15s; display:flex; flex-direction:column; border-radius:9px; min-height:110px; align-items:center; justify-content:center; gap:3px; padding:14px 8px; }
+.gn-orphan-record-btn:hover { border-color: rgba(255,255,255,0.32) !important; background: rgba(255,255,255,0.03) !important; }
+#srp-popup { position:fixed; bottom:24px; right:24px; z-index:1000; background:#fff; border-radius:14px; box-shadow:0 4px 24px rgba(0,0,0,0.18); padding:14px 16px 12px; width:218px; cursor:pointer; transition:opacity .2s, transform .2s; }
+#srp-popup:hover { box-shadow:0 6px 28px rgba(0,0,0,0.22); }
+.srp-close-btn { position:absolute; top:8px; right:10px; background:none; border:none; font-size:16px; color:#AEADAB; cursor:pointer; padding:2px 4px; line-height:1; border-radius:4px; }
+.srp-close-btn:hover { background:#F5F4F1; color:#555; }
+#srp-modal-content { display:grid; grid-template-columns:1fr 1fr 1fr; gap:7px; }
 .gn-page-ctx-btn { flex-shrink:0; background:none; border:none; color:rgba(255,255,255,0.22); cursor:pointer; padding:2px 4px; border-radius:4px; font-size:12px; line-height:1; transition:all .12s; }
 .gn-page-ctx-btn:hover { background:rgba(255,255,255,0.1); color:rgba(255,255,255,0.85); }
 .dp-range-hint { text-align:center; font-size:10.5px; color:rgba(0,0,0,0.35); padding:6px 8px 2px; line-height:1.4; }
@@ -306,7 +315,8 @@ body.drawing-mode #app { display: none; }
 .size-dot { border-radius: 50%; background: currentColor; flex-shrink: 0; }
 
 /* ── Canvas area ── */
-.gn-canvas-area { flex: 1; overflow: auto; background: #505050; padding: 28px; }
+.gn-canvas-area { flex: 1; overflow: auto; background: #505050; padding: 28px; scroll-behavior: smooth; }
+.gn-canvas-area.no-smooth { scroll-behavior: auto; }
 .gn-canvas-area::-webkit-scrollbar { width: 6px; height: 6px; }
 .gn-canvas-area::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.18); border-radius: 3px; }
 #page-scroll-list { display:flex; flex-direction:column; align-items:center; gap:32px; padding-bottom:40px; }
@@ -314,7 +324,7 @@ body.drawing-mode #app { display: none; }
 .prepend-planner-wrap { display:flex; justify-content:center; width:100%; }
 .prepend-planner-btn { display:flex; align-items:center; gap:7px; padding:9px 18px; background:rgba(255,255,255,0.10); border:1.5px dashed rgba(255,255,255,0.22); border-radius:10px; color:rgba(255,255,255,0.55); font-family:inherit; font-size:12px; font-weight:500; cursor:pointer; transition:all .15s; white-space:nowrap; }
 .prepend-planner-btn:hover { background:rgba(255,255,255,0.16); border-color:rgba(255,255,255,0.38); color:rgba(255,255,255,0.85); }
-.canvas-wrapper { position: relative; line-height: 0; box-shadow: 0 8px 52px rgba(0,0,0,0.5); flex-shrink: 0; }
+.canvas-wrapper { position: relative; line-height: 0; box-shadow: 0 8px 52px rgba(0,0,0,0.5); flex-shrink: 0; border-radius: 8px; overflow: hidden; }
 #draw-canvas { display: block; cursor: crosshair; touch-action: none; }
 .canvas-lock-overlay { display:none; position:absolute; inset:0; backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px); background:rgba(30,28,35,0.18); z-index:10; pointer-events:none; }
 .canvas-lock-overlay.show { display:block; }
@@ -326,15 +336,27 @@ body.drawing-mode #app { display: none; }
 .page-locked-float { display:none; position:absolute; bottom:22px; left:50%; transform:translateX(-50%); z-index:20; }
 .page-locked-float.show { display:flex; }
 .page-locked-float-btn { display:flex; align-items:center; gap:7px; padding:10px 20px; background:rgba(28,26,33,0.88); border:1.5px solid rgba(255,208,64,0.35); border-radius:99px; color:#FFD040; font-family:inherit; font-size:13px; font-weight:600; cursor:pointer; box-shadow:0 4px 20px rgba(0,0,0,0.35); backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px); white-space:nowrap; }
+
+/* Nodate stack */
+.nodate-stack-slot { flex-shrink:0; }
+.nodate-stack-inner { position:relative; overflow:visible; }
+.nodate-stack-card { position:absolute; top:0; left:0; line-height:0; will-change:transform; }
 .page-locked-float-btn svg { flex-shrink:0; }
 
 /* Paper UI overlay */
 .paper-ui { position: absolute; top: 0; left: 0; right: 0; pointer-events: none; display: flex; align-items: center; padding: 0 20px; gap: 10px; z-index: 6; }
 .pui-left { pointer-events: auto; display: flex; align-items: center; gap: 7px; }
-.pui-date-btn { background: none; border: none; cursor: pointer; font-family: inherit; font-size: 12px; font-weight: 500; color: #9A9997; letter-spacing: 0; padding: 0; line-height: 1; transition: color .15s; display: flex; align-items: center; gap: 4px; }
+.pui-date-btn { background: none; border: none; cursor: pointer; font-family: inherit; font-size: 12px; font-weight: 500; color: #9A9997; letter-spacing: 0; padding: 0; line-height: 1; transition: color .15s, border-color .15s, background .15s; display: flex; align-items: center; gap: 4px; border-radius: 6px; }
 .pui-date-btn:hover { color: #1A1918; }
 .pui-date-btn svg { opacity: 0.32; transition: opacity .15s; }
 .pui-date-btn:hover svg { opacity: 0.65; }
+.pui-date-btn.no-date { border: 1.5px dashed #C8C7C3; padding: 5px 10px; color: #B0AFAC; }
+.pui-date-btn.no-date:hover { border-color: #9A9997; color: #555452; background: rgba(0,0,0,0.03); }
+.pui-date-btn.no-date svg { opacity: 0.5; }
+/* Persistent nodate popup embedded in card */
+.nodate-top-popup { display:none; position:absolute; left:16px; background:#fff; border-radius:10px; box-shadow:0 4px 24px rgba(0,0,0,0.18),0 1px 4px rgba(0,0,0,0.07); border:1px solid rgba(0,0,0,0.08); padding:5px; z-index:20; min-width:148px; pointer-events:auto; animation:ndtp-in .38s cubic-bezier(0.22,1,0.36,1); }
+.nodate-top-popup.show { display:block; }
+@keyframes ndtp-in { from { opacity:0; transform:translateY(16px); } to { opacity:1; transform:translateY(0); } }
 .pui-date-btn.locked { cursor: default; }
 .pui-date-btn.locked:hover { color: #9A9997; }
 .pui-date-btn.locked:hover svg { opacity: 0.32; }
@@ -473,6 +495,13 @@ body.drawing-mode #app { display: none; }
   </div>
 </div>
 
+<!-- Study Record Reminder Popup -->
+<div id="srp-popup" style="display:none;" onclick="openSrpModal()">
+  <button class="srp-close-btn" onclick="closeSrpPopup(event)">×</button>
+  <div style="font-size:12.5px;font-weight:600;color:#1A1918;line-height:1.45;padding-right:14px;margin-bottom:8px;">최근 <span id="srp-count">0</span>일의 기록이<br>플래너에 추가되지 않았어요.</div>
+  <div style="font-size:12px;color:#5B7FF9;font-weight:600;">확인하기 →</div>
+</div>
+
 <!-- Sidebar Calendar Popup -->
 <div class="scal-overlay" id="scal-overlay" onclick="closeSbCalPopup()">
   <div class="scal-popup" onclick="event.stopPropagation()">
@@ -587,11 +616,6 @@ body.drawing-mode #app { display: none; }
 <div id="sb-page-dp" onclick="event.stopPropagation()" style="position:fixed;background:#fff;border-radius:12px;box-shadow:0 4px 28px rgba(0,0,0,0.18),0 1px 4px rgba(0,0,0,0.07);border:1px solid rgba(0,0,0,0.08);padding:13px 13px 11px;z-index:10000;display:none;min-width:248px;">
   <div id="sb-page-dp-title" style="font-size:10px;font-weight:700;color:#B0AFAC;letter-spacing:.5px;text-transform:uppercase;margin-bottom:10px">날짜 선택</div>
   <div id="sb-page-dp-content"></div>
-  <div style="height:1px;background:#F0EFEC;margin:8px 0 7px"></div>
-  <div style="display:flex;justify-content:space-between;align-items:center">
-    <button id="sb-dp-clear-btn" onclick="sbClearDate()" style="background:none;border:none;cursor:pointer;font-family:inherit;font-size:11.5px;color:#AEADAB;padding:2px 0;transition:color .12s" onmouseover="this.style.color='#18171A'" onmouseout="this.style.color='#AEADAB'">날짜 제거</button>
-    <button onclick="sbSelectToday()" style="background:none;border:1px solid #D8D7D3;border-radius:5px;cursor:pointer;font-family:inherit;font-size:11px;color:#555452;padding:3px 9px;transition:all .12s" onmouseover="this.style.background='#18171A';this.style.color='#fff';this.style.borderColor='#18171A'" onmouseout="this.style.background='none';this.style.color='#555452';this.style.borderColor='#D8D7D3'">오늘</button>
-  </div>
 </div>
 
 <script>
@@ -625,7 +649,7 @@ const PRODUCTS=[
 // ─── STATE ──────────────────────────────────────
 const state = {
   view: 'home', notebookId: null, pageIdx: 0,
-  storeDetailId: null, sidebarOpen: true,
+  storeDetailId: null, sidebarOpen: false,
   pageSortOrder: 'recent', // 'recent' | 'oldest' | 'date'
   timer: {running:false, startTime:null, savedTime:0, interval:null}
 };
@@ -800,6 +824,7 @@ function openOrSwitchTab(notebookId){
     openTabs.push({notebookId, pageIdx:initIdx});
     activeTabIdx = openTabs.length - 1;
     state.notebookId = notebookId;
+    _srpDismissed = false;
     state.pageIdx = initIdx;
     state.view = 'page';
     enterDrawing();
@@ -841,6 +866,7 @@ function closeTab(idx, e){
     document.getElementById('gn-layout').style.display = 'none';
     document.body.classList.remove('drawing-mode');
     state.view = 'home';
+    document.getElementById('srp-popup').style.display = 'none';
     render();
   } else if(wasActive){
     const newIdx = Math.min(idx, openTabs.length-1);
@@ -862,6 +888,7 @@ function goHome(){
   document.getElementById('gn-layout').style.display = 'none';
   document.body.classList.remove('drawing-mode');
   state.view = 'home';
+  document.getElementById('srp-popup').style.display = 'none';
   render();
   renderTabBar();
 }
@@ -1218,7 +1245,9 @@ function enterDrawing(){
   document.getElementById('gn-nb-name').textContent = nb.name;
   const pg = nb.pages[state.pageIdx];
   state.timer = {running:false, startTime:null, savedTime:pg?.date ? (db.studyRecords[pg.date]||0) : 0, interval:null};
-  renderSidebarPages();
+  document.getElementById('gn-sidebar')?.classList.toggle('collapsed', !state.sidebarOpen);
+  const _hasTodayOnEnter = nb.pages.some(p => p.date === getTodayIso());
+  renderSidebarPages(!_hasTodayOnEnter);
   renderToolbar();
   setTimeout(initAllCanvases, 60);
 }
@@ -1401,11 +1430,32 @@ function _sbCalBindDates(dates){
   showToast(`${dates.length}개 날짜가 추가됐어요 ✓`);
 }
 
-function renderSidebarPages(){
+function _getMonthGroupKey(date, nbType){
+  if(!date) return null;
+  if(nbType === 'monthly') return date.slice(0,4); // "2025"
+  if(nbType === 'weekly'){
+    // week string "2025-W24" → derive month from Monday of that week
+    const m = date.match(/^(\d{4})-W(\d{2})$/);
+    if(m){
+      const jan4 = new Date(+m[1], 0, 4);
+      const monday = new Date(jan4.getTime() - ((jan4.getDay()||7)-1)*86400000 + (+m[2]-1)*7*86400000);
+      return `${monday.getFullYear()}-${String(monday.getMonth()+1).padStart(2,'0')}`;
+    }
+  }
+  return date.slice(0,7); // "2025-06"
+}
+function _fmtGroupHeader(key, nbType){
+  if(nbType === 'monthly') return `${key}년`;
+  const [y, mo] = key.split('-');
+  const currentYear = new Date().getFullYear();
+  return +y === currentYear ? `${+mo}월` : `${y}년 ${+mo}월`;
+}
+function renderSidebarPages(scrollToRecent=false){
   const nb = getNotebook(state.notebookId); if(!nb) return;
   const list = document.getElementById('gn-pages-list'); if(!list) return;
   const sortedIndices = getSortedPageIndices();
-  const thumbs = sortedIndices.map(i=>{
+
+  function thumbHtml(i){
     const pg = nb.pages[i];
     const locked = isPageLocked(pg);
     const pageNum = sortedIndices.indexOf(i) + 1;
@@ -1419,22 +1469,249 @@ function renderSidebarPages(){
         <div class="gn-page-date-label${pg.date?' has-date':''}">
           ${pg.date ? `<svg width="9" height="9" viewBox="0 0 12 12" fill="none"><rect x="1" y="2" width="10" height="9" rx="1.5" stroke="currentColor" stroke-width="1.3"/><path d="M4 1v2M8 1v2M1 5h10" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg><span class="gn-date-text">${fmtDateForThumb(pg.date, nb.type)}</span>` : ''}
         </div>
-        <button class="gn-page-ctx-btn" onclick="openPageCtxMenu(${i},event)">···</button>
+        ${pg.date ? `<button class="gn-page-ctx-btn" onclick="openPageCtxMenu(${i},event)">···</button>` : ''}
       </div>
     </div>`;
-  }).join('');
-  list.innerHTML = thumbs;
-  // 오늘 플로팅 버튼 표시 여부
+  }
+
+  const datedIndices = sortedIndices.filter(i => nb.pages[i].date);
+  const nodateIndices = sortedIndices.filter(i => !nb.pages[i].date);
   const todayIso = getTodayIso();
-  const hasTodayPage = nb.pages.some(pg => pg.date === todayIso);
+
+  // Orphaned study record dates: have records but no page, between last dated page and today
+  const usedDates = new Set(nb.pages.filter(p => p.date).map(p => p.date));
+  const hasTodayPage = usedDates.has(todayIso);
+  let orphanItems = [];
+  if(nb.type === 'daily' && datedIndices.length > 0){
+    const lastDate = nb.pages[datedIndices[datedIndices.length - 1]].date;
+    orphanItems = Object.entries(db.studyRecords || {})
+      .filter(([date, secs]) => secs > 0 && !usedDates.has(date) && date > lastDate && date < todayIso)
+      .sort(([a],[b]) => a < b ? -1 : 1)
+      .map(([date, secs]) => ({ date, secs }));
+  }
+
+  function orphanBtnHtml(date, secs){
+    const h = Math.floor(secs/3600), m = Math.floor((secs%3600)/60);
+    const timeStr = h > 0 ? `${h}시간${m > 0 ? ' '+m+'분' : ''}` : `${m}분`;
+    return `<div class="gn-orphan-record-btn" onclick="addOrphanStudyPage('${date}')">
+      <svg width="13" height="13" viewBox="0 0 12 12" fill="none" style="opacity:0.3;margin-bottom:1px;"><rect x="1" y="2" width="10" height="9" rx="1.5" stroke="rgba(255,255,255,0.8)" stroke-width="1.3"/><path d="M4 1v2M8 1v2M1 5h10" stroke="rgba(255,255,255,0.8)" stroke-width="1.3" stroke-linecap="round"/></svg>
+      <span style="font-size:11px;font-weight:700;color:rgba(255,255,255,0.6);">${fmtDateForThumb(date, nb.type)}</span>
+      <span style="font-size:9.5px;color:rgba(255,255,255,0.35);">공부 ${timeStr}</span>
+      <span style="font-size:8.5px;color:rgba(255,255,255,0.2);margin-top:1px;">페이지 없음 · 탭해서 추가</span>
+    </div>`;
+  }
+
+  // Group dated pages by month, interleaving orphan items chronologically
+  const monthGroups = [];
+  let lastKey = null;
+  datedIndices.forEach(i => {
+    const key = _getMonthGroupKey(nb.pages[i].date, nb.type);
+    if(key !== lastKey){
+      monthGroups.push({ key, label: _fmtGroupHeader(key, nb.type), items: [] });
+      lastKey = key;
+    }
+    monthGroups[monthGroups.length-1].items.push({ type: 'page', idx: i });
+  });
+  // Insert orphan items into correct month group position
+  orphanItems.forEach(({ date, secs }) => {
+    const key = _getMonthGroupKey(date, nb.type);
+    let group = monthGroups.find(g => g.key === key);
+    if(!group){
+      group = { key, label: _fmtGroupHeader(key, nb.type), items: [] };
+      const pos = monthGroups.findIndex(g => g.key > key);
+      if(pos === -1) monthGroups.push(group); else monthGroups.splice(pos, 0, group);
+    }
+    const insertPos = group.items.findIndex(item => {
+      const d = item.type === 'page' ? nb.pages[item.idx].date : item.date;
+      return d > date;
+    });
+    if(insertPos === -1) group.items.push({ type: 'orphan', date, secs });
+    else group.items.splice(insertPos, 0, { type: 'orphan', date, secs });
+  });
+
+  let html = '';
+  monthGroups.forEach(g => {
+    html += `<div class="gn-thumb-group-header">${g.label}</div>`;
+    html += g.items.map(item => item.type === 'page' ? thumbHtml(item.idx) : orphanBtnHtml(item.date, item.secs)).join('');
+  });
+  if(nodateIndices.length > 0){
+    html += `<div class="gn-thumb-group-header">날짜 없는 페이지</div>`;
+    html += nodateIndices.map(thumbHtml).join('');
+  }
+  list.innerHTML = html;
+  // 오늘 플로팅 버튼 표시 여부
   const wrap = document.getElementById('today-float-wrap');
   if(wrap) wrap.style.display = hasTodayPage ? 'block' : 'none';
   requestAnimationFrame(()=>{
     const nb2 = getNotebook(state.notebookId);
     if(nb2) nb2.pages.forEach((_,i)=>drawThumbnail(i));
-    // 현재 페이지 썸네일이 보이도록 스크롤
-    document.getElementById(`gn-tw-${state.pageIdx}`)?.scrollIntoView({behavior:'smooth',block:'nearest'});
+    // 스크롤: 오늘 페이지 없으면 날짜 없는 페이지 그룹 헤더로, 아니면 현재 페이지로
+    if(scrollToRecent){
+      const listEl = document.getElementById('gn-pages-list');
+      const headers = listEl?.querySelectorAll('.gn-thumb-group-header');
+      const nodateHeader = [...(headers||[])].findLast(h => h.textContent.trim() === '날짜 없는 페이지');
+      if(nodateHeader){
+        nodateHeader.scrollIntoView({behavior:'smooth', block:'start'});
+      } else {
+        const allTw = listEl?.querySelectorAll('[id^="gn-tw-"]');
+        allTw?.length && allTw[allTw.length-1].scrollIntoView({behavior:'smooth', block:'end'});
+      }
+    } else {
+      document.getElementById(`gn-tw-${state.pageIdx}`)?.scrollIntoView({behavior:'smooth',block:'nearest'});
+    }
   });
+}
+
+// ── 공부 기록 미추가 알림 팝업 ──────────────────────────────
+let _srpDismissed = false;
+
+function _buildOrphanBtnsHtml(idx, fmtFn){
+  const orphans = _getSrpOrphans();
+  if(!orphans.length) return '';
+  const fmtSecs = s => { const h=Math.floor(s/3600),m=Math.floor((s%3600)/60); return h>0?`${h}시간${m>0?' '+m+'분':''}`:`${m}분`; };
+  const items = orphans.map(({date,secs}) => `
+    <button onclick="applyCanvasQuickDate(${idx},'${date}')" style="width:100%;display:flex;align-items:center;justify-content:space-between;gap:8px;padding:7px 10px;background:none;border:none;border-radius:7px;cursor:pointer;font-family:inherit;font-size:12px;color:#1A1918;transition:background .12s;" onmouseover="this.style.background='#F5F4F1'" onmouseout="this.style.background='none'">
+      <span style="font-weight:500;">${fmtFn(date)}</span>
+      <span style="font-size:10px;color:#AEADAB;">${fmtSecs(secs)}</span>
+    </button>`).join('');
+  return `<div style="padding:5px 10px 2px;font-size:9.5px;color:#AEADAB;letter-spacing:0.01em;">공부 기록만 있는 날짜</div>
+    ${items}
+    <div style="height:1px;background:#F0EFEC;margin:2px 0;"></div>`;
+}
+
+function _getSrpOrphans(){
+  const nb = getNotebook(state.notebookId); if(!nb || nb.type !== 'daily') return [];
+  const todayIso = getTodayIso();
+  const usedDates = new Set(nb.pages.filter(p=>p.date).map(p=>p.date));
+  const sorted = nb.pages.filter(p=>p.date).map(p=>p.date).sort();
+  if(!sorted.length) return [];
+  // 오늘 이전 페이지 중 가장 마지막 날짜 기준
+  const prevDates = sorted.filter(d => d < todayIso);
+  if(!prevDates.length) return [];
+  const prevDate = prevDates[prevDates.length - 1];
+  return Object.entries(db.studyRecords||{})
+    .filter(([date,secs]) => secs>0 && !usedDates.has(date) && date>prevDate && date<todayIso)
+    .sort(([a],[b]) => a<b?-1:1)
+    .map(([date,secs]) => ({date,secs}));
+}
+
+function updateSrpPopup(){
+  const popup = document.getElementById('srp-popup'); if(!popup) return;
+  if(_srpDismissed || state.view !== 'page'){ popup.style.display='none'; return; }
+  const nb = getNotebook(state.notebookId);
+  if(!nb){ popup.style.display='none'; return; }
+  // nodate 스택이 캔버스에 있을 때만 표시
+  const hasNodate = !!document.getElementById('nodate-stack-slot');
+  if(!hasNodate){ popup.style.display='none'; return; }
+  const orphans = _getSrpOrphans();
+  if(!orphans.length){ popup.style.display='none'; return; }
+  document.getElementById('srp-count').textContent = orphans.length;
+  popup.style.display = 'block';
+}
+
+function closeSrpPopup(e){
+  e && e.stopPropagation();
+  _srpDismissed = true;
+  document.getElementById('srp-popup').style.display = 'none';
+}
+
+function openSrpModal(){
+  const nb = getNotebook(state.notebookId); if(!nb) return;
+  const orphans = _getSrpOrphans(); if(!orphans.length) return;
+  document.getElementById('srp-popup').style.display = 'none';
+
+  const fmtSecs = s => { const h=Math.floor(s/3600),m=Math.floor((s%3600)/60); return h>0?`${h}시간${m>0?' '+m+'분':''}`:`${m}분`; };
+
+  let listHtml = '';
+  orphans.forEach(({date,secs}) => {
+    const d = new Date(date+'T00:00:00');
+    const label = `${d.getMonth()+1}월 ${d.getDate()}일`;
+    listHtml += `
+      <label style="display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid #F5F4F2;cursor:pointer;" onclick="event.stopPropagation()">
+        <input type="checkbox" value="${date}" checked onchange="srpUpdateBtn()"
+          style="width:16px;height:16px;flex-shrink:0;cursor:pointer;accent-color:#18171A;">
+        <span style="flex:1;font-size:13px;font-weight:600;color:#1A1918;">${label}</span>
+        <span style="font-size:11px;color:#AEADAB;">${fmtSecs(secs)}</span>
+      </label>`;
+  });
+
+  const overlay = document.createElement('div');
+  overlay.id = 'srp-modal';
+  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.42);z-index:10001;display:flex;align-items:center;justify-content:center;';
+  overlay.onclick = e => { if(e.target===overlay) closeSrpModal(); };
+  overlay.innerHTML = `
+    <div onclick="event.stopPropagation()" style="background:#fff;border-radius:16px;width:288px;max-height:60vh;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 10px 48px rgba(0,0,0,0.24);">
+      <div style="padding:16px 16px 0;flex-shrink:0;">
+        <div style="font-size:14px;font-weight:700;color:#1A1918;margin-bottom:12px;">기록된 날짜 추가</div>
+      </div>
+      <div style="flex:1;overflow-y:auto;padding:0 16px;">
+        <div id="srp-modal-content">${listHtml}</div>
+      </div>
+      <div style="padding:12px 16px;flex-shrink:0;">
+        <button id="srp-confirm-btn" onclick="confirmSrpAdd()" style="width:100%;padding:12px;border:none;border-radius:10px;background:#18171A;font-family:inherit;font-size:13px;font-weight:700;color:#fff;cursor:pointer;"></button>
+      </div>
+    </div>`;
+  document.body.appendChild(overlay);
+  srpUpdateBtn();
+}
+
+function srpUpdateBtn(){
+  const nb = getNotebook(state.notebookId); if(!nb) return;
+  const count = document.querySelectorAll('#srp-modal-content input[type=checkbox]:checked').length;
+  const btn = document.getElementById('srp-confirm-btn'); if(!btn) return;
+  if(count === 0){
+    btn.textContent = '날짜를 선택하세요';
+    btn.disabled = true; btn.style.opacity = '0.35';
+  } else {
+    btn.textContent = `${count}장 추가`;
+    btn.disabled = false; btn.style.opacity = '1';
+  }
+}
+
+function closeSrpModal(){
+  document.getElementById('srp-modal')?.remove();
+  updateSrpPopup();
+}
+
+function confirmSrpAdd(){
+  const nb = getNotebook(state.notebookId); if(!nb) return;
+  const dates = [...document.querySelectorAll('#srp-modal-content input[type=checkbox]:checked')]
+    .map(cb => cb.value).sort();
+  if(!dates.length) return;
+  const sparePages = nb.pages.filter(p=>!p.date&&!isPageLocked(p));
+  if(sparePages.length >= dates.length){
+    for(let i=0;i<dates.length;i++) sparePages[i].date = dates[i];
+    autoFlushTrappedPages(nb);
+    saveData();
+    closeSrpModal();
+    _srpDismissed = true;
+    document.getElementById('srp-popup').style.display = 'none';
+    renderSidebarPages();
+    showToast(`${dates.length}장에 날짜가 설정됐어요`);
+    setTimeout(initAllCanvases, 60);
+  } else {
+    window._sbCalPendingDates = dates;
+    window._sbCalSpareCount = sparePages.length;
+    pm.pendingSpareCount = sparePages.length;
+    pm.insertIdx = null;
+    closeSrpModal();
+    openPurchaseModal('addPage', nb.type, nb.id);
+  }
+}
+
+function addOrphanStudyPage(date){
+  const nb = getNotebook(state.notebookId); if(!nb) return;
+  const spare = nb.pages.find(p => !p.date && !isPageLocked(p));
+  if(spare){
+    spare.date = date;
+    autoFlushTrappedPages(nb);
+    saveData();
+    renderSidebarPages();
+    showToast(`${fmtDateShort(date)} 페이지가 추가됐어요`);
+    setTimeout(initAllCanvases, 60);
+  } else {
+    openPurchaseModal('addPage', nb.type, nb.id);
+  }
 }
 
 // ─── PAGE CONTEXT MENU ──────────────────────────
@@ -1637,21 +1914,39 @@ function switchPage(idx){
   if(newCanvas){ canvasEl = newCanvas; ctx = newCanvas.getContext('2d'); }
   document.querySelectorAll('.gn-page-thumb-wrap').forEach(el=>el.classList.toggle('active', el.id===`gn-tw-${idx}`));
   document.getElementById(`gn-tw-${idx}`)?.scrollIntoView({behavior:'smooth',block:'nearest'});
+  // If the target is a dateless page, bring it to the top of the stack with animation
+  if(!pg.date && nodateStackOrder.includes(idx) && nodateStackOrder[0] !== idx){
+    const prevOrder = [...nodateStackOrder];
+    nodateStackOrder = [idx, ...nodateStackOrder.filter(i => i !== idx)];
+    updateNodateStackPositions(true, prevOrder);
+  }
   scrollToPageSlot(idx);
   updateTimerUI();
 }
 
 function scrollToPageSlot(idx, behavior='smooth'){
-  const slot = document.getElementById(`page-slot-${idx}`);
+  const nb = getNotebook(state.notebookId);
+  const pg = nb && nb.pages[idx];
+  const slot = (pg && !pg.date)
+    ? document.getElementById('nodate-stack-slot')
+    : document.getElementById(`page-slot-${idx}`);
   const area = document.getElementById('gn-canvas-area');
   if(!slot || !area) return;
   const slotRect = slot.getBoundingClientRect();
   const areaRect = area.getBoundingClientRect();
-  const target = area.scrollTop + slotRect.top - areaRect.top;
-  area.scrollTo({top: target, behavior});
+  const target = Math.max(0, area.scrollTop + slotRect.top - areaRect.top - 40);
+  if(behavior === 'auto'){
+    area.classList.add('no-smooth');
+    area.scrollTop = target;
+    area.classList.remove('no-smooth');
+  } else {
+    area.scrollTop = target;
+  }
 }
 
 let _pageObserver = null;
+let _nodatePopupObserver = null;
+let nodateStackOrder = []; // dateless page indices, [0] = top of stack
 function setupPageObserver(){
   if(_pageObserver) _pageObserver.disconnect();
   const area = document.getElementById('gn-canvas-area'); if(!area) return;
@@ -1659,7 +1954,10 @@ function setupPageObserver(){
     let best = null, bestRatio = 0;
     entries.forEach(e=>{ if(e.isIntersecting && e.intersectionRatio > bestRatio){ bestRatio=e.intersectionRatio; best=e.target; } });
     if(best){
-      const idx = parseInt(best.dataset.pageIdx);
+      // nodate-stack-slot uses the current top of the stack
+      const idx = best.id === 'nodate-stack-slot'
+        ? (nodateStackOrder[0] ?? NaN)
+        : parseInt(best.dataset.pageIdx);
       if(!isNaN(idx) && idx !== state.pageIdx){
         state.pageIdx = idx;
         if(openTabs[activeTabIdx]) openTabs[activeTabIdx].pageIdx = idx;
@@ -1674,6 +1972,8 @@ function setupPageObserver(){
     }
   },{root:area, threshold:[0.3,0.6]});
   document.querySelectorAll('.page-slot').forEach(el=>_pageObserver.observe(el));
+  const nodateSlot = document.getElementById('nodate-stack-slot');
+  if(nodateSlot) _pageObserver.observe(nodateSlot);
 }
 
 function redrawPageCanvas(idx){
@@ -1686,10 +1986,8 @@ function redrawPageCanvas(idx){
   if(idx===state.pageIdx){ ctx=cx; canvasEl=c; }
   const dtEl = document.getElementById(`pui-date-text-pg-${idx}`);
   if(dtEl) dtEl.textContent = pg.date ? fmtDateForDisplay(pg.date, nb.type) : '날짜 설정';
-  const puiEl = document.querySelector(`#page-slot-${idx} .paper-ui`);
-  if(puiEl) puiEl.style.display = pg.date ? '' : 'none';
-  const ndEl = document.getElementById(`pnd-${idx}`);
-  if(ndEl) ndEl.classList.toggle('show', !pg.date);
+  const puiEl = document.querySelector(`#page-slot-${idx} .paper-ui, #nodate-card-${idx} .paper-ui`);
+  if(puiEl) puiEl.style.display = '';
 }
 
 // ─── TOOLBAR ────────────────────────────────────
@@ -1714,7 +2012,63 @@ function setDrawColor(i){ draw.colorIdx=i; syncToolUI(); }
 function setDrawSize(i){ draw.sizeIdx=i; syncToolUI(); }
 
 // ─── CANVAS ─────────────────────────────────────
-function initAllCanvases(){
+function makePageWrapper(i, pg, nb, cW, cH, dpr){
+  const wrapper = document.createElement('div');
+  wrapper.className = 'canvas-wrapper';
+  const canvas = document.createElement('canvas');
+  canvas.id = `page-canvas-${i}`;
+  canvas.style.cssText = `display:block;cursor:crosshair;touch-action:none;width:${cW}px;height:${cH}px;`;
+  canvas.width = Math.round(cW*dpr); canvas.height = Math.round(cH*dpr);
+  canvas._dpr = dpr; canvas._cssW = cW; canvas._cssH = cH;
+  const c = canvas.getContext('2d'); c.scale(dpr, dpr);
+  drawPaper(c, cW, cH, nb.type, pg.date||null, pg.date?(db.studyRecords[pg.date]||0):0);
+  getPageStrokes(pg).forEach(s => drawStroke(c, s, cW, cH));
+  const locked = isPageLocked(pg);
+  const lockEl = document.createElement('div');
+  lockEl.className = `canvas-lock-overlay${locked?' show':''}`;
+  const floatEl = document.createElement('div');
+  floatEl.className = `page-locked-float${locked?' show':''}`;
+  floatEl.innerHTML = `<button class="page-locked-float-btn" onclick="showLockedPagePopup()"><svg width="13" height="13" viewBox="0 0 13 13" fill="none"><rect x="2.5" y="6" width="8" height="5.5" rx="1.5" fill="#FFD040"/><path d="M4 6V4.5a2.5 2.5 0 0 1 5 0V6" stroke="#FFD040" stroke-width="1.4" stroke-linecap="round"/></svg>잠긴 페이지</button>`;
+  const nodateEl = document.createElement('div');
+  nodateEl.className = 'page-nodate-overlay';
+  nodateEl.id = `pnd-${i}`;
+  nodateEl.innerHTML = `<button class="pnd-date-btn" onclick="openCanvasDateQuickPick(${i},event,this)"><svg width="28" height="28" viewBox="0 0 24 24" fill="none"><rect x="3" y="5" width="18" height="17" rx="2.5" stroke="currentColor" stroke-width="1.5"/><path d="M8 3v4M16 3v4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="3" y1="10" x2="21" y2="10" stroke="currentColor" stroke-width="1.5"/></svg><span>날짜 설정</span></button>`;
+  const paperUiEl = document.createElement('div');
+  paperUiEl.className = 'paper-ui';
+  paperUiEl.style.height = Math.round(cH * HEADER_RATIO) + 'px';
+  const dateLabel = pg.date ? fmtDateForDisplay(pg.date, nb.type) : '날짜 설정';
+  paperUiEl.innerHTML = `
+    <div class="pui-left">
+      <button class="pui-date-btn${locked?' locked':''}${!pg.date?' no-date':''}" onclick="${locked||!pg.date?'void(0)':'openCanvasDateQuickPick('+i+',event,this)'}">
+        <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><rect x="1" y="2.5" width="10" height="9" rx="1.5" stroke="currentColor" stroke-width="1.3"/><path d="M4 1v3M8 1v3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><line x1="1" y1="6" x2="11" y2="6" stroke="currentColor" stroke-width="1.3"/></svg>
+        <span id="pui-date-text-pg-${i}">${dateLabel}</span>
+      </button>
+    </div>
+    <div class="pui-right">
+      <span id="pui-timer-pg-${i}" class="pui-timer-time">00:00</span>
+      <button id="pui-play-pg-${i}" class="pui-tbtn" onclick="activatePageAndToggleTimer(${i})">▶</button>
+      <button class="pui-tbtn pui-tbtn-reset" onclick="activatePageAndResetTimer(${i})" title="초기화">↺</button>
+    </div>`;
+  // Persistent date-pick popup for dateless pages (always visible on top card)
+  if(!pg.date){
+    const ndtpEl = document.createElement('div');
+    ndtpEl.className = 'nodate-top-popup';
+    ndtpEl.id = `ndtp-${i}`;
+    ndtpEl.style.top = (Math.round(cH * HEADER_RATIO) + 3) + 'px';
+    ndtpEl.onclick = e => e.stopPropagation();
+    wrapper.appendChild(canvas); wrapper.appendChild(lockEl); wrapper.appendChild(floatEl); wrapper.appendChild(nodateEl); wrapper.appendChild(paperUiEl); wrapper.appendChild(ndtpEl);
+  } else {
+    wrapper.appendChild(canvas); wrapper.appendChild(lockEl); wrapper.appendChild(floatEl); wrapper.appendChild(nodateEl); wrapper.appendChild(paperUiEl);
+  }
+  canvas.addEventListener('pointerdown', e => onPD(e, i, canvas));
+  canvas.addEventListener('pointermove', e => onPM(e, canvas));
+  canvas.addEventListener('pointerup',   e => onPU(e, i, canvas));
+  canvas.addEventListener('pointerleave',e => onPU(e, i, canvas));
+  canvas.addEventListener('pointercancel',e=>onPU(e, i, canvas));
+  return wrapper;
+}
+
+function initAllCanvases(skipAutoScroll){
   const nb = getNotebook(state.notebookId); if(!nb) return;
   const area = document.getElementById('gn-canvas-area');
   const list = document.getElementById('page-scroll-list');
@@ -1724,59 +2078,187 @@ function initAllCanvases(){
   let cW = Math.min(Math.max(aW, 320), 760);
   let cH = Math.round(cW*(4/3));
   list.innerHTML = '';
-  getSortedPageIndices().forEach((i) => {
+  nodateStackOrder = [];
+
+  const sortedIndices = getSortedPageIndices();
+  const datedIndices = sortedIndices.filter(i => nb.pages[i].date);
+  const nodateIndices = sortedIndices.filter(i => !nb.pages[i].date);
+
+  // Render dated pages individually (existing behaviour)
+  datedIndices.forEach(i => {
     const pg = nb.pages[i];
     const slot = document.createElement('div');
     slot.className = 'page-slot'; slot.id = `page-slot-${i}`; slot.dataset.pageIdx = i;
-    const wrapper = document.createElement('div');
-    wrapper.className = 'canvas-wrapper';
-    const canvas = document.createElement('canvas');
-    canvas.id = `page-canvas-${i}`;
-    canvas.style.cssText = `display:block;cursor:crosshair;touch-action:none;width:${cW}px;height:${cH}px;`;
-    canvas.width = Math.round(cW*dpr); canvas.height = Math.round(cH*dpr);
-    canvas._dpr = dpr; canvas._cssW = cW; canvas._cssH = cH;
-    const c = canvas.getContext('2d'); c.scale(dpr, dpr);
-    drawPaper(c, cW, cH, nb.type, pg.date||null, pg.date?(db.studyRecords[pg.date]||0):0);
-    getPageStrokes(pg).forEach(s => drawStroke(c, s, cW, cH));
-    const locked = isPageLocked(pg);
-    const lockEl = document.createElement('div');
-    lockEl.className = `canvas-lock-overlay${locked?' show':''}`;
-    const floatEl = document.createElement('div');
-    floatEl.className = `page-locked-float${locked?' show':''}`;
-    floatEl.innerHTML = `<button class="page-locked-float-btn" onclick="showLockedPagePopup()"><svg width="13" height="13" viewBox="0 0 13 13" fill="none"><rect x="2.5" y="6" width="8" height="5.5" rx="1.5" fill="#FFD040"/><path d="M4 6V4.5a2.5 2.5 0 0 1 5 0V6" stroke="#FFD040" stroke-width="1.4" stroke-linecap="round"/></svg>잠긴 페이지</button>`;
-    const nodateEl = document.createElement('div');
-    nodateEl.className = `page-nodate-overlay${pg.date?'':' show'}`;
-    nodateEl.id = `pnd-${i}`;
-    nodateEl.innerHTML = `<button class="pnd-date-btn" onclick="openCanvasDateQuickPick(${i},event,this)"><svg width="28" height="28" viewBox="0 0 24 24" fill="none"><rect x="3" y="5" width="18" height="17" rx="2.5" stroke="currentColor" stroke-width="1.5"/><path d="M8 3v4M16 3v4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="3" y1="10" x2="21" y2="10" stroke="currentColor" stroke-width="1.5"/></svg><span>날짜 설정</span></button>`;
-    const paperUiEl = document.createElement('div');
-    paperUiEl.className = 'paper-ui';
-    paperUiEl.style.height = Math.round(cH * HEADER_RATIO) + 'px';
-    if(!pg.date) paperUiEl.style.display = 'none';
-    const dateLabel = pg.date ? fmtDateForDisplay(pg.date, nb.type) : '날짜 설정';
-    paperUiEl.innerHTML = `
-      <div class="pui-left">
-        <button class="pui-date-btn${locked?' locked':''}" onclick="${locked?'void(0)':'openCanvasDateQuickPick('+i+',event,this)'}">
-          <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><rect x="1" y="2.5" width="10" height="9" rx="1.5" stroke="currentColor" stroke-width="1.3"/><path d="M4 1v3M8 1v3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><line x1="1" y1="6" x2="11" y2="6" stroke="currentColor" stroke-width="1.3"/></svg>
-          <span id="pui-date-text-pg-${i}">${dateLabel}</span>
-        </button>
-      </div>
-      <div class="pui-right">
-        <span id="pui-timer-pg-${i}" class="pui-timer-time">00:00</span>
-        <button id="pui-play-pg-${i}" class="pui-tbtn" onclick="activatePageAndToggleTimer(${i})">▶</button>
-        <button class="pui-tbtn pui-tbtn-reset" onclick="activatePageAndResetTimer(${i})" title="초기화">↺</button>
-      </div>`;
-    wrapper.appendChild(canvas); wrapper.appendChild(lockEl); wrapper.appendChild(floatEl); wrapper.appendChild(nodateEl); wrapper.appendChild(paperUiEl);
+    const wrapper = makePageWrapper(i, pg, nb, cW, cH, dpr);
     slot.appendChild(wrapper); list.appendChild(slot);
-    canvas.addEventListener('pointerdown', e => onPD(e, i, canvas));
-    canvas.addEventListener('pointermove', e => onPM(e, canvas));
-    canvas.addEventListener('pointerup',   e => onPU(e, i, canvas));
-    canvas.addEventListener('pointerleave',e => onPU(e, i, canvas));
-    canvas.addEventListener('pointercancel',e=>onPU(e, i, canvas));
   });
+
+  // Render dateless pages as a stacked pile
+  if(nodateIndices.length > 0){
+    // Active dateless page goes on top; fall back to first in list
+    const topIdx = nodateIndices.includes(state.pageIdx) ? state.pageIdx : nodateIndices[0];
+    nodateStackOrder = [topIdx, ...nodateIndices.filter(i => i !== topIdx)];
+
+    const stackSlot = document.createElement('div');
+    stackSlot.className = 'nodate-stack-slot'; stackSlot.id = 'nodate-stack-slot';
+    if(nodateIndices.length > 1){
+      stackSlot.style.marginBottom = -(cH / 2) + 'px';
+    }
+
+    const inner = document.createElement('div');
+    inner.className = 'nodate-stack-inner';
+    inner.style.cssText = `width:${cW}px;height:${cH}px;`;
+
+    nodateIndices.forEach(i => {
+      const pg = nb.pages[i];
+      const card = document.createElement('div');
+      card.className = 'nodate-stack-card nds-no-anim';
+      card.id = `nodate-card-${i}`;
+      card.dataset.pageIdx = i;
+      const wrapper = makePageWrapper(i, pg, nb, cW, cH, dpr);
+      card.appendChild(wrapper);
+      inner.appendChild(card);
+    });
+
+    stackSlot.appendChild(inner); list.appendChild(stackSlot);
+    // Apply initial positions without animation
+    updateNodateStackPositions(false);
+  } else {
+    // No spare pages — show "속지 구매" prompt
+    const buyWrap = document.createElement('div');
+    buyWrap.className = 'prepend-planner-wrap';
+    buyWrap.innerHTML = `<button class="prepend-planner-btn" onclick="showAddPagePurchaseModal()">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="1" y="3" width="12" height="10" rx="1.5" stroke="currentColor" stroke-width="1.3"/><path d="M5 3V2a2 2 0 0 1 4 0v1" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><path d="M1 7h12" stroke="currentColor" stroke-width="1.3"/></svg>
+      속지 구매
+    </button>`;
+    list.appendChild(buyWrap);
+  }
+
   canvasEl = document.getElementById(`page-canvas-${state.pageIdx}`);
   if(canvasEl) ctx = canvasEl.getContext('2d');
-  scrollToPageSlot(state.pageIdx, 'auto');
+  if(!skipAutoScroll) scrollToPageSlot(state.pageIdx, 'auto');
   setupPageObserver();
+  setTimeout(updateSrpPopup, 80);
+}
+
+// Stack offsets: position 0 = top, 1 = mid-back, 2 = far-back
+const NODATE_STACK_TRANSFORMS = [
+  'none',
+  'translate(9px, 8px) rotate(-2deg)',
+  'translate(16px, 14px) rotate(3deg)',
+];
+function updateNodateStackPositions(animate, prevOrder){
+  // 1. Apply final state for all cards first
+  nodateStackOrder.forEach((idx, pos) => {
+    const card = document.getElementById(`nodate-card-${idx}`);
+    if(!card) return;
+    card.getAnimations().forEach(a => a.cancel());
+    if(pos > 2){
+      card.style.display = 'none';
+      return;
+    }
+    const finalTransform = pos === 0 ? 'none' : NODATE_STACK_TRANSFORMS[pos];
+    card.style.display = '';
+    card.style.zIndex = pos === 0 ? '10' : String(10 - pos * 3);
+    card.style.pointerEvents = pos === 0 ? 'auto' : 'none';
+    card.style.boxShadow = '0 8px 52px rgba(0,0,0,0.5)';
+    card.style.transform = finalTransform;
+  });
+
+  // 2. Animate: each card smoothly moves from its previous position to new position
+  if(animate && prevOrder){
+    nodateStackOrder.forEach((idx, pos) => {
+      if(pos > 2) return;
+      const card = document.getElementById(`nodate-card-${idx}`);
+      if(!card || !prevOrder) return;
+      const prevPos = prevOrder.indexOf(idx);
+      if(prevPos === pos) return;
+      const finalTransform = pos === 0 ? 'none' : NODATE_STACK_TRANSFORMS[pos];
+      const startTransform = prevPos <= 0 ? 'none'
+        : prevPos <= 2 ? NODATE_STACK_TRANSFORMS[prevPos]
+        : NODATE_STACK_TRANSFORMS[2];
+      card.animate([
+        { transform: startTransform },
+        { transform: finalTransform }
+      ], { duration: 320, easing: 'cubic-bezier(0.34,1.56,0.64,1)', fill: 'none' });
+    });
+  }
+
+  // Hide popup on non-top cards
+  nodateStackOrder.forEach((idx, pos) => {
+    if(pos !== 0) document.getElementById(`ndtp-${idx}`)?.classList.remove('show');
+  });
+
+  // Top card popup: driven by IntersectionObserver (shows when slot enters view)
+  const topIdx = nodateStackOrder[0];
+  if(topIdx !== undefined){
+    if(_nodatePopupObserver) _nodatePopupObserver.disconnect();
+    refreshNodateTopPopup(topIdx);
+    const slot = document.getElementById('nodate-stack-slot');
+    const area = document.getElementById('gn-canvas-area');
+    if(slot && area){
+      _nodatePopupObserver = new IntersectionObserver(entries => {
+        const ndtp = document.getElementById(`ndtp-${nodateStackOrder[0]}`);
+        if(!ndtp) return;
+        if(entries[0].isIntersecting){
+          ndtp.classList.remove('show');
+          void ndtp.offsetWidth; // force reflow to re-trigger animation
+          ndtp.classList.add('show');
+        } else {
+          ndtp.classList.remove('show');
+        }
+      }, { root: area, threshold: 0.15 });
+      _nodatePopupObserver.observe(slot);
+    }
+  }
+}
+
+function refreshNodateTopPopup(idx){
+  const ndtp = document.getElementById(`ndtp-${idx}`); if(!ndtp) return;
+  const nb = getNotebook(state.notebookId); if(!nb) return;
+  const todayVal = _getTodayVal(nb);
+  const todayTaken = nb.pages.some((p, pi) => pi !== idx && p.date === todayVal);
+  const fmtVal = v => nb.type==='weekly' ? fmtWeekShort(v) : nb.type==='monthly' ? fmtMonthStr(v) : fmtDateShort(v);
+  const lastDate = nb.pages.map(p=>p.date).filter(Boolean).sort().at(-1);
+  const prevIsToday = lastDate === todayVal;
+
+  let quickBtnHtml = '';
+  let recVal, recLabel;
+  if(prevIsToday){
+    recVal = _addOneDateUnit(todayVal, nb.type);
+    recLabel = '내일';
+  } else if(!todayTaken){
+    recVal = todayVal;
+    recLabel = '오늘자';
+  } else if(lastDate){
+    recVal = _addOneDateUnit(lastDate, nb.type);
+    recLabel = '';
+  }
+  if(recVal){
+    quickBtnHtml = `
+    ${!recLabel ? '<div style="padding:6px 10px 2px;font-size:9.5px;color:#AEADAB;letter-spacing:0.01em;">이전 페이지의 다음 날짜</div>' : ''}
+    <button onclick="applyCanvasQuickDate(${idx},'${recVal}')" style="width:100%;display:flex;align-items:center;justify-content:space-between;gap:8px;padding:8px 10px;background:none;border:none;border-radius:7px;cursor:pointer;font-family:inherit;font-size:12px;font-weight:600;color:#1A1918;transition:background .12s;" onmouseover="this.style.background='#F5F4F1'" onmouseout="this.style.background='none'">
+      ${recLabel || fmtVal(recVal)}
+    </button>
+    <div style="height:1px;background:#F0EFEC;margin:2px 0;"></div>`;
+  }
+  ndtp.innerHTML = `${quickBtnHtml}
+    <button onclick="openSbPageDatePickerFromCanvas(${idx})" style="width:100%;display:flex;align-items:center;gap:7px;padding:8px 10px;background:none;border:none;border-radius:7px;cursor:pointer;font-family:inherit;font-size:12px;color:#555452;transition:background .12s;" onmouseover="this.style.background='#F5F4F1'" onmouseout="this.style.background='none'">
+      <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><rect x="1" y="2" width="10" height="9" rx="1.5" stroke="currentColor" stroke-width="1.3"/><path d="M4 1v2M8 1v2M1 5h10" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+      직접설정
+    </button>
+`;
+  // Position popup directly below the date button using DOM measurement
+  requestAnimationFrame(() => {
+    const card = document.getElementById(`nodate-card-${idx}`);
+    const btn = card?.querySelector('.pui-date-btn.no-date');
+    const wrapper = card?.querySelector('.canvas-wrapper');
+    if(btn && wrapper){
+      const btnRect = btn.getBoundingClientRect();
+      const wrapperRect = wrapper.getBoundingClientRect();
+      ndtp.style.top = (btnRect.bottom - wrapperRect.top + 5) + 'px';
+    }
+  });
 }
 
 function updatePaperUI(){
@@ -1907,16 +2389,17 @@ function renderCalGrid(selectedVal, onClickFn, isWeekMode, usedDates=new Set(), 
       const todayIso = getTodayIso();
       rows += `<div class="dp-cal-day-row">
         ${dayDates.map(d=>{
-          const isSel   = (selectedVal === d.isoDate);
+          const isSel   = selectedVal === d.isoDate;
           const isToday = (d.isoDate === todayIso);
           const isUsed  = !isSel && usedDates.has(d.isoDate);
           const isOOB   = !isSel && ((bounds.min && d.isoDate < bounds.min) || (bounds.max && d.isoDate > bounds.max));
           const isBlock = isUsed || isOOB;
           let style = `border-radius:50%;width:26px;height:26px;line-height:26px;margin:1px auto;padding:0;`;
-          if(isSel)             style += 'cursor:pointer;background:#18171A;color:#fff!important;';
-          else if(isUsed)       style += 'cursor:not-allowed;background:#ECEAE6;color:#B0AFAB!important;';
-          else if(isOOB && isToday) style += 'cursor:not-allowed;outline:1.5px solid #C0BFBC;outline-offset:-1px;font-weight:700;opacity:0.35;';
-          else if(isToday)      style += 'cursor:pointer;outline:1.5px solid #18171A;outline-offset:-1px;font-weight:700;';
+          if(isSel)                  style += 'cursor:pointer;background:#18171A;color:#fff!important;';
+          else if(isUsed && isToday) style += 'cursor:not-allowed;background:#ECEAE6;color:#B0AFAB!important;outline:1.5px solid #C0BFBC;outline-offset:-1px;font-weight:700;';
+          else if(isUsed)            style += 'cursor:not-allowed;background:#ECEAE6;color:#B0AFAB!important;';
+          else if(isOOB && isToday)  style += 'cursor:not-allowed;outline:1.5px solid #C0BFBC;outline-offset:-1px;font-weight:700;opacity:0.35;';
+          else if(isToday)           style += 'cursor:pointer;outline:1.5px solid #18171A;outline-offset:-1px;font-weight:700;';
           else if(isOOB)        style += 'cursor:not-allowed;opacity:0.25;';
           else                  style += 'cursor:pointer;';
           return `<div class="${d.cls}" style="${style}" ${isBlock?'':` onclick="${onClickFn}('${d.isoDate}')"`}>${d.dayNum}</div>`;
@@ -2056,6 +2539,7 @@ function openSbPageDatePicker(idx, e){
   sbPageDpState.targetIdx = idx;
   sbPageDpState.prependMode = false;
   sbPageDpState.gapMode = false;
+
   const titleEl = document.getElementById('sb-page-dp-title');
   if(titleEl) titleEl.textContent = '날짜 선택';
   const clearBtn = document.getElementById('sb-dp-clear-btn');
@@ -2175,6 +2659,7 @@ function refreshSbPageDp(){
   content.innerHTML = html;
 }
 
+
 function sbSelectDate(val){
   if(sbPageDpState.prependMode){ doPrependPlanner(val); return; }
   if(sbPageDpState.gapMode){
@@ -2286,7 +2771,7 @@ function sbSelectToday(){
   sbSelectDate(val);
 }
 
-function setSbPageDate(idx, val){
+function setSbPageDate(idx, val, focusAfter){
   const nb = getNotebook(state.notebookId); if(!nb) return;
   const pg = nb.pages[idx]; if(!pg) return;
   pg.date = val || null;
@@ -2296,7 +2781,12 @@ function setSbPageDate(idx, val){
     state.timer.savedTime = val ? (db.studyRecords[val]||0) : 0;
   }
   renderSidebarPages();
-  setTimeout(initAllCanvases, 60);
+  setTimeout(() => {
+    initAllCanvases(focusAfter && !!val);
+    if(focusAfter && val){
+      requestAnimationFrame(() => requestAnimationFrame(() => scrollToPageSlot(idx)));
+    }
+  }, 60);
 }
 
 // ─── CANVAS DATE QUICK PICK ─────────────────────
@@ -2349,53 +2839,41 @@ function openCanvasDateQuickPick(idx, event, anchorEl){
     return;
   }
 
-  // 정렬 순서에서 이전 페이지를 찾아 다음 날짜 제안
-  const sortedIdxs = getSortedPageIndices();
-  const posInSorted = sortedIdxs.indexOf(idx);
-  const prevPg = posInSorted > 0 ? nb.pages[sortedIdxs[posInSorted - 1]] : null;
-
-  let suggestVal = null;
-  if(prevPg?.date){
-    const nextVal = _addOneDateUnit(prevPg.date, nb.type);
-    if(!nb.pages.some((p, i) => i !== idx && p.date === nextVal)) suggestVal = nextVal;
-  }
-  if(!suggestVal){
-    const todayVal = _getTodayVal(nb);
-    if(!nb.pages.some((p, i) => i !== idx && p.date === todayVal)) suggestVal = todayVal;
-  }
-
-  // 제안 날짜도 없으면 바로 캘린더 열기
-  if(!suggestVal){
-    const slot = document.getElementById(`page-slot-${idx}`);
-    const btn = slot?.querySelector('.pui-date-btn');
-    if(btn) openSbPageDatePicker(idx, {currentTarget: btn, stopPropagation: ()=>{}});
-    return;
-  }
-
+  // 날짜 없는 페이지: 추천날짜 / 직접설정 팝업
   const todayVal = _getTodayVal(nb);
-  const isToday = suggestVal === todayVal;
-  let suggestLabel;
-  if(nb.type === 'weekly') suggestLabel = fmtWeekShort(suggestVal);
-  else if(nb.type === 'monthly') suggestLabel = fmtMonthStr(suggestVal);
-  else suggestLabel = fmtDateShort(suggestVal);
+  const todayTaken = nb.pages.some((p, pi) => pi !== idx && p.date === todayVal);
+  const lastDateDQ = nb.pages.map(p=>p.date).filter(Boolean).sort().at(-1);
+  const prevIsTodayDQ = lastDateDQ === todayVal;
+  const fmtValDQ = v => nb.type==='weekly' ? fmtWeekShort(v) : nb.type==='monthly' ? fmtMonthStr(v) : fmtDateShort(v);
 
-  const firstBtnInner = isToday
-    ? `<span style="font-size:12px;font-weight:600;color:#1A1918;">오늘</span><span style="font-size:10.5px;color:#AEADAB;">${suggestLabel}</span>`
-    : `<span style="font-size:12px;font-weight:600;color:#1A1918;">${suggestLabel}</span>`;
+  let recValDQ, recLabelDQ;
+  if(prevIsTodayDQ){
+    recValDQ = _addOneDateUnit(todayVal, nb.type);
+    recLabelDQ = '내일';
+  } else if(!todayTaken){
+    recValDQ = todayVal;
+    recLabelDQ = '오늘자';
+  } else if(lastDateDQ){
+    recValDQ = _addOneDateUnit(lastDateDQ, nb.type);
+    recLabelDQ = '';
+  }
 
   const popup = document.createElement('div');
   popup.id = 'canvas-dq-popup';
-  popup.style.cssText = 'position:fixed;background:#fff;border-radius:10px;box-shadow:0 4px 24px rgba(0,0,0,0.18),0 1px 4px rgba(0,0,0,0.07);border:1px solid rgba(0,0,0,0.08);padding:5px;z-index:9999;min-width:160px;';
+  popup.style.cssText = 'position:fixed;background:#fff;border-radius:10px;box-shadow:0 4px 24px rgba(0,0,0,0.18),0 1px 4px rgba(0,0,0,0.07);border:1px solid rgba(0,0,0,0.08);padding:5px;z-index:9999;min-width:148px;';
   popup.onclick = e => e.stopPropagation();
-  popup.innerHTML = `
-    <button onclick="applyCanvasQuickDate(${idx},'${suggestVal}')" style="width:100%;display:flex;justify-content:space-between;align-items:center;gap:10px;padding:8px 10px;background:none;border:none;border-radius:7px;cursor:pointer;font-family:inherit;text-align:left;transition:background .12s;" onmouseover="this.style.background='#F5F4F1'" onmouseout="this.style.background='none'">
-      ${firstBtnInner}
+  const recBtnHtml = recValDQ ? `
+    ${!recLabelDQ ? '<div style="padding:6px 10px 2px;font-size:9.5px;color:#AEADAB;letter-spacing:0.01em;">이전 페이지의 다음 날짜</div>' : ''}
+    <button onclick="applyCanvasQuickDate(${idx},'${recValDQ}')" style="width:100%;display:flex;align-items:center;justify-content:space-between;gap:8px;padding:8px 10px;background:none;border:none;border-radius:7px;cursor:pointer;font-family:inherit;font-size:12px;font-weight:600;color:#1A1918;transition:background .12s;" onmouseover="this.style.background='#F5F4F1'" onmouseout="this.style.background='none'">
+      ${recLabelDQ || fmtValDQ(recValDQ)}
     </button>
-    <div style="height:1px;background:#F0EFEC;margin:2px 0;"></div>
-    <button onclick="openSbPageDatePickerFromCanvas(${idx})" style="width:100%;display:flex;align-items:center;gap:7px;padding:8px 10px;background:none;border:none;border-radius:7px;cursor:pointer;font-family:inherit;font-size:11.5px;color:#555452;transition:background .12s;" onmouseover="this.style.background='#F5F4F1'" onmouseout="this.style.background='none'">
+    <div style="height:1px;background:#F0EFEC;margin:2px 0;"></div>` : '';
+  popup.innerHTML = `${recBtnHtml}
+    <button onclick="openSbPageDatePickerFromCanvas(${idx})" style="width:100%;display:flex;align-items:center;gap:7px;padding:8px 10px;background:none;border:none;border-radius:7px;cursor:pointer;font-family:inherit;font-size:12px;color:#555452;transition:background .12s;" onmouseover="this.style.background='#F5F4F1'" onmouseout="this.style.background='none'">
       <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><rect x="1" y="2" width="10" height="9" rx="1.5" stroke="currentColor" stroke-width="1.3"/><path d="M4 1v2M8 1v2M1 5h10" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
-      직접 선택
-    </button>`;
+      직접설정
+    </button>
+`;
 
   document.body.appendChild(popup);
 
@@ -2414,14 +2892,44 @@ function closeCanvasDateQuickPick(){
   document.getElementById('canvas-dq-popup')?.remove();
 }
 
+
+
 function applyCanvasQuickDate(idx, val){
   closeCanvasDateQuickPick();
-  setSbPageDate(idx, val);
+  // If this page is in the nodate stack, play exit animation first
+  if(nodateStackOrder.includes(idx)){
+    if(_nodatePopupObserver){ _nodatePopupObserver.disconnect(); _nodatePopupObserver = null; }
+    document.getElementById(`ndtp-${idx}`)?.classList.remove('show');
+    nodateStackOrder.forEach((cardIdx, pos) => {
+      const card = document.getElementById(`nodate-card-${cardIdx}`);
+      if(!card || pos > 2) return;
+      card.getAnimations().forEach(a => a.cancel());
+      if(pos === 0){
+        // 선택된 카드: 살짝 눌렸다 놓이는 settle
+        card.animate([
+          { transform: 'none',                                     easing: 'ease-out' },
+          { transform: 'translateY(8px) scale(0.97)', offset: 0.35, easing: 'ease-in-out' },
+          { transform: 'translateY(2px) scale(0.99)', offset: 0.75 },
+          { transform: 'none' }
+        ], { duration: 440, fill: 'forwards' });
+      } else {
+        // 뒷 카드: 아래로 슥 빠짐
+        const [tx, ty, rot] = pos === 1 ? [9, 8, -2] : [16, 14, 3];
+        card.animate([
+          { transform: `translate(${tx}px, ${ty}px) rotate(${rot}deg)`, opacity: 1 },
+          { transform: `translate(${tx}px, ${ty + 65}px) rotate(${rot}deg)`, opacity: 0 }
+        ], { duration: 260, easing: 'cubic-bezier(0.4,0,1,1)', fill: 'forwards' });
+      }
+    });
+    setTimeout(() => setSbPageDate(idx, val, true), 420);
+  } else {
+    setSbPageDate(idx, val);
+  }
 }
 
 function openSbPageDatePickerFromCanvas(idx){
   closeCanvasDateQuickPick();
-  const slot = document.getElementById(`page-slot-${idx}`);
+  const slot = document.getElementById(`page-slot-${idx}`) || document.getElementById(`nodate-card-${idx}`);
   const btn = slot?.querySelector('.pui-date-btn');
   if(btn) openSbPageDatePicker(idx, {currentTarget: btn, stopPropagation: ()=>{}});
 }
