@@ -1352,6 +1352,8 @@ function enterDrawing(){
   renderSidebarPages(!_hasTodayOnEnter);
   renderToolbar();
   setTimeout(initAllCanvases, 60);
+  const _nodateCount = nb.pages.filter(p => !p.date).length;
+  if(_nodateCount > 0) setTimeout(openAddPageModal, 120);
 }
 
 // ─── SIDEBAR CALENDAR POPUP ─────────────────────
