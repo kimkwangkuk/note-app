@@ -1352,8 +1352,6 @@ function enterDrawing(){
   renderSidebarPages(!_hasTodayOnEnter);
   renderToolbar();
   setTimeout(initAllCanvases, 60);
-  const _nodateCount = nb.pages.filter(p => !p.date).length;
-  if(_nodateCount > 0) setTimeout(openAddPageModal, 120);
 }
 
 // ─── SIDEBAR CALENDAR POPUP ─────────────────────
@@ -2339,6 +2337,17 @@ function initAllCanvases(skipAutoScroll){
   if(canvasEl) ctx = canvasEl.getContext('2d');
   if(!skipAutoScroll) scrollToPageSlot(state.pageIdx, 'auto');
   setupPageObserver();
+
+  // 날짜 없는 페이지가 캔버스에 표시될 때 날짜 설정 팝업 자동으로 표시
+  if(nodateIndices.length > 0 && (datedIndices.length === 0 || !hasTodayPage)){
+    const autoIdx = nodateStackOrder[0];
+    setTimeout(() => {
+      closeCanvasDateQuickPick();
+      const slot = document.getElementById('nodate-stack-slot');
+      const btn = slot?.querySelector('.pnd-date-btn') || slot?.querySelector('.pui-date-btn.no-date');
+      if(btn) openCanvasDateQuickPick(autoIdx, {stopPropagation:()=>{}}, btn);
+    }, 120);
+  }
 }
 
 // Stack offsets: position 0 = top, 1 = mid-back, 2 = far-back
